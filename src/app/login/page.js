@@ -6,6 +6,18 @@ import Link from 'next/link'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+// MUI imports
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  TextField,
+  Button,
+} from '@mui/material'
+import Footer from '@/components/footer'
+
 export default function Login() {
   const [form, setForm] = useState({
     email: '',
@@ -14,7 +26,6 @@ export default function Login() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is already logged in and redirect to the respective dashboard
     const user = localStorage.getItem('user')
     if (user) {
       const parsedUser = JSON.parse(user)
@@ -33,7 +44,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Make API call to authenticate user
     try {
       const response = await fetch('http://localhost:3300/api/auth/login', {
         method: 'POST',
@@ -49,21 +59,15 @@ export default function Login() {
       const data = await response.json()
 
       if (response.ok) {
-        // Save token and user data to localStorage
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
-
-        // Show success message
         toast.success('Login successful!')
-
-        // Redirect based on user role
         if (data.user.role === 'user') {
           router.push('/user/dashboard')
         } else if (data.user.role === 'provider') {
           router.push('/provider/dashboard')
         }
       } else {
-        // Handle login failure
         toast.error(data.message || 'Login failed. Please try again.')
       }
     } catch (error) {
@@ -74,43 +78,83 @@ export default function Login() {
 
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="w-full max-w-md shadow-lg p-6 bg-white rounded-2xl">
-          <h2 className="text-center text-black text-xl font-bold">Login</h2>
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="w-full text-black p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              className="w-full text-black p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        bgcolor="#f3f4f6"
+        px={2}
+      >
+        <Card
+          sx={{
+            maxWidth: 400,
+            width: '100%',
+            p: 3,
+            borderRadius: 4,
+            boxShadow: 4,
+          }}
+        >
+          <CardContent>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              textAlign="center"
+              mb={3}
             >
               Login
-            </button>
-          </form>
-          <p className="text-center mt-4 text-sm text-black">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-blue-500">
-              Register
-            </Link>
-          </p>
-        </div>
-      </div>
+            </Typography>
+
+            <Box component="form" onSubmit={handleSubmit} noValidate>
+              <Stack spacing={2}>
+                <TextField
+                  label="Email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 2, py: 1.5, fontWeight: 'bold', borderRadius: 2 }}
+                >
+                  Login
+                </Button>
+              </Stack>
+            </Box>
+
+            <Typography variant="body2" textAlign="center" mt={3}>
+              Don't have an account?{' '}
+              <Link
+                href="/register"
+                style={{
+                  color: '#1976d2',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                }}
+              >
+                Register
+              </Link>
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+      <Footer />
     </>
   )
 }

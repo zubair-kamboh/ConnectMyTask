@@ -1,57 +1,103 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material'
 import Link from 'next/link'
+import Navbar from '@/components/navbar'
+import Footer from '@/components/footer'
 
 export default function Home() {
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Hero Section */}
-      <section className="text-center py-16 bg-blue-500 text-white">
-        <h2 className="text-4xl font-bold">
-          Find Trusted Task Providers Instantly
-        </h2>
-        <p className="mt-4 text-lg">
-          Post a task, get bids, and hire the best service providers.
-        </p>
-        <Link
-          href="/register"
-          className="mt-6 inline-block bg-white text-blue-500 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200"
+    <>
+      <Box
+        sx={{
+          bgcolor: 'background.default',
+          minHeight: '100vh',
+          color: 'text.primary',
+        }}
+      >
+        {/* Hero Section */}
+        <Box
+          sx={{
+            bgcolor: 'primary.main',
+            py: 10,
+            textAlign: 'center',
+            color: 'primary.contrastText',
+          }}
         >
-          Get Started
-        </Link>
-      </section>
+          <Container maxWidth="md">
+            <Typography
+              variant="h2"
+              component="h1"
+              fontWeight="bold"
+              gutterBottom
+            >
+              Find Trusted Task Providers Instantly
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Post a task, get bids, and hire the best service providers.
+            </Typography>
+            <Button
+              variant="contained"
+              component={Link}
+              href="/register"
+              sx={{
+                mt: 4,
+                bgcolor: 'background.paper',
+                color: 'primary.main',
+                fontWeight: 'bold',
+                px: 4,
+                py: 1.5,
+              }}
+            >
+              Get Started
+            </Button>
+          </Container>
+        </Box>
 
-      {/* Features Section */}
-      <section className="py-16 px-6 grid md:grid-cols-3 gap-6 text-center">
-        <div className="p-6 bg-white shadow-lg rounded-xl">
-          <h3 className="text-xl font-semibold text-gray-900">Post a Task</h3>
-          <p className="mt-2 text-gray-600">
-            Easily post your task with details, budget, and deadline.
-          </p>
-        </div>
-        <div className="p-6 bg-white shadow-lg rounded-xl">
-          <h3 className="text-xl font-semibold text-gray-900">Get Bids</h3>
-          <p className="mt-2 text-gray-600">
-            Service providers bid on your task with competitive offers.
-          </p>
-        </div>
-        <div className="p-6 bg-white shadow-lg rounded-xl">
-          <h3 className="text-xl font-semibold text-gray-900">Hire & Pay</h3>
-          <p className="mt-2 text-gray-600">
-            Choose the best provider, track the task, and pay securely.
-          </p>
-        </div>
-      </section>
+        {/* Features Section */}
+        <Container sx={{ py: 10 }}>
+          <Grid container spacing={4} textAlign="center">
+            {[
+              {
+                title: 'Post a Task',
+                desc: 'Easily post your task with details, budget, and deadline.',
+              },
+              {
+                title: 'Get Bids',
+                desc: 'Service providers bid on your task with competitive offers.',
+              },
+              {
+                title: 'Hire & Pay',
+                desc: 'Choose the best provider, track the task, and pay securely.',
+              },
+            ].map((feature, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+                  <Typography variant="h5" fontWeight="bold" gutterBottom>
+                    {feature.title}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    {feature.desc}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
 
-      {/* Testimonials */}
-      <section className="py-16 bg-gray-100 text-center text-gray-900">
-        <h3 className="text-2xl font-bold">What Our Users Say</h3>
-        <p className="mt-4 text-gray-600">
-          See how ConnectMyTask has helped thousands of users.
-        </p>
-      </section>
-    </div>
+        {/* Testimonials Section */}
+        <Box sx={{ bgcolor: 'grey.100', py: 10, textAlign: 'center' }}>
+          <Container maxWidth="sm">
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              What Our Users Say
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              See how ConnectMyTask has helped thousands of users.
+            </Typography>
+          </Container>
+        </Box>
+      </Box>
+      <Footer />
+    </>
   )
 }
