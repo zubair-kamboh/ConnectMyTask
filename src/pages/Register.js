@@ -83,9 +83,9 @@ export default function Register() {
     formData.append('role', form.role)
     formData.append('profilePhoto', form.profilePhoto)
 
-    formData.append('location[state]', form.location.state)
-    formData.append('location[city]', form.location.city)
-    formData.append('location[suburb]', form.location.suburb)
+    formData.append('location.state', form.location.state)
+    formData.append('location.city', form.location.city)
+    formData.append('location.suburb', form.location.suburb)
 
     if (form.skills.length > 0) {
       formData.append('skills', form.skills.join(','))
