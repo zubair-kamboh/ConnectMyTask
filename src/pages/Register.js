@@ -113,6 +113,7 @@ export default function Register() {
 
   return (
     <>
+      <Navbar />
       <Container maxWidth="sm">
         <ToastContainer />
         {loading && <Loader fullScreen />}

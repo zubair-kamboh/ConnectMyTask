@@ -12,6 +12,7 @@ import {
 import Loader from '../components/Loader'
 import Footer from '../components/Footer'
 import { NavLink } from 'react-router-dom'
+import Navbar from '../components/Navbar'
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -43,7 +44,7 @@ export default function Login() {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         toast.success('Login successful!')
-        window.location.href = '/dashboard' // Redirect to dashboard
+        window.location.href = '/user/dashboard'
       } else {
         toast.error(data.msg || 'Login failed')
       }
@@ -57,6 +58,7 @@ export default function Login() {
 
   return (
     <>
+      <Navbar />
       <ToastContainer />
       {loading && <Loader fullScreen />}
       <Container maxWidth="sm">

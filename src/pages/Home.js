@@ -1,10 +1,12 @@
 import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
+import Navbar from '../components/Navbar'
 
 export default function Home() {
   return (
     <>
+      <Navbar />
       <Box
         sx={{
           bgcolor: 'background.default',

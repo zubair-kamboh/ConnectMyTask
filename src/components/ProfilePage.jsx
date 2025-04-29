@@ -22,7 +22,7 @@ export default function ProfilePage({ profile, onEdit }) {
   if (!profile) return null
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 700, mx: 'auto' }}>
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 700, mx: 'auto', mt: 14 }}>
       <Box display="flex" alignItems="center" gap={3}>
         <Avatar
           src={profile.profilePhoto}
@@ -71,7 +71,10 @@ export default function ProfilePage({ profile, onEdit }) {
         variant="contained"
         color="primary"
         sx={{ mt: 4 }}
-        onClick={() => setEditOpen(true)}
+        onClick={() => {
+          setUpdatedProfile(profile) // <-- Make sure it's the latest data
+          setEditOpen(true)
+        }}
       >
         Edit Profile
       </Button>
@@ -79,7 +82,7 @@ export default function ProfilePage({ profile, onEdit }) {
       <EditProfileModal
         open={isEditOpen}
         onClose={() => setEditOpen(false)}
-        profile={updatedProfile}
+        profile={profile}
         onSave={handleEdit}
       />
     </Paper>

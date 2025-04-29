@@ -29,6 +29,8 @@ import PostTaskModal from './PostTaskModel'
 import axios from 'axios'
 import geoCodeLocations from '../util/geoCodeLocations'
 import TaskDetails from './TaskDetails'
+import { useTheme } from '@mui/material/styles'
+import { useNavigate } from 'react-router-dom'
 
 const DefaultIcon = L.icon({
   iconUrl: markerIconPng,
@@ -38,21 +40,14 @@ L.Marker.prototype.options.icon = DefaultIcon
 
 export default function TaskMapUI() {
   const [openModal, setOpenModal] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
   const [tasks, setTasks] = useState([])
   const [taskMarkers, setTaskMarkers] = useState([])
   const [selectedTask, setSelectedTask] = useState(null)
   const token = localStorage.getItem('token')
+  const user = JSON.parse(localStorage.getItem('user'))
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: darkMode ? 'dark' : 'light',
-        },
-      }),
-    [darkMode]
-  )
+  const theme = useTheme()
+  const navigate = useNavigate()
 
   // Fetch tasks immediately
   useEffect(() => {
@@ -89,6 +84,21 @@ export default function TaskMapUI() {
 
     fetchTasks()
   }, [token])
+
+  const handleDeleteTask = async (taskId) => {
+    console.log(taskId)
+    try {
+      await axios.delete(`http://localhost:3300/api/tasks/${taskId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
+      setTasks((prev) => prev.filter((task) => task._id !== taskId))
+      setTaskMarkers((prev) => prev.filter((task) => task._id !== taskId))
+    } catch (err) {
+      console.error('Failed to delete task:', err)
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -127,11 +137,6 @@ export default function TaskMapUI() {
             <Tab label="Task Completed" />
           </Tabs>
           <Box ml="auto" display="flex" alignItems="center" gap={2}>
-            <Typography variant="body2">Dark Mode</Typography>
-            <Switch
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-            />
             <Button
               variant="contained"
               color="primary"
@@ -158,9 +163,13 @@ export default function TaskMapUI() {
 
             {tasks.map((task) => (
               <Card
-                sx={{ mb: 2 }}
+                sx={{ mb: 2, cursor: 'pointer' }}
                 key={task._id}
-                onClick={() => setSelectedTask(task)}
+                onClick={() =>
+                  navigate('/user/dashboard/task', {
+                    state: { task },
+                  })
+                }
               >
                 <CardContent>
                   <Grid container justifyContent="space-between">
@@ -185,10 +194,24 @@ export default function TaskMapUI() {
                     <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
                     <Typography variant="body2">Flexible</Typography>
                   </Box>
-                  <Box mt={2}>
+                  <Box mt={2} display="flex" justifyContent="space-between">
                     <Button variant="text" color="primary">
                       Open
                     </Button>
+
+                    {task.user?._id === user.id && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation() // prevent card click
+                          handleDeleteTask(task._id)
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    )}
                   </Box>
                 </CardContent>
               </Card>
@@ -218,14 +241,8 @@ export default function TaskMapUI() {
                             width: 260,
                             boxShadow: 3,
                             borderRadius: 3,
-                            bgcolor: (theme) =>
-                              theme.palette.mode === 'dark'
-                                ? 'grey.900'
-                                : 'background.paper',
-                            color: (theme) =>
-                              theme.palette.mode === 'dark'
-                                ? 'grey.100'
-                                : 'text.primary',
+                            bgcolor: theme.palette.background.paper,
+                            color: theme.palette.text.primary,
                           }}
                         >
                           <Box
@@ -240,15 +257,11 @@ export default function TaskMapUI() {
                               px={2}
                               py={1}
                               borderRadius={2}
-                              bgcolor={(theme) =>
-                                theme.palette.mode === 'dark'
-                                  ? 'primary.dark'
-                                  : 'primary.light'
-                              }
+                              bgcolor={theme.palette.primary.light}
                             >
                               <Typography
                                 variant="caption"
-                                sx={{ color: 'text.secondary' }}
+                                color="text.secondary"
                               >
                                 EARN
                               </Typography>
@@ -268,20 +281,25 @@ export default function TaskMapUI() {
                           >
                             {task.title}
                           </Typography>
+
                           <Typography
                             variant="body2"
-                            sx={{
-                              color: (theme) =>
-                                theme.palette.mode === 'dark'
-                                  ? 'grey.400'
-                                  : 'text.secondary',
-                            }}
+                            color="text.secondary"
+                            gutterBottom
                           >
+                            Posted by: {task.user?.name || 'Unknown'}
+                          </Typography>
+
+                          <Typography variant="body2" color="text.secondary">
                             Due: {new Date(task.deadline).toLocaleDateString()}
                           </Typography>
 
                           <Button
-                            onClick={() => setSelectedTask(task)}
+                            onClick={() =>
+                              navigate('/user/dashboard/task', {
+                                state: { task },
+                              })
+                            }
                             variant="contained"
                             fullWidth
                             sx={{

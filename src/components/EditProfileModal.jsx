@@ -18,7 +18,7 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
   const [formData, setFormData] = useState({})
   const [previewPhoto, setPreviewPhoto] = useState('')
   const [loading, setLoading] = useState(false)
-
+  console.log(profile)
   useEffect(() => {
     if (profile) {
       setFormData({

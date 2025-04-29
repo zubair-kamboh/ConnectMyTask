@@ -1,29 +1,48 @@
-// ConnectMyTask App Setup with Routing and Material UI
-
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { Container, CssBaseline } from '@mui/material'
-import Home from './pages/Home'
-
-import Navbar from './components/Navbar'
-import Register from './pages/Register'
-import Login from './pages/Login'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
-import 'react-toastify/dist/ReactToastify.css'
-import { ToastContainer } from 'react-toastify'
+import UserPage from './pages/UserProfile'
+// import TasksPage from './pages/TasksPage'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Home from './pages/Home'
+import UserProfile from './pages/UserProfile'
+import TaskPage from './pages/TaskPage'
+import TaskDetailsPage from './components/TaskDetails'
+import ProviderTasks from './pages/ProviderTasks'
 
-export default function App() {
+function App() {
+  const isAuthenticated = localStorage.getItem('token')
+
   return (
     <Router>
-      <ToastContainer />
-      <CssBaseline />
-      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/provider/tasks" element={<ProviderTasks />} />
+
+        {isAuthenticated ? (
+          <>
+            <Route path="/user/dashboard" element={<Dashboard />} />
+            <Route path="/user/dashboard/profile" element={<UserPage />} />
+            <Route path="/user/dashboard/tasks" element={<TaskPage />} />
+            <Route path="/user/dashboard/task" element={<TaskDetailsPage />} />
+            <Route
+              path="*"
+              element={<Navigate to="/user/dashboard" replace />}
+            />
+          </>
+        ) : (
+          <Route path="*" element={<Navigate to="/" replace />} />
+        )}
       </Routes>
     </Router>
   )
 }
+
+export default App

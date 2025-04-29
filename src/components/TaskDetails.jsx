@@ -1,191 +1,130 @@
-import React, { useState, useEffect } from 'react'
+'use client'
+
 import {
   Box,
   Typography,
-  Tabs,
-  Tab,
-  Button,
-  Card,
-  CardContent,
+  Paper,
   Avatar,
-  Skeleton,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  useTheme,
+  Container,
+  Chip,
+  Stack,
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import Lottie from 'lottie-react'
-import emptyAnimation from '../assets/empty-state.json' // <-- Put your Lottie JSON here
+import Carousel from 'react-multi-carousel'
+import 'react-multi-carousel/lib/styles.css'
+import { motion } from 'framer-motion'
+import { useLocation } from 'react-router-dom'
+import Layout from './Layout'
 
-export default function TaskOffersPage() {
-  const theme = useTheme()
-  const [tabValue, setTabValue] = useState(0)
-  const [loadingOffers, setLoadingOffers] = useState(true)
-  const [offers, setOffers] = useState([])
+export default function TaskDetailsPage() {
+  const { state } = useLocation()
+  const task = state?.task
 
-  useEffect(() => {
-    setTimeout(() => {
-      setOffers([
-        {
-          id: 1,
-          name: 'John Doe',
-          price: 120,
-          message: 'Can complete this today!',
-        },
-        {
-          id: 2,
-          name: 'Jane Smith',
-          price: 130,
-          message: 'Available tomorrow morning.',
-        },
-      ])
-      setLoadingOffers(false)
-    }, 2000)
-  }, [])
+  if (!task) return <div>No task selected</div>
 
   return (
-    <Box minHeight="100vh" bgcolor={theme.palette.background.default} p={3}>
-      <Typography variant="h4" fontWeight={700} mb={2}>
-        Task: Help move my sofa
-      </Typography>
-
-      <Tabs
-        value={tabValue}
-        onChange={(e, val) => setTabValue(val)}
-        textColor="primary"
-        indicatorColor="primary"
-        sx={{ mb: 3 }}
-      >
-        <Tab label="Offers" />
-        <Tab label="Questions" />
-        <Tab label="Details" />
-      </Tabs>
-
-      {tabValue === 0 && (
-        <Box>
-          {loadingOffers ? (
-            <>
-              <Skeleton
-                variant="rectangular"
-                height={100}
-                sx={{ borderRadius: 2, mb: 2 }}
-              />
-              <Skeleton
-                variant="rectangular"
-                height={100}
-                sx={{ borderRadius: 2, mb: 2 }}
-              />
-            </>
-          ) : offers.length === 0 ? (
-            <Box textAlign="center" mt={5}>
-              <Box maxWidth={300} mx="auto">
-                <Lottie animationData={emptyAnimation} loop />
-              </Box>
-              <Typography variant="h6" mt={2}>
-                No offers yet
+    <>
+      <Layout>
+        <Container maxWidth="md" sx={{ py: 4 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Task Info */}
+            <Paper elevation={3} sx={{ my: 4, p: 3, borderRadius: 3 }}>
+              <Typography variant="h4" fontWeight="bold" gutterBottom>
+                {task.title}
               </Typography>
-              <Button variant="contained" sx={{ mt: 2, borderRadius: 10 }}>
-                Post Another Task
-              </Button>
-            </Box>
-          ) : (
-            offers.map((offer) => (
-              <Card
-                key={offer.id}
-                sx={{
-                  mb: 2,
-                  borderRadius: 3,
-                  boxShadow: 3,
-                  transition: '0.3s',
-                  '&:hover': { boxShadow: 6 },
-                }}
+
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ mb: 2, flexWrap: 'wrap' }}
               >
-                <CardContent>
-                  <Box display="flex" alignItems="center">
-                    <Avatar sx={{ width: 56, height: 56, mr: 2 }} />
-                    <Box flexGrow={1}>
-                      <Typography fontWeight={600}>{offer.name}</Typography>
+                <Chip label={`Budget: $${task.budget}`} color="primary" />
+                <Chip
+                  label={`Deadline: ${new Date(
+                    task.deadline
+                  ).toLocaleDateString()}`}
+                  color="secondary"
+                />
+                <Chip label={`Status: ${task.status}`} variant="outlined" />
+                <Chip label={`Category: ${task.category}`} variant="outlined" />
+              </Stack>
+
+              <Typography variant="h6" gutterBottom>
+                Description:
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                {task.description}
+              </Typography>
+
+              {/* Location and Posted By */}
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4}>
+                <Box>
+                  <Typography variant="h6">Location:</Typography>
+                  <Typography>
+                    {task.location.suburb}, {task.location.city},{' '}
+                    {task.location.state}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="h6">Posted by:</Typography>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Avatar>{task.user.name.charAt(0)}</Avatar>
+                    <Box>
+                      <Typography>{task.user.name}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {offer.message}
+                        {task.user.email}
                       </Typography>
                     </Box>
-                    <Typography
-                      fontWeight={700}
-                      color="primary"
-                      fontSize="1.2rem"
-                    >
-                      ${offer.price}
-                    </Typography>
-                  </Box>
-                  <Box mt={2} display="flex" gap={2}>
-                    <Button
-                      variant="contained"
-                      color="success"
-                      sx={{ flex: 1 }}
-                    >
-                      Accept Offer
-                    </Button>
-                    <Button variant="outlined" sx={{ flex: 1 }}>
-                      Chat
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </Box>
-      )}
+                  </Stack>
+                </Box>
+              </Stack>
+            </Paper>
 
-      {tabValue === 1 && (
-        <Box>
-          <Accordion sx={{ borderRadius: 2, boxShadow: 3, mb: 2 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography fontWeight={600}>
-                What time do you need it moved?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>Anytime after 5PM is fine!</Typography>
-            </AccordionDetails>
-          </Accordion>
-
-          <Accordion sx={{ borderRadius: 2, boxShadow: 3, mb: 2 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography fontWeight={600}>
-                Is there a lift available?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>Yes, there is a lift in the building.</Typography>
-            </AccordionDetails>
-          </Accordion>
-        </Box>
-      )}
-
-      {tabValue === 2 && (
-        <Box>
-          <Typography variant="h6" mb={2}>
-            Task Details
-          </Typography>
-          <Typography>
-            I need help moving my sofa from my apartment to a nearby storage
-            unit. Ideally this weekend. Will require a small van or ute.
-          </Typography>
-          <Box mt={3}>
-            <Typography variant="subtitle2">Location:</Typography>
-            <Typography>Hadfield, Melbourne VIC</Typography>
-            <Typography variant="subtitle2" mt={2}>
-              Budget:
-            </Typography>
-            <Typography>$150</Typography>
-            <Typography variant="subtitle2" mt={2}>
-              Deadline:
-            </Typography>
-            <Typography>31st Dec 2025</Typography>
-          </Box>
-        </Box>
-      )}
-    </Box>
+            {/* Images Carousel */}
+            <Carousel
+              additionalTransfrom={0}
+              arrows
+              autoPlaySpeed={3000}
+              centerMode={false}
+              containerClass="carousel-container"
+              dotListClass=""
+              draggable
+              focusOnSelect={false}
+              infinite
+              itemClass="carousel-item-padding-40-px"
+              keyBoardControl
+              minimumTouchDrag={80}
+              renderButtonGroupOutside={false}
+              renderDotsOutside={false}
+              responsive={{
+                desktop: { breakpoint: { max: 3000, min: 1024 }, items: 1 },
+                tablet: { breakpoint: { max: 1024, min: 464 }, items: 1 },
+                mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
+              }}
+              showDots
+              slidesToSlide={1}
+              swipeable
+            >
+              {task.images.map((img, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    height: { xs: 200, sm: 400 },
+                    backgroundImage: `url(${img})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    borderRadius: 2,
+                  }}
+                />
+              ))}
+            </Carousel>
+          </motion.div>
+        </Container>
+      </Layout>
+    </>
   )
 }
