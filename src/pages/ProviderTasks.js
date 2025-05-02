@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { Disclosure } from '@headlessui/react'
+import Header from '../components/Provider/Header'
+import Filters from '../components/Provider/Filters'
+// import useProviderProfile from '../hooks/useProviderProfile'
 
 const Avatar = ({ name, src }) => {
   if (src) {
@@ -73,10 +77,32 @@ const tasks = [
   },
 ]
 
-export default function TaskBrowser() {
+export default function ProviderTasks() {
   const [selectedTask, setSelectedTask] = useState(null)
   const [offerAmount, setOfferAmount] = useState('')
   const [offerMessage, setOfferMessage] = useState('')
+  const [showOfferForm, setShowOfferForm] = useState(false)
+  // const profile = useProviderProfile()
+
+  // console.log('Provider Profile:', profile)
+  const task = {
+    // ...other task data
+    offers: [
+      {
+        id: 1,
+        user: {
+          name: 'Youbert E.',
+          avatar: 'https://i.pravatar.cc/48?u=youbert',
+          rating: 5.0,
+          reviews: 187,
+          completionRate: 98,
+        },
+        availability: 'Tomorrow',
+        message: `Hi price includes labour, minor materials and airtasker fees. If you require additional materials eg new winder, motor or slats I will charge accordingly. Please check my reviews for similar jobs. We can discuss conversion on the day and this price will be taken into account.`,
+        timePosted: '1 day ago',
+      },
+    ],
+  }
 
   const handleCloseModal = () => {
     setSelectedTask(null)
@@ -98,67 +124,9 @@ export default function TaskBrowser() {
 
   return (
     <div className="bg-[#f6f7fb] min-h-screen">
-      <header className="bg-white shadow px-6 md:px-10 py-6 flex items-center justify-center border-b">
-        <div className="w-full max-w-7xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="text-3xl md:text-4xl font-extrabold text-[#0073FF] tracking-tight">
-              Airtasker
-            </div>
-            <button className="bg-[#0073FF] hover:bg-[#0060D6] text-white text-lg font-semibold rounded-full px-6 py-3 shadow">
-              Post a task
-            </button>
-            <nav className="flex flex-wrap items-center space-x-4 text-[#001B5D] text-lg font-medium">
-              <a href="#" className="hover:underline">
-                Browse tasks
-              </a>
-              <a href="#" className="hover:underline">
-                My tasks
-              </a>
-              <a href="#" className="hover:underline">
-                List my services
-              </a>
-            </nav>
-          </div>
-          <div className="flex items-center space-x-4 text-[#001B5D] text-lg font-medium">
-            <a href="#" className="hover:underline">
-              Help
-            </a>
-            <a href="#" className="hover:underline">
-              Notifications
-            </a>
-            <a href="#" className="hover:underline">
-              Messages
-            </a>
-            <div className="w-10 h-10 rounded-full bg-[#f0f4ff] flex items-center justify-center">
-              <span className="text-[#b0c4ff] text-xl font-bold">●</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
-      <div className="bg-white px-6 md:px-10 py-5 border-b">
-        <div className="w-full max-w-7xl mx-auto flex flex-wrap gap-3 items-center">
-          <input
-            type="text"
-            placeholder="Search for a task"
-            className="bg-[#f2f3f7] text-base px-5 py-3 rounded-full placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#0073FF] flex-1 min-w-[200px]"
-          />
-          {[
-            'Category',
-            '50km Hadfield VIC & remotely',
-            'Any price',
-            'Sort',
-          ].map((label) => (
-            <button
-              key={label}
-              className="bg-[#f2f3f7] text-[#001B5D] font-medium px-5 py-2.5 rounded-full hover:bg-[#e5e7eb] transition-all"
-            >
-              {label} ▼
-            </button>
-          ))}
-        </div>
-      </div>
-
+      <Filters />
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-center gap-6 py-6">
         <div className="w-full md:max-w-[420px] bg-[#f6f7fb] p-4 space-y-6 overflow-y-auto">
           {tasks.map((task, index) => (
@@ -266,7 +234,7 @@ export default function TaskBrowser() {
                     {selectedTask.price}
                   </div>
                   <button
-                    onClick={() => setOfferAmount('')} // show modal
+                    onClick={() => setShowOfferForm(true)}
                     className="mt-4 bg-[#0073FF] hover:bg-[#005ed9] text-white text-lg font-semibold rounded-full px-6 py-3 w-full transition-all"
                   >
                     Make an offer
@@ -304,79 +272,213 @@ export default function TaskBrowser() {
                 </div>
               </div>
 
-              {/* ✅ UPDATED Task Description */}
-              <div className="mt-8">
-                <h2 className="text-xl font-semibold text-[#001B5D] mb-3">
-                  Task Description
+              {/* Task description (dummy for now) */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
+                  Details
                 </h2>
-                <div className="bg-[#f5f7fa] p-5 rounded-xl text-gray-800 leading-relaxed">
-                  <p className="mb-3">
-                    I need a reliable Airtasker to help clean my 2-bedroom / 1
-                    bathroom apartment for end-of-lease. All cleaning equipment
-                    and products must be provided.
-                  </p>
-                  <ul className="list-disc ml-6 space-y-2">
-                    <li>
-                      Clean kitchen, including oven, stovetop, and rangehood
-                    </li>
-                    <li>Vacuum and mop all floors</li>
-                    <li>Wipe down all surfaces, including windows and sills</li>
-                    <li>Clean bathroom including shower, toilet, and sink</li>
-                    <li>Remove cobwebs and dust light fittings</li>
-                  </ul>
-                  <p className="mt-4 text-sm text-gray-500">
-                    Must be done before:{' '}
-                    <span className="font-medium">{selectedTask.date}</span>
-                  </p>
+                <ul className="list-decimal ml-6 text-gray-700 space-y-1">
+                  <li>
+                    Oven, oven trays, grill & hot plates to be cleaned inside
+                    and out
+                  </li>
+                  <li>
+                    Windows & windowsills to be cleaned inside and out, cobwebs
+                    removed
+                  </li>
+                </ul>
+              </div>
+
+              {/* Image gallery */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
+                  Photos
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {[
+                    'https://res.cloudinary.com/dbfzfqfhl/image/upload/v1746084472/connectMyTask/task-photos/xfxikjjjyzjztcvx3yny.jpg',
+                  ].map((src, idx) => (
+                    <img
+                      key={idx}
+                      src={src}
+                      alt={`Task image ${idx + 1}`}
+                      className="rounded-lg object-cover w-full h-32 sm:h-40"
+                    />
+                  ))}
                 </div>
               </div>
 
-              {/* Offer modal shown conditionally */}
-              {offerAmount !== '' && (
-                <motion.div
-                  initial={{ y: 60, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 60, opacity: 0 }}
-                  className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-6 shadow-lg z-50"
-                >
-                  <h2 className="text-lg font-bold text-[#001B5D] mb-4">
-                    Submit your offer
-                  </h2>
-                  <div className="grid gap-4">
-                    <input
-                      type="number"
-                      placeholder="Your offer amount"
-                      value={offerAmount}
-                      onChange={(e) => setOfferAmount(e.target.value)}
-                      className="w-full border px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0073FF]"
-                    />
-                    <textarea
-                      placeholder="Message to task poster"
-                      value={offerMessage}
-                      onChange={(e) => setOfferMessage(e.target.value)}
-                      rows={3}
-                      className="w-full border px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0073FF]"
-                    />
-                    <div className="flex gap-4 justify-end">
-                      <button
-                        onClick={() => {
-                          setOfferAmount('')
-                          setOfferMessage('')
-                        }}
-                        className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSubmitOffer}
-                        className="px-6 py-2 rounded-lg bg-[#0073FF] text-white hover:bg-[#005ed9]"
-                      >
-                        Submit Offer
-                      </button>
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold mb-4">Offers</h2>
+                <div className="space-y-4">
+                  {task.offers.map((offer) => (
+                    <div
+                      key={offer.id}
+                      className="flex items-start gap-4 p-4 rounded-xl border bg-gray-50"
+                    >
+                      <Avatar
+                        src={offer.user.avatar}
+                        alt={offer.user.name}
+                        fallback={offer.user.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 font-semibold text-sm">
+                          {offer.user.name}
+                          <span className="text-orange-500 font-medium">
+                            {offer.user.rating.toFixed(1)} ★
+                          </span>
+                          <span className="text-gray-500">
+                            ({offer.user.reviews})
+                          </span>
+                          <span className="text-sm text-blue-800 ml-2 font-semibold">
+                            {offer.user.completionRate}% Completion rate
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          <strong>Availability:</strong> {offer.availability}
+                        </div>
+                        <div className="bg-white text-sm text-blue-900 p-3 mt-2 rounded-lg border">
+                          {offer.message}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1 flex gap-2 items-center">
+                          {offer.timePosted}
+                          <button className="text-blue-600 font-medium hover:underline">
+                            Reply
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
+                  ))}
+                </div>
+              </div>
+
+              {/* FAQ / info dropdowns */}
+              <div className="mb-8 space-y-3">
+                <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
+                  More Info
+                </h2>
+                {[
+                  {
+                    question: 'Is cleaning equipment provided?',
+                    answer: 'No, please bring your own cleaning supplies.',
+                  },
+                  {
+                    question: 'Can this be done on a weekday evening?',
+                    answer: 'Yes, after 5 PM is preferred.',
+                  },
+                  {
+                    question: 'Are there pets at the property?',
+                    answer: 'No, this is a pet-free home.',
+                  },
+                ].map((item, idx) => (
+                  <Disclosure key={idx}>
+                    {({ open }) => (
+                      <div className="border rounded-xl overflow-hidden">
+                        <Disclosure.Button className="w-full flex justify-between items-center px-4 py-3 text-left text-[#001B5D] font-medium hover:bg-gray-50">
+                          {item.question}
+                          <span>{open ? '−' : '+'}</span>
+                        </Disclosure.Button>
+                        <Disclosure.Panel className="px-4 py-2 text-gray-600 border-t bg-gray-50">
+                          {item.answer}
+                        </Disclosure.Panel>
+                      </div>
+                    )}
+                  </Disclosure>
+                ))}
+              </div>
+
+              <AnimatePresence>
+                {showOfferForm && selectedTask && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.9, opacity: 0 }}
+                      className="bg-white rounded-2xl w-full max-w-2xl p-8 relative shadow-xl"
+                    >
+                      {/* Close button */}
+                      <button
+                        onClick={() => setShowOfferForm(false)}
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                      >
+                        <XIcon size={24} />
+                      </button>
+
+                      {/* Task info header */}
+                      <div className="flex items-center space-x-4 mb-6">
+                        <Avatar
+                          name={selectedTask.user.name}
+                          src={selectedTask.user.avatar}
+                        />
+                        <div>
+                          <div className="font-semibold text-lg text-[#001B5D]">
+                            {selectedTask.title}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {selectedTask.location}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Task details */}
+                      <div className="space-y-3 text-[#001B5D]">
+                        <div className="flex items-center">
+                          <CalendarIcon className="mr-2" /> {selectedTask.date}
+                        </div>
+                        <div className="flex items-center">
+                          <ClockIcon className="mr-2" /> {selectedTask.time}
+                        </div>
+
+                        <p className="mt-4 text-gray-600">
+                          This task needs to be completed by the deadline
+                          listed. Offers are welcome from nearby workers. Please
+                          include your availability in your offer.
+                        </p>
+
+                        <div className="mt-6 text-2xl font-bold text-[#0073FF]">
+                          {selectedTask.price}
+                        </div>
+
+                        {/* Offer inputs */}
+                        <input
+                          type="number"
+                          placeholder="Your offer amount"
+                          value={offerAmount}
+                          onChange={(e) => setOfferAmount(e.target.value)}
+                          className="w-full border mt-4 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0073FF]"
+                        />
+
+                        <textarea
+                          placeholder="Message to task poster"
+                          value={offerMessage}
+                          onChange={(e) => setOfferMessage(e.target.value)}
+                          rows={4}
+                          className="w-full border mt-2 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0073FF]"
+                        />
+
+                        <button
+                          onClick={() => {
+                            handleSubmitOffer()
+                            setShowOfferForm(false)
+                          }}
+                          className="mt-4 w-full bg-[#0073FF] hover:bg-[#005ed9] text-white py-3 rounded-full text-lg font-semibold"
+                        >
+                          Submit Offer
+                        </button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </motion.div>
         )}

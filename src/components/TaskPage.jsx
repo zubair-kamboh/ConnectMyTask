@@ -38,7 +38,7 @@ const DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
-export default function TaskMapUI() {
+export default function TaskPage() {
   const [openModal, setOpenModal] = useState(false)
   const [tasks, setTasks] = useState([])
   const [taskMarkers, setTaskMarkers] = useState([])

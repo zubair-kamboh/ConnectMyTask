@@ -41,10 +41,17 @@ export default function Login() {
       const data = await res.json()
 
       if (res.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        toast.success('Login successful!')
-        window.location.href = '/user/dashboard'
+        if (data.user.role === 'provider') {
+          localStorage.setItem('providerToken', data.token)
+          localStorage.setItem('provider', JSON.stringify(data.user))
+          toast.success('Provider login successful!')
+          window.location.href = '/provider/tasks'
+        } else {
+          localStorage.setItem('token', data.token)
+          localStorage.setItem('user', JSON.stringify(data.user))
+          toast.success('Login successful!')
+          window.location.href = '/user/dashboard'
+        }
       } else {
         toast.error(data.msg || 'Login failed')
       }

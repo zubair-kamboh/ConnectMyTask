@@ -10,13 +10,14 @@ import UserPage from './pages/UserProfile'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
-import UserProfile from './pages/UserProfile'
 import TaskPage from './pages/TaskPage'
 import TaskDetailsPage from './components/TaskDetails'
 import ProviderTasks from './pages/ProviderTasks'
+import Profile from './components/Provider/Profile'
 
 function App() {
   const isAuthenticated = localStorage.getItem('token')
+  const isProviderAuthenticated = localStorage.getItem('providerToken')
 
   return (
     <Router>
@@ -24,7 +25,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/provider/tasks" element={<ProviderTasks />} />
+        <Route path="/provider/profile" element={<Profile />} />
 
         {isAuthenticated ? (
           <>
@@ -36,6 +37,10 @@ function App() {
               path="*"
               element={<Navigate to="/user/dashboard" replace />}
             />
+          </>
+        ) : isProviderAuthenticated ? (
+          <>
+            <Route path="/provider/tasks" element={<ProviderTasks />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/" replace />} />
