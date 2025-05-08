@@ -1,25 +1,24 @@
-// // src/hooks/useProviderProfile.js
-// import { useEffect, useState } from 'react'
-// import axios from 'axios'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
-// export default function useProviderProfile() {
-//   const [profile, setProfile] = useState(null)
+export default function useProviderProfile() {
+  const [profile, setProfile] = useState(null)
 
-//   useEffect(() => {
-//     const token = localStorage.getItem('providerToken')
-//     const provider = JSON.parse(localStorage.getItem('provider'))
-//     const storedProfile = localStorage.getItem('providerProfile')
+  useEffect(() => {
+    const token = localStorage.getItem('providerToken')
+    const provider = JSON.parse(localStorage.getItem('provider'))
+    const storedProfile = localStorage.getItem('providerProfile')
 
-//     if (storedProfile) {
-//       setProfile(JSON.parse(storedProfile))
-//     } else if (provider) {
-//       axios.get(`http://localhost:3300/api/auth/profile/${provider.id}`, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       })
-//     }
-//   }, [])
+    if (storedProfile) {
+      setProfile(JSON.parse(storedProfile))
+    } else if (provider) {
+      axios.get(`http://localhost:3300/api/auth/profile/${provider.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    }
+  }, [])
 
-//   return profile
-// }
+  return profile
+}

@@ -1,130 +1,272 @@
 'use client'
 
-import {
-  Box,
-  Typography,
-  Paper,
-  Avatar,
-  Container,
-  Chip,
-  Stack,
-} from '@mui/material'
-import Carousel from 'react-multi-carousel'
-import 'react-multi-carousel/lib/styles.css'
-import { motion } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import Layout from './Layout'
+import {
+  FaDollarSign,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaTag,
+  FaMapMarkerAlt,
+  FaUser,
+  FaComments,
+} from 'react-icons/fa'
+import useAcceptBid from '../hooks/useAcceptBid'
+import ChatModal from './ChatModal'
 
 export default function TaskDetailsPage() {
   const { state } = useLocation()
-  const task = state?.task
+  const [task, setTask] = useState(state?.task)
+  const [acceptedBid, setAcceptedBid] = useState(null) // Track accepted bid
+  const { acceptBid, loading } = useAcceptBid()
 
-  if (!task) return <div>No task selected</div>
+  const handleAcceptOffer = async (bid) => {
+    console.log(task._id, bid._id)
+    const updated = await acceptBid(task._id, bid._id)
+    if (updated) {
+      setTask(updated)
+      setAcceptedBid(bid) // Save the accepted bid
+    }
+  }
+
+  if (!task) {
+    return (
+      <div className="p-8 text-center text-lg text-gray-600">
+        No task selected
+      </div>
+    )
+  }
+
+  const sortedBids = [...(task.bids || [])].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  )
+  console.log(task)
+  return (
+    <Layout>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white shadow-lg rounded-2xl p-6 space-y-6"
+        >
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-gray-800">{task.title}</h1>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-3 text-sm">
+            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+              <FaDollarSign /> ${task.budget}
+            </span>
+            <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+              <FaCalendarAlt /> {new Date(task.deadline).toLocaleDateString()}
+            </span>
+            <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full">
+              <FaCheckCircle /> {task.status}
+            </span>
+            <span className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+              <FaTag /> {task.category}
+            </span>
+          </div>
+
+          {/* Description */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700 mb-1">
+              Description
+            </h2>
+            <p className="text-gray-600">{task.description}</p>
+          </div>
+
+          {/* Location & Poster */}
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+                <FaMapMarkerAlt /> Location
+              </h2>
+              <p className="text-gray-600 mt-1">
+                {task.location.suburb}, {task.location.city},{' '}
+                {task.location.state}
+              </p>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+                <FaUser /> Posted by
+              </h2>
+              <div className="flex items-center mt-2 gap-3">
+                <div className="bg-gray-300 text-white w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                  {task.user.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-gray-800 font-medium">{task.user.name}</p>
+                  <p className="text-gray-500 text-sm">{task.user.email}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Image Gallery */}
+          {task.images.length > 0 && (
+            <div className="mt-4">
+              <h2 className="text-lg font-semibold text-gray-700 mb-2">
+                Images
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {task.images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl h-64 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${img})` }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Offer Accepted Section */}
+          {/* {acceptedBid && (
+            <div className="mt-6 p-4 bg-green-100 rounded-lg">
+              <h2 className="text-xl font-semibold text-green-700 mb-4">
+                Offer Accepted
+              </h2>
+              <div className="space-y-2">
+                <p className="text-gray-700">
+                  You have accepted an offer from{' '}
+                  <strong>{acceptedBid.provider.email}</strong>.
+                </p>
+                <p className="text-gray-700">
+                  Estimated Time: {acceptedBid.estimatedTime}
+                </p>
+                <p className="text-gray-700">
+                  Price: <strong>${acceptedBid.price}</strong>
+                </p>
+              </div>
+              <button className="mt-4 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md flex items-center gap-2">
+                <FaComments /> Chat with Provider
+              </button>
+            </div>
+          )} */}
+
+          {/* Offers Section */}
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Offers</h2>
+
+            {/* If task is In Progress AND assignedProvider exists AND user is the owner, show accepted section */}
+            {task.status === 'In Progress' &&
+            task.assignedProvider &&
+            JSON.parse(localStorage.getItem('user')).id === task.user._id ? (
+              <OfferAcceptedSection task={task} />
+            ) : sortedBids.length === 0 ? (
+              <p className="text-gray-500">No offers yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {sortedBids.map((bid) => (
+                  <div
+                    key={bid._id}
+                    className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                        {bid.provider.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-gray-800 font-medium">
+                          {bid.provider.name}
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                          {new Date(bid.date).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 mt-2">
+                      Estimated Time: {bid.estimatedTime}
+                    </p>
+                    <p className="text-green-600 font-semibold mt-1">
+                      ${bid.price}
+                    </p>
+
+                    {JSON.parse(localStorage.getItem('user')).id ===
+                      task.user._id && (
+                      <button
+                        disabled={loading}
+                        onClick={() => handleAcceptOffer(bid)}
+                        className="mt-2 inline-block text-sm text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md disabled:opacity-50"
+                      >
+                        {loading ? 'Accepting...' : 'Accept Offer'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </Layout>
+  )
+}
+
+const OfferAcceptedSection = ({ task }) => {
+  const [showChat, setShowChat] = useState(false)
+  const currentUser = JSON.parse(localStorage.getItem('user'))
+  const isOwner = currentUser?.id === task?.user._id
+  const isInProgress = task?.status === 'In Progress'
+  const assignedProvider = task?.assignedProvider
+
+  const acceptedBid = task?.bids?.find(
+    (bid) => bid.provider._id === assignedProvider?._id
+  )
+
+  if (!isOwner || !isInProgress || !assignedProvider) return null
 
   return (
-    <>
-      <Layout>
-        <Container maxWidth="md" sx={{ py: 4 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+    <div className="bg-green-50 border border-green-200 rounded-2xl p-6 shadow-md mt-6">
+      <h2 className="text-2xl font-bold text-green-800 mb-4">Offer Accepted</h2>
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <img
+          src={assignedProvider.profilePhoto}
+          alt={assignedProvider.name}
+          className="w-24 h-24 rounded-full border-4 border-white shadow-sm object-cover"
+        />
+
+        <div className="flex-1 space-y-2">
+          {/* Provider info */}
+          <p className="text-lg font-semibold text-gray-800">
+            {assignedProvider.name}
+          </p>
+          <p className="text-gray-700">{assignedProvider.email}</p>
+          <p className="text-gray-700">
+            {assignedProvider.location.suburb}, {assignedProvider.location.city}
+            , {assignedProvider.location.state}
+          </p>
+
+          {acceptedBid && (
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500">Accepted Offer</p>
+              <p className="text-gray-800 font-medium text-lg">
+                ${acceptedBid.price}{' '}
+                <span className="text-sm text-gray-500">
+                  ({acceptedBid.estimatedTime})
+                </span>
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowChat(true)}
+            className="mt-4 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition"
           >
-            {/* Task Info */}
-            <Paper elevation={3} sx={{ my: 4, p: 3, borderRadius: 3 }}>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                {task.title}
-              </Typography>
+            <FaComments className="text-white" /> Contact Provider
+          </button>
+        </div>
+      </div>
 
-              <Stack
-                direction="row"
-                spacing={2}
-                sx={{ mb: 2, flexWrap: 'wrap' }}
-              >
-                <Chip label={`Budget: $${task.budget}`} color="primary" />
-                <Chip
-                  label={`Deadline: ${new Date(
-                    task.deadline
-                  ).toLocaleDateString()}`}
-                  color="secondary"
-                />
-                <Chip label={`Status: ${task.status}`} variant="outlined" />
-                <Chip label={`Category: ${task.category}`} variant="outlined" />
-              </Stack>
-
-              <Typography variant="h6" gutterBottom>
-                Description:
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {task.description}
-              </Typography>
-
-              {/* Location and Posted By */}
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4}>
-                <Box>
-                  <Typography variant="h6">Location:</Typography>
-                  <Typography>
-                    {task.location.suburb}, {task.location.city},{' '}
-                    {task.location.state}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="h6">Posted by:</Typography>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <Avatar>{task.user.name.charAt(0)}</Avatar>
-                    <Box>
-                      <Typography>{task.user.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {task.user.email}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Box>
-              </Stack>
-            </Paper>
-
-            {/* Images Carousel */}
-            <Carousel
-              additionalTransfrom={0}
-              arrows
-              autoPlaySpeed={3000}
-              centerMode={false}
-              containerClass="carousel-container"
-              dotListClass=""
-              draggable
-              focusOnSelect={false}
-              infinite
-              itemClass="carousel-item-padding-40-px"
-              keyBoardControl
-              minimumTouchDrag={80}
-              renderButtonGroupOutside={false}
-              renderDotsOutside={false}
-              responsive={{
-                desktop: { breakpoint: { max: 3000, min: 1024 }, items: 1 },
-                tablet: { breakpoint: { max: 1024, min: 464 }, items: 1 },
-                mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
-              }}
-              showDots
-              slidesToSlide={1}
-              swipeable
-            >
-              {task.images.map((img, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    height: { xs: 200, sm: 400 },
-                    backgroundImage: `url(${img})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    borderRadius: 2,
-                  }}
-                />
-              ))}
-            </Carousel>
-          </motion.div>
-        </Container>
-      </Layout>
-    </>
+      <ChatModal
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+        provider={assignedProvider}
+      />
+    </div>
   )
 }

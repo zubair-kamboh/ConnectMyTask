@@ -7,7 +7,12 @@ import L from 'leaflet'
 import { Disclosure } from '@headlessui/react'
 import Header from '../components/Provider/Header'
 import Filters from '../components/Provider/Filters'
-// import useProviderProfile from '../hooks/useProviderProfile'
+import useProviderProfile from '../hooks/useProviderProfile'
+import useProviderTasks from '../hooks/useProviderTasks'
+import { format, formatDistanceToNow } from 'date-fns'
+import { toast, ToastContainer } from 'react-toastify'
+import useSubmitOffer from '../hooks/useSubmitOffer'
+import Loader from '../components/Loader'
 
 const Avatar = ({ name, src }) => {
   if (src) {
@@ -41,78 +46,39 @@ const CardContent = ({ children }) => (
   <div className="space-y-3">{children}</div>
 )
 
-const tasks = [
-  {
-    title: 'End of lease cleaning',
-    location: 'Springvale VIC',
-    date: 'On Sat, 10 May',
-    time: 'Anytime',
-    price: '$250',
-    open: true,
-    offers: null,
-    user: { name: 'John Doe', avatar: null },
-    coordinates: [-37.946, 145.153],
-  },
-  {
-    title: 'End of lease clean',
-    location: 'Mentone VIC',
-    date: 'On Fri, 2 May',
-    time: 'Anytime',
-    price: '$250',
-    open: true,
-    offers: '3 offers',
-    user: { name: 'Alice Smith', avatar: 'https://i.pravatar.cc/100?img=5' },
-    coordinates: [-37.983, 145.073],
-  },
-  {
-    title: 'Boucle Couch steam cleaning',
-    location: 'Kalkallo VIC',
-    date: 'Before Thu, 1 May',
-    time: 'Anytime',
-    price: '$10',
-    open: false,
-    offers: null,
-    user: { name: 'Bob Johnson', avatar: null },
-    coordinates: [-37.526, 144.956],
-  },
-]
-
 export default function ProviderTasks() {
   const [selectedTask, setSelectedTask] = useState(null)
   const [offerAmount, setOfferAmount] = useState('')
-  const [offerMessage, setOfferMessage] = useState('')
+  const [estimatedTime, setEstimatedTime] = useState('')
   const [showOfferForm, setShowOfferForm] = useState(false)
-  // const profile = useProviderProfile()
-
-  // console.log('Provider Profile:', profile)
-  const task = {
-    // ...other task data
-    offers: [
-      {
-        id: 1,
-        user: {
-          name: 'Youbert E.',
-          avatar: 'https://i.pravatar.cc/48?u=youbert',
-          rating: 5.0,
-          reviews: 187,
-          completionRate: 98,
-        },
-        availability: 'Tomorrow',
-        message: `Hi price includes labour, minor materials and airtasker fees. If you require additional materials eg new winder, motor or slats I will charge accordingly. Please check my reviews for similar jobs. We can discuss conversion on the day and this price will be taken into account.`,
-        timePosted: '1 day ago',
-      },
-    ],
-  }
+  const { tasks, tasksLoading } = useProviderTasks()
+  const { submitOffer, offerLoading } = useSubmitOffer()
 
   const handleCloseModal = () => {
     setSelectedTask(null)
     setOfferAmount('')
-    setOfferMessage('')
+    setEstimatedTime('')
   }
 
-  const handleSubmitOffer = () => {
-    alert(`Offer submitted: $${offerAmount}\nMessage: ${offerMessage}`)
-    handleCloseModal()
+  const handleSubmitOffer = async (id) => {
+    if (!offerAmount || !estimatedTime) {
+      toast.error('Please fill in all the fields.')
+      return
+    }
+
+    const offerData = {
+      price: parseFloat(offerAmount),
+      estimatedTime,
+    }
+
+    const response = await submitOffer(id, offerData)
+
+    if (response) {
+      toast.success('Offer submitted successfully')
+      handleCloseModal()
+    } else {
+      toast.error('Failed to submit offer. Please try again.')
+    }
   }
 
   const customIcon = new L.Icon({
@@ -125,51 +91,59 @@ export default function ProviderTasks() {
   return (
     <div className="bg-[#f6f7fb] min-h-screen">
       <Header />
+      <ToastContainer />
+      {(tasksLoading || offerLoading) && <Loader fullScreen />}
 
       <Filters />
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-center gap-6 py-6">
-        <div className="w-full md:max-w-[420px] bg-[#f6f7fb] p-4 space-y-6 overflow-y-auto">
-          {tasks.map((task, index) => (
-            <div
-              key={index}
-              onClick={() => setSelectedTask(task)}
-              className="cursor-pointer hover:scale-[1.02] transition-transform"
-            >
-              <Card>
-                <CardContent>
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="text-xl font-semibold text-[#001B5D]">
-                        {task.title}
+        <div className="w-full h-[650px] md:max-w-[420px] bg-[#f6f7fb] p-4 space-y-6 overflow-y-auto">
+          {tasks !== null &&
+            tasks.map((task, index) => (
+              <div
+                key={index}
+                onClick={() => setSelectedTask(task)}
+                className="cursor-pointer hover:scale-[1.02] transition-transform"
+              >
+                <Card>
+                  <CardContent>
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <div className="text-xl font-semibold text-[#001B5D]">
+                          {task.title}
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <MapPinIcon size={18} className="mr-2" />
+                          {`${task.location.suburb}, ${task.location.city}, ${task.location.state}`}
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <CalendarIcon size={18} className="mr-2" />
+                          {formatDistanceToNow(new Date(task.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <ClockIcon size={18} className="mr-2" />
+                          {format(new Date(task.createdAt), 'p')}
+                        </div>
+                        <div className="text-[#0073FF] font-medium">
+                          {task.status}{' '}
+                          {task.bids.length > 0 &&
+                            `· ${task.bids.length} offer(s)`}
+                        </div>
                       </div>
-                      <div className="flex items-center text-gray-600">
-                        <MapPinIcon size={18} className="mr-2" />
-                        {task.location}
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <CalendarIcon size={18} className="mr-2" />
-                        {task.date}
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <ClockIcon size={18} className="mr-2" />
-                        {task.time}
-                      </div>
-                      <div className="text-[#0073FF] font-medium">
-                        {task.open ? 'Open' : 'Closed'}{' '}
-                        {task.offers && `· ${task.offers}`}
+                      <div className="text-right space-y-2">
+                        <div className="text-2xl font-bold text-[#001B5D]">
+                          ${task.budget}
+                        </div>
+                        <Avatar name={task.user.name} src={task.user.avatar} />
                       </div>
                     </div>
-                    <div className="text-right space-y-2">
-                      <div className="text-2xl font-bold text-[#001B5D]">
-                        {task.price}
-                      </div>
-                      <Avatar name={task.user.name} src={task.user.avatar} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
         </div>
 
         <div className="flex-1 h-[80vh]">
@@ -179,7 +153,7 @@ export default function ProviderTasks() {
             className="h-full w-full z-0"
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {tasks.map((task, index) => (
+            {/* {tasks.map((task, index) => (
               <Marker key={index} position={task.coordinates} icon={customIcon}>
                 <Popup>
                   <strong>{task.title}</strong>
@@ -187,7 +161,7 @@ export default function ProviderTasks() {
                   {task.location}
                 </Popup>
               </Marker>
-            ))}
+            ))} */}
           </MapContainer>
         </div>
       </div>
@@ -218,7 +192,7 @@ export default function ProviderTasks() {
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
                   <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
-                    OPEN
+                    {selectedTask.status.toUpperCase()}
                   </span>
                   <h1 className="text-3xl font-extrabold mt-2 text-[#001B5D]">
                     {selectedTask.title}
@@ -231,7 +205,7 @@ export default function ProviderTasks() {
                     TASK BUDGET
                   </div>
                   <div className="text-4xl font-extrabold text-[#001B5D]">
-                    {selectedTask.price}
+                    ${selectedTask.budget}
                   </div>
                   <button
                     onClick={() => setShowOfferForm(true)}
@@ -260,101 +234,76 @@ export default function ProviderTasks() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-gray-600 mb-6 gap-4">
                 <div className="flex items-center">
                   <MapPinIcon className="mr-2" size={20} />
-                  {selectedTask.location}
+                  {selectedTask.location
+                    ? `${selectedTask.location.suburb}, ${selectedTask.location.city}, ${selectedTask.location.state}`
+                    : 'Location not provided'}
                 </div>
                 <div className="flex items-center">
                   <CalendarIcon className="mr-2" size={20} />
-                  {selectedTask.date}
+                  {format(new Date(selectedTask.deadline), 'PPP')}
                 </div>
                 <div className="flex items-center">
                   <ClockIcon className="mr-2" size={20} />
-                  {selectedTask.time}
+                  {format(new Date(selectedTask.deadline), 'p')}
                 </div>
               </div>
 
-              {/* Task description (dummy for now) */}
+              {/* Task description */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
                   Details
                 </h2>
-                <ul className="list-decimal ml-6 text-gray-700 space-y-1">
-                  <li>
-                    Oven, oven trays, grill & hot plates to be cleaned inside
-                    and out
-                  </li>
-                  <li>
-                    Windows & windowsills to be cleaned inside and out, cobwebs
-                    removed
-                  </li>
-                </ul>
+                <p className="text-gray-700 whitespace-pre-line">
+                  {selectedTask.description}
+                </p>
               </div>
 
               {/* Image gallery */}
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
-                  Photos
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {[
-                    'https://res.cloudinary.com/dbfzfqfhl/image/upload/v1746084472/connectMyTask/task-photos/xfxikjjjyzjztcvx3yny.jpg',
-                  ].map((src, idx) => (
-                    <img
-                      key={idx}
-                      src={src}
-                      alt={`Task image ${idx + 1}`}
-                      className="rounded-lg object-cover w-full h-32 sm:h-40"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold mb-4">Offers</h2>
-                <div className="space-y-4">
-                  {task.offers.map((offer) => (
-                    <div
-                      key={offer.id}
-                      className="flex items-start gap-4 p-4 rounded-xl border bg-gray-50"
-                    >
-                      <Avatar
-                        src={offer.user.avatar}
-                        alt={offer.user.name}
-                        fallback={offer.user.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .toUpperCase()}
+              {selectedTask.images && selectedTask.images.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
+                    Photos
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {selectedTask.images.map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        alt={`Task image ${idx + 1}`}
+                        className="rounded-lg object-cover w-full h-32 sm:h-40"
                       />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 font-semibold text-sm">
-                          {offer.user.name}
-                          <span className="text-orange-500 font-medium">
-                            {offer.user.rating.toFixed(1)} ★
-                          </span>
-                          <span className="text-gray-500">
-                            ({offer.user.reviews})
-                          </span>
-                          <span className="text-sm text-blue-800 ml-2 font-semibold">
-                            {offer.user.completionRate}% Completion rate
-                          </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Offers */}
+              {selectedTask.bids && selectedTask.bids.length > 0 && (
+                <div className="mb-10">
+                  <h2 className="text-xl font-semibold text-[#001B5D] mb-4">
+                    Offers
+                  </h2>
+                  <div className="space-y-4">
+                    {selectedTask.bids.map((bid, idx) => (
+                      <div
+                        key={idx}
+                        className="border rounded-xl p-4 bg-gray-50"
+                      >
+                        <div className="font-medium text-[#001B5D]">
+                          Offer:{' '}
+                          <span className="text-gray-700">${bid.price}</span>
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          <strong>Availability:</strong> {offer.availability}
+                        <div className="text-sm text-gray-500">
+                          Estimated time: {bid.estimatedTime}
                         </div>
-                        <div className="bg-white text-sm text-blue-900 p-3 mt-2 rounded-lg border">
-                          {offer.message}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1 flex gap-2 items-center">
-                          {offer.timePosted}
-                          <button className="text-blue-600 font-medium hover:underline">
-                            Reply
-                          </button>
+                        <div className="text-sm text-gray-400">
+                          Submitted on: {format(new Date(bid.date), 'PPP p')}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* FAQ / info dropdowns */}
               <div className="mb-8 space-y-3">
@@ -413,64 +362,54 @@ export default function ProviderTasks() {
                         <XIcon size={24} />
                       </button>
 
-                      {/* Task info header */}
-                      <div className="flex items-center space-x-4 mb-6">
-                        <Avatar
-                          name={selectedTask.user.name}
-                          src={selectedTask.user.avatar}
-                        />
-                        <div>
-                          <div className="font-semibold text-lg text-[#001B5D]">
-                            {selectedTask.title}
+                      {/* Header */}
+                      <h2 className="text-2xl font-bold text-[#001B5D] mb-6">
+                        Make an Offer
+                      </h2>
+
+                      {/* Task summary */}
+                      <div className="space-y-4 mb-6">
+                        <div className="text-lg font-semibold text-[#001B5D]">
+                          {selectedTask.title}
+                        </div>
+                        <p className="text-gray-700">
+                          {selectedTask.description}
+                        </p>
+                        <div className="flex flex-wrap gap-4 text-gray-600">
+                          <div className="flex items-center">
+                            <CalendarIcon className="mr-2" size={18} />
+                            {format(new Date(selectedTask.deadline), 'PPP')}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {selectedTask.location}
+                          <div className="flex items-center">
+                            <ClockIcon className="mr-2" size={18} />
+                            {format(new Date(selectedTask.deadline), 'p')}
+                          </div>
+                          <div className="text-lg font-bold text-[#0073FF] ml-auto">
+                            Budget: ${selectedTask.budget}
                           </div>
                         </div>
                       </div>
 
-                      {/* Task details */}
-                      <div className="space-y-3 text-[#001B5D]">
-                        <div className="flex items-center">
-                          <CalendarIcon className="mr-2" /> {selectedTask.date}
-                        </div>
-                        <div className="flex items-center">
-                          <ClockIcon className="mr-2" /> {selectedTask.time}
-                        </div>
-
-                        <p className="mt-4 text-gray-600">
-                          This task needs to be completed by the deadline
-                          listed. Offers are welcome from nearby workers. Please
-                          include your availability in your offer.
-                        </p>
-
-                        <div className="mt-6 text-2xl font-bold text-[#0073FF]">
-                          {selectedTask.price}
-                        </div>
-
-                        {/* Offer inputs */}
+                      {/* Offer inputs */}
+                      <div className="space-y-4">
                         <input
                           type="number"
-                          placeholder="Your offer amount"
+                          placeholder="Enter your offer amount"
+                          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           value={offerAmount}
                           onChange={(e) => setOfferAmount(e.target.value)}
-                          className="w-full border mt-4 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0073FF]"
                         />
 
                         <textarea
-                          placeholder="Message to task poster"
-                          value={offerMessage}
-                          onChange={(e) => setOfferMessage(e.target.value)}
-                          rows={4}
-                          className="w-full border mt-2 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0073FF]"
+                          placeholder="Write an estimated time & details about your offer..."
+                          className="w-full border border-gray-300 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          value={estimatedTime}
+                          onChange={(e) => setEstimatedTime(e.target.value)}
                         />
 
                         <button
-                          onClick={() => {
-                            handleSubmitOffer()
-                            setShowOfferForm(false)
-                          }}
-                          className="mt-4 w-full bg-[#0073FF] hover:bg-[#005ed9] text-white py-3 rounded-full text-lg font-semibold"
+                          onClick={() => handleSubmitOffer(selectedTask._id)}
+                          className="w-full bg-[#0073FF] hover:bg-[#005ed9] text-white text-lg font-semibold rounded-full py-3 transition"
                         >
                           Submit Offer
                         </button>

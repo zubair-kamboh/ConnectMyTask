@@ -48,7 +48,7 @@ export default function TaskPage() {
 
   const theme = useTheme()
   const navigate = useNavigate()
-
+  console.log(tasks)
   // Fetch tasks immediately
   useEffect(() => {
     const fetchTasks = async () => {
@@ -86,7 +86,6 @@ export default function TaskPage() {
   }, [token])
 
   const handleDeleteTask = async (taskId) => {
-    console.log(taskId)
     try {
       await axios.delete(`http://localhost:3300/api/tasks/${taskId}`, {
         headers: {
@@ -195,9 +194,10 @@ export default function TaskPage() {
                     <Typography variant="body2">Flexible</Typography>
                   </Box>
                   <Box mt={2} display="flex" justifyContent="space-between">
-                    <Button variant="text" color="primary">
-                      Open
-                    </Button>
+                    <div className="text-[#0073FF] font-medium">
+                      {task.status}
+                      {task.bids.length > 0 && `· ${task.bids.length} offer(s)`}
+                    </div>
 
                     {task.user?._id === user.id && (
                       <Button

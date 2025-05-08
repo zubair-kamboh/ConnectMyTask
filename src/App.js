@@ -14,6 +14,7 @@ import TaskPage from './pages/TaskPage'
 import TaskDetailsPage from './components/TaskDetails'
 import ProviderTasks from './pages/ProviderTasks'
 import Profile from './components/Provider/Profile'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   const isAuthenticated = localStorage.getItem('token')
@@ -21,6 +22,8 @@ function App() {
 
   return (
     <Router>
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
