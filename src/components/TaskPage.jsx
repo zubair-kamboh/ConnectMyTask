@@ -53,11 +53,14 @@ export default function TaskPage() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get('http://localhost:3300/api/tasks', {
-          headers: {
-            Authorization: `${token}`,
-          },
-        })
+        const response = await axios.get(
+          'http://localhost:3300/api/tasks/alltasks/web',
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        )
 
         setTasks(response.data) // set tasks immediately
 
@@ -100,10 +103,12 @@ export default function TaskPage() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={createTheme()}>
       <CssBaseline />
       <Box height="100vh" display="flex" flexDirection="column">
+        {/* Fullscreen Modal */}
         <PostTaskModal open={openModal} onClose={() => setOpenModal(false)} />
+
         {selectedTask && <TaskDetails task={selectedTask} />}
 
         <Box
@@ -140,14 +145,13 @@ export default function TaskPage() {
               variant="contained"
               color="primary"
               sx={{ textTransform: 'none' }}
-              onClick={() => setOpenModal(true)}
+              onClick={() => setOpenModal(true)} // Trigger fullscreen modal
             >
               Post a Task
             </Button>
           </Box>
         </Box>
 
-        {/* Content */}
         <Box display="flex" flex={1} overflow="hidden">
           {/* Sidebar */}
           <Box
@@ -164,11 +168,7 @@ export default function TaskPage() {
               <Card
                 sx={{ mb: 2, cursor: 'pointer' }}
                 key={task._id}
-                onClick={() =>
-                  navigate('/user/dashboard/task', {
-                    state: { task },
-                  })
-                }
+                onClick={() => navigate(`/user/dashboard/task/${task._id}`)}
               >
                 <CardContent>
                   <Grid container justifyContent="space-between">
@@ -180,7 +180,7 @@ export default function TaskPage() {
                   <Box display="flex" alignItems="center" mt={1}>
                     <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />
                     <Typography variant="body2">
-                      {task.location?.suburb} {task.location?.state}
+                      {task.location?.address}
                     </Typography>
                   </Box>
                   <Box display="flex" alignItems="center" mt={1}>
@@ -191,7 +191,10 @@ export default function TaskPage() {
                   </Box>
                   <Box display="flex" alignItems="center" mt={1}>
                     <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
-                    <Typography variant="body2">Flexible</Typography>
+                    <Typography variant="body2">
+                      {' '}
+                      {task.location?.type}
+                    </Typography>
                   </Box>
                   <Box mt={2} display="flex" justifyContent="space-between">
                     <div className="text-[#0073FF] font-medium">
@@ -205,7 +208,7 @@ export default function TaskPage() {
                         color="error"
                         size="small"
                         onClick={(e) => {
-                          e.stopPropagation() // prevent card click
+                          e.stopPropagation()
                           handleDeleteTask(task._id)
                         }}
                       >
@@ -296,9 +299,7 @@ export default function TaskPage() {
 
                           <Button
                             onClick={() =>
-                              navigate('/user/dashboard/task', {
-                                state: { task },
-                              })
+                              navigate(`/user/dashboard/task/${task._id}`)
                             }
                             variant="contained"
                             fullWidth

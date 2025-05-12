@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 
-const useSubmitOffer = () => {
+export default function useAcceptBid() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -42,5 +42,3 @@ const useSubmitOffer = () => {
 
   return { submitOffer, loading, error }
 }
-
-export default useSubmitOffer

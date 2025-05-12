@@ -6,7 +6,6 @@ import {
 } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import UserPage from './pages/UserProfile'
-// import TasksPage from './pages/TasksPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
@@ -15,6 +14,7 @@ import TaskDetailsPage from './components/TaskDetails'
 import ProviderTasks from './pages/ProviderTasks'
 import Profile from './components/Provider/Profile'
 import { ToastContainer } from 'react-toastify'
+import ProviderTaskDetails from './components/Provider/ProviderTaskDetails'
 
 function App() {
   const isAuthenticated = localStorage.getItem('token')
@@ -35,7 +35,10 @@ function App() {
             <Route path="/user/dashboard" element={<Dashboard />} />
             <Route path="/user/dashboard/profile" element={<UserPage />} />
             <Route path="/user/dashboard/tasks" element={<TaskPage />} />
-            <Route path="/user/dashboard/task" element={<TaskDetailsPage />} />
+            <Route
+              path="/user/dashboard/task/:taskId"
+              element={<TaskDetailsPage />}
+            />
             <Route
               path="*"
               element={<Navigate to="/user/dashboard" replace />}
@@ -44,6 +47,10 @@ function App() {
         ) : isProviderAuthenticated ? (
           <>
             <Route path="/provider/tasks" element={<ProviderTasks />} />
+            <Route
+              path="/provider/tasks/:taskId"
+              element={<ProviderTaskDetails />}
+            />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/" replace />} />

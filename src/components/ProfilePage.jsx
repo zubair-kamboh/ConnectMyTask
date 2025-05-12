@@ -20,7 +20,7 @@ export default function ProfilePage({ profile, onEdit }) {
   }
 
   if (!profile) return null
-
+  console.log(profile)
   return (
     <Paper elevation={3} sx={{ p: 4, maxWidth: 700, mx: 'auto', mt: 14 }}>
       <Box display="flex" alignItems="center" gap={3}>
@@ -43,14 +43,7 @@ export default function ProfilePage({ profile, onEdit }) {
           <Typography variant="subtitle2">User ID</Typography>
           <Typography>{profile._id}</Typography>
         </Grid>
-        <Grid item xs={6}>
-          <Typography variant="subtitle2">Location</Typography>
-          <Typography>
-            {`${profile.location.suburb} 
-              ${profile.location.city} 
-              ${profile.location.state}` || 'N/A'}
-          </Typography>
-        </Grid>
+
         <Grid item xs={6}>
           <Typography variant="subtitle2">Registered On</Typography>
           <Typography>

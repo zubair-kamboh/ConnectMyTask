@@ -67,7 +67,7 @@ export default function Login() {
     <>
       <Navbar />
       <ToastContainer />
-      {loading && <Loader fullScreen />}
+      {/* {loading && <Loader fullScreen />} */}
       <Container maxWidth="sm">
         <Box
           sx={{

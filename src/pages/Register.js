@@ -11,34 +11,32 @@ import {
   Select,
   InputLabel,
   FormControl,
-  Grid,
   Chip,
   Stack,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Loader from '../components/Loader'
 import Footer from '../components/Footer'
+
 const Input = styled('input')({
   display: 'none',
 })
 
 export default function Register() {
+  const navigate = useNavigate()
+
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
     role: 'user',
-    location: {
-      state: '',
-      city: '',
-      suburb: '',
-    },
     skills: [],
     profilePhoto: null,
   })
+
   const [skillInput, setSkillInput] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -83,11 +81,7 @@ export default function Register() {
     formData.append('role', form.role)
     formData.append('profilePhoto', form.profilePhoto)
 
-    formData.append('location.state', form.location.state)
-    formData.append('location.city', form.location.city)
-    formData.append('location.suburb', form.location.suburb)
-
-    if (form.skills.length > 0) {
+    if (form.role === 'provider' && form.skills.length > 0) {
       formData.append('skills', form.skills.join(','))
     }
 
@@ -100,6 +94,7 @@ export default function Register() {
       const data = await res.json()
       if (res.ok) {
         toast.success('Registered successfully!')
+        setTimeout(() => navigate('/login'), 2000) // Navigate after toast
       } else {
         toast.error(data.msg || 'Registration failed')
       }
@@ -189,88 +184,51 @@ export default function Register() {
                 </Select>
               </FormControl>
 
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="State"
-                    name="state"
-                    value={form.location.state}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        location: { ...form.location, state: e.target.value },
-                      })
-                    }
-                    required
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="City"
-                    name="city"
-                    value={form.location.city}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        location: { ...form.location, city: e.target.value },
-                      })
-                    }
-                    required
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="Suburb"
-                    name="suburb"
-                    value={form.location.suburb}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        location: { ...form.location, suburb: e.target.value },
-                      })
-                    }
-                    required
-                    fullWidth
-                  />
-                </Grid>
-              </Grid>
+              {/* Show skills input only for providers */}
+              {form.role === 'provider' && (
+                <>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <TextField
+                      label="Add Skill"
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      fullWidth
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleSkillAdd()
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleSkillAdd()
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </Box>
 
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <TextField
-                  label="Add Skill"
-                  value={skillInput}
-                  onChange={(e) => setSkillInput(e.target.value)}
-                  fullWidth
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleSkillAdd()
-                    }
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handleSkillAdd()
-                  }}
-                >
-                  Add
-                </Button>
-              </Box>
-
-              <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
-                {form.skills.map((skill) => (
-                  <Chip
-                    key={skill}
-                    label={skill}
-                    onDelete={() => handleSkillDelete(skill)}
-                    color="primary"
-                  />
-                ))}
-              </Stack>
+                  <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
+                    {form.skills.map((skill) => (
+                      <Chip
+                        key={skill}
+                        label={skill}
+                        onDelete={() => handleSkillDelete(skill)}
+                        color="primary"
+                      />
+                    ))}
+                  </Stack>
+                </>
+              )}
 
               <Box>
                 <label htmlFor="profilePhoto">
@@ -297,7 +255,7 @@ export default function Register() {
                 variant="body2"
                 color="textSecondary"
               >
-                Already have an account? <NavLink to={'/login'}>Login</NavLink>
+                Already have an account? <NavLink to="/login">Login</NavLink>
               </Typography>
             </Stack>
           </form>

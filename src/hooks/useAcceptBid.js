@@ -13,7 +13,6 @@ export default function useAcceptBid() {
 
     try {
       const token = localStorage.getItem('token')
-      console.log(token)
       const response = axios.put(
         `http://localhost:3300/api/tasks/${taskId}/acceptBid/${bidId}`,
         {},
@@ -24,8 +23,6 @@ export default function useAcceptBid() {
         }
       )
 
-      toast.success('Offer accepted successfully!')
-      console.log(response.data)
       return response.data
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to accept offer'

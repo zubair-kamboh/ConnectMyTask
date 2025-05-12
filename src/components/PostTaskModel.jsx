@@ -1,33 +1,9 @@
-import React, { useState } from 'react'
-import {
-  Modal,
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  TextField,
-  MenuItem,
-  Stepper,
-  Step,
-  StepLabel,
-  Grid,
-  Divider,
-  useTheme,
-} from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import axios from 'axios'
+import React, { useState, useRef, useEffect } from 'react'
+import { Modal } from '@mui/material'
 import Loader from './Loader'
+import axios from 'axios'
 import { toast } from 'react-toastify'
-
-const steps = [
-  'Title',
-  'Description',
-  'Budget',
-  'Deadline',
-  'Location',
-  'Images',
-  'Category',
-]
+import { useMapsLibrary } from '@vis.gl/react-google-maps'
 
 const categories = [
   'Cleaning',
@@ -43,51 +19,26 @@ const categories = [
 ]
 
 export default function PostTaskModal({ open, onClose }) {
-  const theme = useTheme()
-  const isDarkMode = theme.palette.mode === 'dark'
-
-  const [formStep, setFormStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     budget: '',
     deadline: '',
-    location: {
-      state: '',
-      city: '',
-      suburb: '',
+    locationType: 'remote',
+    locationDetails: {
+      address: '',
+      lat: null,
+      lng: null,
     },
     images: [],
     category: '',
   })
 
-  const resetForm = () => {
-    setFormStep(0)
-    setFormData({
-      title: '',
-      description: '',
-      budget: '',
-      deadline: '',
-      location: { state: '', city: '', suburb: '' },
-      images: [],
-      category: '',
-    })
-  }
-
   const handleChange = (e) => {
     const { name, value, files } = e.target
-
     if (name === 'images') {
       setFormData({ ...formData, images: Array.from(files).slice(0, 3) })
-    } else if (['state', 'city', 'suburb'].includes(name)) {
-      setFormData({
-        ...formData,
-        location: {
-          ...formData.location,
-          [name]: value,
-        },
-      })
     } else {
       setFormData({ ...formData, [name]: value })
     }
@@ -98,13 +49,21 @@ export default function PostTaskModal({ open, onClose }) {
     const token = localStorage.getItem('token')
     const taskData = new FormData()
 
+    const locationPayload =
+      formData.locationType === 'remote'
+        ? { type: 'remote' }
+        : {
+            type: 'physical',
+            address: formData.locationDetails.address,
+            lat: formData.locationDetails.lat,
+            lng: formData.locationDetails.lng,
+          }
+
+    taskData.append('location', JSON.stringify(locationPayload))
+
     Object.entries(formData).forEach(([key, val]) => {
       if (key === 'images') {
         val.forEach((file) => taskData.append('images', file))
-      } else if (key === 'location') {
-        Object.entries(val).forEach(([locKey, locVal]) => {
-          taskData.append(`location.${locKey}`, locVal)
-        })
       } else {
         taskData.append(key, val)
       }
@@ -119,7 +78,15 @@ export default function PostTaskModal({ open, onClose }) {
       })
 
       toast.success('Task posted successfully!')
-      resetForm()
+      setFormData({
+        title: '',
+        description: '',
+        budget: '',
+        deadline: '',
+        location: '',
+        images: [],
+        category: '',
+      })
       onClose()
     } catch (err) {
       toast.error('Failed to post task. Please try again.')
@@ -128,224 +95,248 @@ export default function PostTaskModal({ open, onClose }) {
     }
   }
 
-  const renderStep = () => {
-    switch (formStep) {
-      case 0:
-        return (
-          <TextField
-            fullWidth
-            label="What do you need done?"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="e.g. Help move my sofa"
-            sx={{ mt: 3 }}
-            InputLabelProps={{ sx: { fontSize: 18 } }}
-            inputProps={{ style: { fontSize: 18 } }}
-          />
-        )
-      case 1:
-        return (
-          <TextField
-            fullWidth
-            label="Describe your task in detail"
-            name="description"
-            multiline
-            rows={5}
-            value={formData.description}
-            onChange={handleChange}
-            sx={{ mt: 3 }}
-            InputLabelProps={{ sx: { fontSize: 18 } }}
-            inputProps={{ style: { fontSize: 16 } }}
-          />
-        )
-      case 2:
-        return (
-          <TextField
-            fullWidth
-            label="Your budget (in $)"
-            name="budget"
-            type="number"
-            value={formData.budget}
-            onChange={handleChange}
-            sx={{ mt: 3 }}
-            InputLabelProps={{ sx: { fontSize: 18 } }}
-            inputProps={{ style: { fontSize: 18 } }}
-          />
-        )
-      case 3:
-        return (
-          <TextField
-            fullWidth
-            label="When is the deadline?"
-            name="deadline"
-            type="date"
-            InputLabelProps={{ shrink: true, sx: { fontSize: 18 } }}
-            inputProps={{ style: { fontSize: 18 } }}
-            value={formData.deadline}
-            onChange={handleChange}
-            sx={{ mt: 3 }}
-          />
-        )
-      case 4:
-        return (
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            {['state', 'city', 'suburb'].map((field) => (
-              <Grid item xs={12} key={field}>
-                <TextField
-                  fullWidth
-                  label={field.charAt(0).toUpperCase() + field.slice(1)}
-                  name={field}
-                  value={formData.location[field]}
-                  onChange={handleChange}
-                  InputLabelProps={{ sx: { fontSize: 18 } }}
-                  inputProps={{ style: { fontSize: 18 } }}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        )
-      case 5:
-        return (
-          <Button
-            variant="outlined"
-            component="label"
-            fullWidth
-            sx={{ mt: 3, p: 2, fontSize: 16 }}
-          >
-            Upload Images (Max 3)
-            <input
-              hidden
-              name="images"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleChange}
-            />
-          </Button>
-        )
-      case 6:
-        return (
-          <TextField
-            fullWidth
-            select
-            label="Select a category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            sx={{ mt: 3 }}
-            InputLabelProps={{ sx: { fontSize: 18 } }}
-            inputProps={{ style: { fontSize: 18 } }}
-          >
-            {categories.map((cat) => (
-              <MenuItem key={cat} value={cat}>
-                {cat}
-              </MenuItem>
-            ))}
-          </TextField>
-        )
-      default:
-        return null
-    }
+  {
+    loading && (
+      <div className="fixed top-0 left-0 w-full h-full z-[1000] bg-black bg-opacity-50 flex items-center justify-center">
+        <Loader />
+      </div>
+    )
   }
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          display: 'flex',
-          height: '100vh',
-          bgcolor: isDarkMode ? 'background.default' : '#f9f9fb',
-          color: isDarkMode ? 'text.primary' : 'inherit',
-        }}
-      >
-        {/* Sidebar */}
-        <Box
-          width="20%"
-          bgcolor={isDarkMode ? 'background.paper' : '#fff'}
-          p={4}
-          boxShadow={2}
-        >
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Create Task
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <Stepper activeStep={formStep} orientation="vertical">
-            {steps.map((label, index) => (
-              <Step key={label}>
-                <StepLabel
-                  onClick={() => setFormStep(index)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <Typography fontSize={16}>{label}</Typography>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Box>
-
-        {/* Main */}
-        <Box
-          flex={1}
-          p={5}
-          position="relative"
-          bgcolor={isDarkMode ? 'background.default' : '#f9f9fb'}
-        >
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Typography variant="h4" fontWeight="bold">
-              {steps[formStep]}
-            </Typography>
-            <IconButton onClick={onClose}>
-              <CloseIcon fontSize="large" />
-            </IconButton>
-          </Box>
-
-          {renderStep()}
-
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            mt={5}
-            position="absolute"
-            bottom={40}
-            left={40}
-            right={40}
-          >
-            <Button
-              variant="outlined"
-              disabled={formStep === 0}
-              onClick={() => setFormStep((prev) => prev - 1)}
-              sx={{ px: 4, py: 1.5, fontSize: 16 }}
+      <div className="flex justify-center items-center h-screen bg-opacity-80 overflow-auto">
+        <div className="relative z-[999] w-full max-w-4xl p-8 bg-white dark:bg-gray-900 rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-3xl font-semibold text-gray-800 dark:text-white">
+              Post a Task
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-3xl text-gray-800 dark:text-white hover:text-red-500"
             >
-              Back
-            </Button>
-            {formStep < steps.length - 1 ? (
-              <Button
-                variant="contained"
-                onClick={() => setFormStep((prev) => prev + 1)}
-                sx={{ px: 4, py: 1.5, fontSize: 16 }}
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                sx={{ px: 4, py: 1.5, fontSize: 16 }}
-              >
-                Submit Task
-              </Button>
-            )}
-          </Box>
+              &times;
+            </button>
+          </div>
 
-          {loading && <Loader fullScreen />}
-        </Box>
-      </Box>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                What do you need done?
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="e.g. Help move my sofa"
+                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Describe your task in detail
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="5"
+                placeholder="e.g. I need help moving furniture"
+                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Your budget (in $)
+              </label>
+              <input
+                type="number"
+                name="budget"
+                value={formData.budget}
+                onChange={handleChange}
+                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                When is the deadline?
+              </label>
+              <input
+                type="date"
+                name="deadline"
+                value={formData.deadline}
+                onChange={handleChange}
+                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Location Type
+              </label>
+              <select
+                name="locationType"
+                value={formData.locationType}
+                onChange={(e) =>
+                  setFormData({ ...formData, locationType: e.target.value })
+                }
+                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+              >
+                <option value="remote">Remote</option>
+                <option value="physical">Physical</option>
+              </select>
+            </div>
+
+            {formData.locationType === 'physical' && (
+              <div>
+                <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  Address
+                </label>
+                <PlaceAutocomplete
+                  onPlaceSelect={(place) => {
+                    const address = place?.formatted_address || ''
+                    const lat = place?.geometry?.location?.lat()
+                    const lng = place?.geometry?.location?.lng()
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationDetails: {
+                        address,
+                        lat,
+                        lng,
+                      },
+                    }))
+                  }}
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Upload images (Max 3)
+              </label>
+              <div className="flex flex-col ">
+                <label
+                  htmlFor="file-upload"
+                  className="w-full max-w-xs p-4 text-center bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-700 transition duration-200"
+                >
+                  Click to Upload
+                  <input
+                    id="file-upload"
+                    hidden
+                    name="images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleChange}
+                    maxLength={3}
+                    className="hidden"
+                  />
+                </label>
+
+                {formData.images.length > 0 && (
+                  <div className="mt-4 flex space-x-2">
+                    {formData.images.map((file, index) => (
+                      <div
+                        key={index}
+                        className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-md overflow-hidden"
+                      >
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`preview-${index}`}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Select a category
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+              >
+                <option value="" disabled>
+                  Select a category
+                </option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={onClose}
+                className="px-6 py-3 border rounded-md dark:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-6 py-3 bg-blue-600 text-white rounded-md"
+              >
+                Post Task
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </Modal>
+  )
+}
+
+const PlaceAutocomplete = ({ onPlaceSelect }) => {
+  const placesLib = useMapsLibrary('places')
+  const inputRef = useRef(null)
+  const [autocomplete, setAutocomplete] = useState(null)
+
+  useEffect(() => {
+    if (!placesLib || !inputRef.current) return
+
+    const options = {
+      fields: ['geometry', 'name', 'formatted_address'],
+      types: ['address'],
+      componentRestrictions: { country: 'au' },
+    }
+
+    const ac = new placesLib.Autocomplete(inputRef.current, options)
+    setAutocomplete(ac)
+  }, [placesLib])
+
+  useEffect(() => {
+    if (!autocomplete) return
+
+    const listener = autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace()
+      onPlaceSelect(place)
+    })
+
+    return () => listener?.remove()
+  }, [autocomplete, onPlaceSelect])
+
+  return (
+    <div className="relative z-[1000]">
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder="Search for an address"
+        className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+        autoComplete="off"
+      />
+    </div>
   )
 }

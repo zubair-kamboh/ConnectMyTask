@@ -1,6 +1,6 @@
 'use client'
 
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Layout from './Layout'
@@ -15,26 +15,47 @@ import {
 } from 'react-icons/fa'
 import useAcceptBid from '../hooks/useAcceptBid'
 import ChatModal from './ChatModal'
+import axios from 'axios'
+import Loader from './Loader'
+import { toast } from 'react-toastify'
 
 export default function TaskDetailsPage() {
-  const { state } = useLocation()
-  const [task, setTask] = useState(state?.task)
-  const [acceptedBid, setAcceptedBid] = useState(null) // Track accepted bid
+  const { taskId } = useParams()
+  const [task, setTask] = useState(null)
+  const [accepting, setAccepting] = useState(false)
   const { acceptBid, loading } = useAcceptBid()
+  console.log(task)
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const response = await axios.get(
+          `http://localhost:3300/api/tasks/${taskId}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        )
+        setTask(response.data)
+      } catch (err) {
+        console.error('Error fetching task:', err)
+      }
+    }
+
+    fetchTask()
+  }, [taskId])
 
   const handleAcceptOffer = async (bid) => {
-    console.log(task._id, bid._id)
-    const updated = await acceptBid(task._id, bid._id)
-    if (updated) {
-      setTask(updated)
-      setAcceptedBid(bid) // Save the accepted bid
-    }
+    setAccepting(true)
+    await acceptBid(task._id, bid._id)
+    window.location.reload()
   }
 
-  if (!task) {
+  if (!task || accepting) {
     return (
-      <div className="p-8 text-center text-lg text-gray-600">
-        No task selected
+      <div className="flex justify-center items-center h-screen">
+        <Loader />
       </div>
     )
   }
@@ -42,7 +63,6 @@ export default function TaskDetailsPage() {
   const sortedBids = [...(task.bids || [])].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   )
-  console.log(task)
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -85,10 +105,7 @@ export default function TaskDetailsPage() {
               <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                 <FaMapMarkerAlt /> Location
               </h2>
-              <p className="text-gray-600 mt-1">
-                {task.location.suburb}, {task.location.city},{' '}
-                {task.location.state}
-              </p>
+              <p className="text-gray-600 mt-1">{task.location?.address}</p>
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
@@ -123,30 +140,6 @@ export default function TaskDetailsPage() {
               </div>
             </div>
           )}
-
-          {/* Offer Accepted Section */}
-          {/* {acceptedBid && (
-            <div className="mt-6 p-4 bg-green-100 rounded-lg">
-              <h2 className="text-xl font-semibold text-green-700 mb-4">
-                Offer Accepted
-              </h2>
-              <div className="space-y-2">
-                <p className="text-gray-700">
-                  You have accepted an offer from{' '}
-                  <strong>{acceptedBid.provider.email}</strong>.
-                </p>
-                <p className="text-gray-700">
-                  Estimated Time: {acceptedBid.estimatedTime}
-                </p>
-                <p className="text-gray-700">
-                  Price: <strong>${acceptedBid.price}</strong>
-                </p>
-              </div>
-              <button className="mt-4 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md flex items-center gap-2">
-                <FaComments /> Chat with Provider
-              </button>
-            </div>
-          )} */}
 
           {/* Offers Section */}
           <div className="mt-6">
@@ -213,7 +206,7 @@ const OfferAcceptedSection = ({ task }) => {
   const isOwner = currentUser?.id === task?.user._id
   const isInProgress = task?.status === 'In Progress'
   const assignedProvider = task?.assignedProvider
-
+  console.log(task)
   const acceptedBid = task?.bids?.find(
     (bid) => bid.provider._id === assignedProvider?._id
   )
@@ -236,10 +229,6 @@ const OfferAcceptedSection = ({ task }) => {
             {assignedProvider.name}
           </p>
           <p className="text-gray-700">{assignedProvider.email}</p>
-          <p className="text-gray-700">
-            {assignedProvider.location.suburb}, {assignedProvider.location.city}
-            , {assignedProvider.location.state}
-          </p>
 
           {acceptedBid && (
             <div className="pt-4 border-t border-gray-200">

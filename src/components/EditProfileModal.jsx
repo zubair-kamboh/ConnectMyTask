@@ -24,11 +24,8 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
       setFormData({
         name: profile.name || '',
         email: profile.email || '',
-        state: profile.location?.state || '',
-        city: profile.location?.city || '',
-        suburb: profile.location?.suburb || '',
+
         profilePhoto: profile.profilePhoto || '',
-        skills: profile.skills?.join(', ') || '',
       })
       setPreviewPhoto(profile.profilePhoto || '')
     }
@@ -131,38 +128,6 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
           name="email"
           disabled
           value={formData.email}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          margin="normal"
-          label="State"
-          name="state"
-          value={formData.state}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          margin="normal"
-          label="City"
-          name="city"
-          value={formData.city}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Suburb"
-          name="suburb"
-          value={formData.suburb}
-          onChange={handleChange}
-        />
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Skills (comma-separated)"
-          name="skills"
-          value={formData.skills}
           onChange={handleChange}
         />
       </DialogContent>
