@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 import useSubmitOffer from '../../hooks/useSubmitOffer'
 import SubmitOffer from './SubmitOffer'
 import Comments from './Comments'
+import ChatModal from '../ChatModal'
 
 const Avatar = ({ name, src }) => {
   if (src) {
@@ -44,6 +45,7 @@ const ProviderTaskDetails = () => {
   const [showModal, setShowModal] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const [textValue, setTextValue] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
 
   const {
     submitOffer,
@@ -82,8 +84,6 @@ const ProviderTaskDetails = () => {
     fetchTask()
   }, [taskId])
 
-  console.log(task)
-
   const isBidAccepted =
     loggedInProviderId && task?.assignedProvider?._id === loggedInProviderId
 
@@ -121,7 +121,6 @@ const ProviderTaskDetails = () => {
 
     try {
       const token = localStorage.getItem('providerToken')
-      console.log(token)
       await axios.post(
         `http://localhost:3300/api/tasks/${task?._id}/comment`,
         { text: textValue },
@@ -139,8 +138,6 @@ const ProviderTaskDetails = () => {
       toast.error('Failed to post your question.')
     }
   }
-
-  console.log(textValue)
 
   if (loading) return <Loader fullScreen />
   if (error) return <p>{error}</p>
@@ -211,6 +208,13 @@ const ProviderTaskDetails = () => {
                 <div className="text-md font-medium text-[#001B5D]">
                   {task.user.name}
                 </div>
+
+                <ChatModal
+                  isOpen={isOpen}
+                  onClose={() => setIsOpen(false)}
+                  user={task?.user}
+                  task={task}
+                />
               </div>
             </div>
 
@@ -319,18 +323,27 @@ const ProviderTaskDetails = () => {
                 </h2>
                 <div className="mt-2">
                   <p>Your bid has been accepted for this task.</p>
+
                   <div className="mt-4">
-                    <h3 className="text-md font-semibold">Task Details:</h3>
-                    <p>
+                    <h3 className="text-md font-semibold text-[#001B5D]">
+                      Task Details:
+                    </h3>
+                    <p className="text-gray-800">
                       <strong>Location:</strong> {task.location.address}
                     </p>
-                    <p>
+                    <p className="text-gray-800">
                       <strong>Budget:</strong> ${task.budget}
                     </p>
-                    <p>
+                    <p className="text-gray-800">
                       <strong>Deadline:</strong>{' '}
                       {format(new Date(task.deadline), 'PPPp')}
                     </p>
+                    <button
+                      onClick={() => setIsOpen(true)}
+                      className="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 focus:ring-2 focus:ring-green-500 transition"
+                    >
+                      Contact {task?.user.name || 'User'}
+                    </button>
                   </div>
                 </div>
               </div>

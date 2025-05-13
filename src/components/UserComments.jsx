@@ -16,10 +16,10 @@ const Avatar = ({ name, src }) => {
     .split(' ')
     .map((word) => word[0])
     .join('')
-    .slice(0, 2)
+
   return (
     <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-sm">
-      {initials}
+      {initials.slice(0, 2)}
     </div>
   )
 }
@@ -29,8 +29,8 @@ const Comments = ({ taskId, comments, refreshTask }) => {
   const [replyingTo, setReplyingTo] = useState(null)
   const [replyText, setReplyText] = useState('')
 
-  const token = localStorage.getItem('providerToken')
-  const loggedInProviderId = JSON.parse(localStorage.getItem('provider')).id
+  const token = localStorage.getItem('token')
+  const loggedInProviderId = JSON.parse(localStorage.getItem('user')).id
 
   const handlePostComment = async () => {
     if (!textValue.trim()) {
@@ -110,11 +110,11 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
   return (
     <div className="mt-8 mb-8">
-      <h2 className="text-xl font-bold mb-4">Comments</h2>
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Comments</h2>
 
       <div className="mb-6">
         <textarea
-          className="w-full border rounded-md p-3"
+          className="w-full border rounded-md p-3 text-sm"
           rows="3"
           placeholder="Write a comment..."
           value={textValue}

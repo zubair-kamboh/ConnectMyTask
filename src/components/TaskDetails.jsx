@@ -1,6 +1,6 @@
 'use client'
 
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Layout from './Layout'
@@ -17,32 +17,31 @@ import useAcceptBid from '../hooks/useAcceptBid'
 import ChatModal from './ChatModal'
 import axios from 'axios'
 import Loader from './Loader'
-import { toast } from 'react-toastify'
+import UserComments from './UserComments'
 
 export default function TaskDetailsPage() {
   const { taskId } = useParams()
   const [task, setTask] = useState(null)
   const [accepting, setAccepting] = useState(false)
   const { acceptBid, loading } = useAcceptBid()
-  console.log(task)
-  useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const response = await axios.get(
-          `http://localhost:3300/api/tasks/${taskId}`,
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        )
-        setTask(response.data)
-      } catch (err) {
-        console.error('Error fetching task:', err)
-      }
-    }
+  const [isOpen, setIsOpen] = useState(false)
 
+  const fetchTask = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get(
+        `http://localhost:3300/api/tasks/${taskId}`,
+        {
+          headers: { Authorization: `${token}` },
+        }
+      )
+      setTask(response.data)
+    } catch (err) {
+      console.error('Error fetching task:', err)
+    }
+  }
+
+  useEffect(() => {
     fetchTask()
   }, [taskId])
 
@@ -63,6 +62,9 @@ export default function TaskDetailsPage() {
   const sortedBids = [...(task.bids || [])].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   )
+
+  const currentUser = JSON.parse(localStorage.getItem('user'))
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -72,10 +74,8 @@ export default function TaskDetailsPage() {
           transition={{ duration: 0.5 }}
           className="bg-white shadow-lg rounded-2xl p-6 space-y-6"
         >
-          {/* Title */}
           <h1 className="text-3xl font-bold text-gray-800">{task.title}</h1>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-3 text-sm">
             <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
               <FaDollarSign /> ${task.budget}
@@ -91,7 +91,6 @@ export default function TaskDetailsPage() {
             </span>
           </div>
 
-          {/* Description */}
           <div>
             <h2 className="text-xl font-semibold text-gray-700 mb-1">
               Description
@@ -99,7 +98,6 @@ export default function TaskDetailsPage() {
             <p className="text-gray-600">{task.description}</p>
           </div>
 
-          {/* Location & Poster */}
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
               <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
@@ -123,7 +121,6 @@ export default function TaskDetailsPage() {
             </div>
           </div>
 
-          {/* Image Gallery */}
           {task.images.length > 0 && (
             <div className="mt-4">
               <h2 className="text-lg font-semibold text-gray-700 mb-2">
@@ -141,15 +138,17 @@ export default function TaskDetailsPage() {
             </div>
           )}
 
-          {/* Offers Section */}
           <div className="mt-6">
             <h2 className="text-xl font-semibold text-gray-700 mb-2">Offers</h2>
 
-            {/* If task is In Progress AND assignedProvider exists AND user is the owner, show accepted section */}
             {task.status === 'In Progress' &&
             task.assignedProvider &&
-            JSON.parse(localStorage.getItem('user')).id === task.user._id ? (
-              <OfferAcceptedSection task={task} />
+            currentUser.id === task.user._id ? (
+              <OfferAcceptedSection
+                task={task}
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+              />
             ) : sortedBids.length === 0 ? (
               <p className="text-gray-500">No offers yet.</p>
             ) : (
@@ -179,8 +178,7 @@ export default function TaskDetailsPage() {
                       ${bid.price}
                     </p>
 
-                    {JSON.parse(localStorage.getItem('user')).id ===
-                      task.user._id && (
+                    {currentUser.id === task.user._id && (
                       <button
                         disabled={loading}
                         onClick={() => handleAcceptOffer(bid)}
@@ -194,19 +192,31 @@ export default function TaskDetailsPage() {
               </div>
             )}
           </div>
+
+          {/* Task Completion and Review Form Section */}
+          {task.status === 'In Progress' &&
+            currentUser.id === task.user._id && (
+              <TaskCompletionSection task={task} completeTask={completeTask} />
+            )}
+
+          <UserComments
+            taskId={task._id}
+            comments={task.comments}
+            refreshTask={fetchTask}
+          />
         </motion.div>
       </div>
     </Layout>
   )
 }
 
-const OfferAcceptedSection = ({ task }) => {
-  const [showChat, setShowChat] = useState(false)
+// Lifted state version of OfferAcceptedSection
+function OfferAcceptedSection({ task, isOpen, setIsOpen }) {
   const currentUser = JSON.parse(localStorage.getItem('user'))
   const isOwner = currentUser?.id === task?.user._id
   const isInProgress = task?.status === 'In Progress'
   const assignedProvider = task?.assignedProvider
-  console.log(task)
+
   const acceptedBid = task?.bids?.find(
     (bid) => bid.provider._id === assignedProvider?._id
   )
@@ -222,9 +232,7 @@ const OfferAcceptedSection = ({ task }) => {
           alt={assignedProvider.name}
           className="w-24 h-24 rounded-full border-4 border-white shadow-sm object-cover"
         />
-
         <div className="flex-1 space-y-2">
-          {/* Provider info */}
           <p className="text-lg font-semibold text-gray-800">
             {assignedProvider.name}
           </p>
@@ -242,20 +250,31 @@ const OfferAcceptedSection = ({ task }) => {
             </div>
           )}
 
+          {/* Chat Modal at the bottom of main component */}
+          <ChatModal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            provider={task?.assignedProvider}
+            task={task}
+          />
+
+          {/* <ChatModal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            user={task?.user}
+            task={task}
+          /> */}
+
           <button
-            onClick={() => setShowChat(true)}
+            onClick={() => {
+              setIsOpen(true)
+            }}
             className="mt-4 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition"
           >
             <FaComments className="text-white" /> Contact Provider
           </button>
         </div>
       </div>
-
-      <ChatModal
-        isOpen={showChat}
-        onClose={() => setShowChat(false)}
-        provider={assignedProvider}
-      />
     </div>
   )
 }
