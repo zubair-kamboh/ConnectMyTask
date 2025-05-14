@@ -23,6 +23,7 @@ import { format } from 'date-fns'
 
 import PostTaskModal from './PostTaskModel'
 import { toast } from 'react-toastify'
+import AcceptOfferModal from './ConfirmAcceptOffer'
 
 export default function TaskDetailsPage() {
   const { taskId } = useParams()
@@ -31,6 +32,8 @@ export default function TaskDetailsPage() {
   const { acceptBid, loading } = useAcceptBid()
   const [isOpen, setIsOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedBid, setSelectedBid] = useState(null)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const navigate = useNavigate()
 
@@ -263,11 +266,13 @@ export default function TaskDetailsPage() {
                               task.user._id === currentUser.id && (
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={() => handleAcceptOffer(bid)}
-                                    className="px-4 py-2 bg-[#1A3D8F] text-white rounded-md hover:bg-[#163473] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={loading}
+                                    onClick={() => {
+                                      setSelectedBid(bid)
+                                      setShowConfirmModal(true)
+                                    }}
+                                    className="px-4 py-2 bg-[#1A3D8F] hover:bg-[#14538A] text-white rounded-md text-sm"
                                   >
-                                    {loading ? 'Accepting...' : 'Accept Offer'}
+                                    Accept Offer
                                   </button>
                                   <NavLink
                                     to={`/provider/profile/${bid.provider._id}`}
@@ -284,6 +289,15 @@ export default function TaskDetailsPage() {
                   )}
                 </div>
               )}
+
+              <AcceptOfferModal
+                isOpen={showConfirmModal}
+                onClose={() => setShowConfirmModal(false)}
+                onConfirm={async () => {
+                  setShowConfirmModal(false)
+                  await handleAcceptOffer(selectedBid)
+                }}
+              />
 
               <UserComments
                 taskId={task._id}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { toast } from 'react-hot-toast'
+import { toast } from 'react-toastify'
 
 export default function useProviderTasks() {
   const [tasks, setTasks] = useState(null)
@@ -18,6 +18,7 @@ export default function useProviderTasks() {
             Authorization: `${token}`,
           },
         })
+        console.log(response)
         setTasks(response.data)
       } catch (err) {
         const msg =

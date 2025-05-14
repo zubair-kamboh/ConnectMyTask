@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CalendarIcon, ClockIcon, MapPinIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -50,6 +50,13 @@ const CardContent = ({ children }) => (
 export default function ProviderTasks() {
   const { tasks, tasksLoading } = useProviderTasks()
   const navigate = useNavigate()
+  const [filteredTasks, setFilteredTasks] = useState(tasks)
+
+  useEffect(() => {
+    if (tasks && Array.isArray(tasks)) {
+      setFilteredTasks(tasks)
+    }
+  }, [tasks])
 
   const customIcon = new L.Icon({
     iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854878.png',
@@ -62,13 +69,14 @@ export default function ProviderTasks() {
   const handleTaskClick = (taskId) => {
     navigate(`/provider/tasks/${taskId}`)
   }
-
+  // console.log(tasks.length)
   return (
     <div className="bg-[#F9FAFB] min-h-screen">
       <Header />
       {tasksLoading && <Loader fullScreen />}
-
-      <Filters />
+      {console.log(tasks)}
+      <Filters tasks={tasks} onFiltered={setFilteredTasks} />
+      {/* <TaskList tasks={filteredTasks} /> */}
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-center gap-6 py-6">
         <div className="w-full h-[650px] md:max-w-[420px] bg-[#F9FAFB] p-4 space-y-6 overflow-y-auto">
           {tasks !== null &&

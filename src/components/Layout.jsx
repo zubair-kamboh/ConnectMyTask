@@ -72,7 +72,7 @@ const Layout = ({ children }) => {
       icon: <AccountCircle />,
       path: '/user/dashboard/profile',
     },
-    { text: 'Settings', icon: <Settings />, path: '/user/settings' },
+    { text: 'Messages', icon: <Settings />, path: '/user/Messages' },
     { text: 'Logout', icon: <Logout />, action: handleLogout },
   ]
 

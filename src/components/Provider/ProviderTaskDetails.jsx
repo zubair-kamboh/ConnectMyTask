@@ -354,7 +354,6 @@ const ProviderTaskDetails = () => {
                     </div>
                   </div>
                 )}
-
                 {isBidAccepted && (
                   <div className="mt-8 border border-[#1A3D8F] bg-[#F9FAFB] p-6 rounded-xl shadow-lg">
                     <h2 className="text-xl font-semibold text-[#1A3D8F]">
