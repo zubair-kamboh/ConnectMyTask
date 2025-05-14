@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FaStar } from 'react-icons/fa'
 import Loader from './Loader' // Assuming you already have a loader component
+import toast from 'react-hot-toast'
 
 export default function TaskCompletionSection({ task, completeTask }) {
   const [rating, setRating] = useState(0)
@@ -14,16 +15,16 @@ export default function TaskCompletionSection({ task, completeTask }) {
 
   const handleSubmitReview = async () => {
     if (rating === 0 || !comment) {
-      alert('Please provide a rating and a comment.')
+      toast.error('Please provide a rating and a comment.')
       return
     }
     setLoading(true)
     try {
       await completeTask(task._id, { rating, comment, recommend })
-      alert('Task completed and review submitted!')
+      toast.success('Task completed and review submitted!')
     } catch (err) {
       console.error('Error completing task:', err)
-      alert('Failed to complete task. Please try again.')
+      toast.error('Failed to complete task. Please try again.')
     } finally {
       setLoading(false)
     }

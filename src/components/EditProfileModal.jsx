@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { toast } from 'react-toastify'
+import { toast } from 'react-hot-toast'
 
 export default function EditProfileModal({ open, onClose, profile, onSave }) {
   const [formData, setFormData] = useState({})

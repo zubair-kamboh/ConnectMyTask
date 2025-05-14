@@ -54,7 +54,10 @@ const DashboardLayout = ({ children }) => {
       <CssBaseline />
       <AppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: '#1976D2', // Primary color for consistency
+        }}
       >
         <Toolbar>
           <IconButton
@@ -79,7 +82,9 @@ const DashboardLayout = ({ children }) => {
           </IconButton>
 
           <Tooltip title={name}>
-            <Avatar sx={{ ml: 2 }}>{name?.charAt(0)}</Avatar>
+            <Avatar sx={{ ml: 2, backgroundColor: '#1565C0' }}>
+              {name?.charAt(0)}
+            </Avatar>
           </Tooltip>
         </Toolbar>
       </AppBar>
@@ -94,6 +99,7 @@ const DashboardLayout = ({ children }) => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            backgroundColor: '#1976D2', // Matching the AppBar color
           },
         }}
       >
@@ -104,6 +110,11 @@ const DashboardLayout = ({ children }) => {
               button
               key={item.label}
               onClick={() => navigate(item.path)}
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#1565C0', // Hover effect matching AppBar color
+                },
+              }}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />

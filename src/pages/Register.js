@@ -1,31 +1,12 @@
 import { useState } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  Chip,
-  Stack,
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import Loader from '../components/Loader'
 import Footer from '../components/Footer'
-
-const Input = styled('input')({
-  display: 'none',
-})
 
 export default function Register() {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
     name: '',
@@ -38,37 +19,36 @@ export default function Register() {
   })
 
   const [skillInput, setSkillInput] = useState('')
-  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePhotoChange = (e) => {
+    if (e.target.files?.[0]) {
+      setForm((prev) => ({ ...prev, profilePhoto: e.target.files[0] }))
+    }
   }
 
   const handleSkillAdd = () => {
     if (skillInput && !form.skills.includes(skillInput)) {
-      setForm({ ...form, skills: [...form.skills, skillInput] })
+      setForm((prev) => ({ ...prev, skills: [...prev.skills, skillInput] }))
       setSkillInput('')
     }
   }
 
-  const handleSkillDelete = (skillToDelete) => {
-    setForm({
-      ...form,
-      skills: form.skills.filter((skill) => skill !== skillToDelete),
-    })
-  }
-
-  const handlePhotoChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setForm({ ...form, profilePhoto: e.target.files[0] })
-    }
+  const handleSkillDelete = (skillToRemove) => {
+    setForm((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((s) => s !== skillToRemove),
+    }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (form.password !== form.confirmPassword) {
-      toast.error("Passwords don't match. Please try again.")
+      toast.error("Passwords don't match")
       return
     }
 
@@ -79,22 +59,20 @@ export default function Register() {
     formData.append('email', form.email)
     formData.append('password', form.password)
     formData.append('role', form.role)
-    formData.append('profilePhoto', form.profilePhoto)
-
-    if (form.role === 'provider' && form.skills.length > 0) {
+    if (form.profilePhoto) formData.append('profilePhoto', form.profilePhoto)
+    if (form.role === 'provider') {
       formData.append('skills', form.skills.join(','))
     }
 
     try {
-      const res = await fetch(`http://localhost:3300/api/auth/register`, {
+      const res = await fetch('http://localhost:3300/api/auth/register', {
         method: 'POST',
         body: formData,
       })
-
       const data = await res.json()
       if (res.ok) {
         toast.success('Registered successfully!')
-        setTimeout(() => navigate('/login'), 2000) // Navigate after toast
+        navigate('/login')
       } else {
         toast.error(data.msg || 'Registration failed')
       }
@@ -107,161 +85,166 @@ export default function Register() {
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-[#F9FAFB]">
       <Navbar />
-      <Container maxWidth="sm">
-        <ToastContainer />
-        {loading && <Loader fullScreen />}
-
-        <Box
-          sx={{
-            mt: 8,
-            p: 4,
-            boxShadow: 3,
-            borderRadius: 3,
-            bgcolor: 'background.paper',
-          }}
-        >
-          <Typography
-            variant="h4"
-            textAlign="center"
-            color="primary"
-            fontWeight="bold"
-          >
+      <main className="flex-grow flex items-center justify-center px-4">
+        <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-md border border-[#E0E0E0] mt-10 mb-10">
+          <h2 className="text-3xl font-bold text-center text-[#1A3D8F]">
             Create Your Account
-          </Typography>
-
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={3} mt={4}>
-              <TextField
-                label="Full Name"
+          </h2>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Full Name
+              </label>
+              <input
+                type="text"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 required
-                fullWidth
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] text-[#666666]"
               />
-              <TextField
-                label="Email Address"
-                name="email"
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Email Address
+              </label>
+              <input
                 type="email"
+                name="email"
                 value={form.email}
                 onChange={handleChange}
                 required
-                fullWidth
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] text-[#666666]"
               />
-              <TextField
-                label="Create Password"
-                name="password"
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Password
+              </label>
+              <input
                 type="password"
+                name="password"
                 value={form.password}
                 onChange={handleChange}
                 required
-                fullWidth
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] text-[#666666]"
               />
-              <TextField
-                label="Confirm Password"
-                name="confirmPassword"
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Confirm Password
+              </label>
+              <input
                 type="password"
+                name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
                 required
-                fullWidth
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] text-[#666666]"
               />
+            </div>
 
-              <FormControl fullWidth>
-                <InputLabel id="role-label">Role</InputLabel>
-                <Select
-                  labelId="role-label"
-                  name="role"
-                  value={form.role}
-                  label="Role"
-                  onChange={handleChange}
-                  required
-                >
-                  <MenuItem value="user">User</MenuItem>
-                  <MenuItem value="provider">Provider</MenuItem>
-                </Select>
-              </FormControl>
-
-              {/* Show skills input only for providers */}
-              {form.role === 'provider' && (
-                <>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <TextField
-                      label="Add Skill"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      fullWidth
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleSkillAdd()
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="contained"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handleSkillAdd()
-                      }}
-                    >
-                      Add
-                    </Button>
-                  </Box>
-
-                  <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
-                    {form.skills.map((skill) => (
-                      <Chip
-                        key={skill}
-                        label={skill}
-                        onDelete={() => handleSkillDelete(skill)}
-                        color="primary"
-                      />
-                    ))}
-                  </Stack>
-                </>
-              )}
-
-              <Box>
-                <label htmlFor="profilePhoto">
-                  <Input
-                    accept="image/*"
-                    id="profilePhoto"
-                    type="file"
-                    onChange={handlePhotoChange}
-                  />
-                  <Button variant="outlined" component="span" fullWidth>
-                    {form.profilePhoto
-                      ? form.profilePhoto.name
-                      : 'Upload Profile Photo'}
-                  </Button>
-                </label>
-              </Box>
-
-              <Button variant="contained" type="submit" size="large" fullWidth>
-                Register
-              </Button>
-
-              <Typography
-                textAlign="center"
-                variant="body2"
-                color="textSecondary"
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Role
+              </label>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md bg-white text-[#666666] focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
               >
-                Already have an account? <NavLink to="/login">Login</NavLink>
-              </Typography>
-            </Stack>
+                <option value="user">User</option>
+                <option value="provider">Provider</option>
+              </select>
+            </div>
+
+            {form.role === 'provider' && (
+              <div>
+                <label className="block mb-1 font-medium text-[#666666]">
+                  Add Skill
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === 'Enter' &&
+                      (e.preventDefault(), handleSkillAdd())
+                    }
+                    className="flex-grow px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSkillAdd}
+                    className="px-4 py-2 bg-[#1A3D8F] text-white rounded-md hover:bg-[#163373]"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {form.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="bg-[#2EC4B6] text-white px-3 py-1 rounded-full text-sm flex items-center gap-1"
+                    >
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleSkillDelete(skill)}
+                        className="ml-1"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Profile Photo
+              </label>
+              <input
+                type="file"
+                onChange={handlePhotoChange}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-[#1A3D8F] file:text-white
+                  hover:file:bg-[#163373]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#1A3D8F] hover:bg-[#163373] text-white py-2 rounded-md font-medium transition disabled:opacity-60"
+              disabled={loading}
+            >
+              {loading ? 'Registering...' : 'Register'}
+            </button>
+
+            <p className="text-center text-sm text-[#999999]">
+              Already have an account?{' '}
+              <NavLink
+                to="/login"
+                className="text-[#1A3D8F] hover:underline font-medium"
+              >
+                Login
+              </NavLink>
+            </p>
           </form>
-        </Box>
-      </Container>
+        </div>
+      </main>
       <Footer />
-    </>
+    </div>
   )
 }

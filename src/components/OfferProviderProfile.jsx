@@ -1,0 +1,149 @@
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import axios from 'axios'
+import Loader from '../components/Loader'
+import Header from './Provider/Header'
+import { motion } from 'framer-motion'
+import Layout from './Layout'
+
+const OfferProviderProfile = () => {
+  const { providerId } = useParams()
+  const [provider, setProvider] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProvider = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await axios.get(
+          `http://localhost:3300/api/auth/profile/${providerId}`,
+          {
+            headers: { Authorization: `${token}` },
+          }
+        )
+        setProvider(res.data)
+        setLoading(false)
+      } catch (err) {
+        console.error('Failed to fetch provider:', err)
+        setLoading(false)
+      }
+    }
+
+    fetchProvider()
+  }, [providerId])
+
+  if (loading) return <Loader />
+
+  return (
+    <>
+      <Layout>
+        <div className="flex items-center justify-center bg-gray-100 py-8 px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 sm:p-10 transition transform hover:scale-[1.015] duration-300"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm uppercase text-blue-400 font-semibold tracking-wide">
+                  Meet
+                </p>
+                <h1 className="text-3xl font-bold text-gray-800">
+                  {provider?.name}
+                </h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+                  <p className="text-sm text-gray-500">
+                    Online less than a day ago
+                  </p>
+                </div>
+              </div>
+              <img
+                src={provider?.profilePhoto}
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border-4 border-blue-500 shadow-md"
+              />
+            </div>
+
+            {/* Stats */}
+            <div className="mt-6 bg-gray-50 rounded-xl p-5 flex justify-between items-center">
+              <div className="text-center w-1/2">
+                <p className="text-2xl font-semibold text-yellow-500">
+                  {provider?.averageRating.toFixed(1)}{' '}
+                  <span className="text-yellow-400">★</span>
+                </p>
+                <p className="text-gray-600 text-sm mt-1">Rating</p>
+                <p className="text-xs text-blue-600 underline mt-0.5">
+                  {provider?.totalReviews} reviews
+                </p>
+              </div>
+
+              <div className="w-px h-10 bg-gray-300 mx-4" />
+
+              <div className="text-center w-1/2">
+                <p
+                  className={`text-sm font-semibold ${
+                    provider?.isVerified ? 'text-green-600' : 'text-red-500'
+                  }`}
+                >
+                  {provider?.isVerified ? 'Verified' : 'Not Verified'}
+                </p>
+                <p className="text-gray-600 text-sm mt-1">
+                  Role: {provider?.role}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Email: {provider?.email}
+                </p>
+              </div>
+            </div>
+
+            {/* Extra Stats */}
+            <div className="grid grid-cols-2 gap-4 mt-6 text-center">
+              <div className="bg-blue-50 p-4 rounded-xl shadow-sm">
+                <p className="text-lg font-bold text-blue-600">
+                  {provider?.completedTasks}
+                </p>
+                <p className="text-sm text-gray-600">Tasks Completed</p>
+              </div>
+              <div className="bg-green-50 p-4 rounded-xl shadow-sm">
+                <p className="text-lg font-bold text-green-600">
+                  {provider?.recommendations}
+                </p>
+                <p className="text-sm text-gray-600">Recommendations</p>
+              </div>
+              <div className="bg-yellow-50 p-4 rounded-xl shadow-sm col-span-2">
+                <p className="text-lg font-bold text-yellow-600">
+                  {provider?.rank}
+                </p>
+                <p className="text-sm text-gray-600">Current Rank</p>
+              </div>
+            </div>
+
+            {/* Skills */}
+            <div className="mt-6">
+              <p className="text-sm text-gray-500 mb-2 font-medium">Skills</p>
+              <div className="flex flex-wrap gap-2">
+                {provider?.skills.map((skill, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-medium"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Joined */}
+            <div className="mt-6 text-xs text-gray-400">
+              <p>Joined: {new Date(provider?.createdAt).toDateString()}</p>
+            </div>
+          </motion.div>
+        </div>
+      </Layout>
+    </>
+  )
+}
+
+export default OfferProviderProfile

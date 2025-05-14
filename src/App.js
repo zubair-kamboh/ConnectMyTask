@@ -4,6 +4,8 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom'
+import { useAuth } from './context/AuthContext'
+
 import Dashboard from './pages/Dashboard'
 import UserPage from './pages/UserProfile'
 import Login from './pages/Login'
@@ -13,24 +15,24 @@ import TaskPage from './pages/TaskPage'
 import TaskDetailsPage from './components/TaskDetails'
 import ProviderTasks from './pages/ProviderTasks'
 import Profile from './components/Provider/Profile'
-import { ToastContainer } from 'react-toastify'
 import ProviderTaskDetails from './components/Provider/ProviderTaskDetails'
+import OfferProviderProfile from './components/OfferProviderProfile'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
-  const isAuthenticated = localStorage.getItem('token')
-  const isProviderAuthenticated = localStorage.getItem('providerToken')
+  const { user, provider, loading } = useAuth()
 
+  if (loading) return null // Or show a spinner like <Loader fullScreen />
   return (
     <Router>
-      <ToastContainer position="top-right" autoClose={3000} />
-
+      <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/provider/profile" element={<Profile />} />
 
-        {isAuthenticated ? (
+        {user ? (
           <>
             <Route path="/user/dashboard" element={<Dashboard />} />
             <Route path="/user/dashboard/profile" element={<UserPage />} />
@@ -40,20 +42,28 @@ function App() {
               element={<TaskDetailsPage />}
             />
             <Route
+              path="/provider/profile/:providerId"
+              element={<OfferProviderProfile />}
+            />
+            <Route
               path="*"
               element={<Navigate to="/user/dashboard" replace />}
             />
           </>
-        ) : isProviderAuthenticated ? (
+        ) : provider ? (
           <>
             <Route path="/provider/tasks" element={<ProviderTasks />} />
             <Route
               path="/provider/tasks/:taskId"
               element={<ProviderTaskDetails />}
             />
+            <Route
+              path="*"
+              element={<Navigate to="/provider/tasks" replace />}
+            />
           </>
         ) : (
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         )}
       </Routes>
     </Router>

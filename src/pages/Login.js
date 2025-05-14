@@ -1,28 +1,20 @@
 import { useState } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-  Stack,
-} from '@mui/material'
-import Loader from '../components/Loader'
-import Footer from '../components/Footer'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
+import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 export default function Login() {
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  })
+  const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
 
+  const { loginUser, loginProvider } = useAuth()
+  const navigate = useNavigate()
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e) => {
@@ -30,27 +22,25 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const res = await fetch(`http://localhost:3300/api/auth/login`, {
+      const res = await fetch('http://localhost:3300/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
 
       const data = await res.json()
 
       if (res.ok) {
-        if (data.user.role === 'provider') {
-          localStorage.setItem('providerToken', data.token)
-          localStorage.setItem('provider', JSON.stringify(data.user))
+        const { token, user } = data
+
+        if (user.role === 'provider') {
+          loginProvider(user, token)
           toast.success('Provider login successful!')
-          window.location.href = '/provider/tasks'
+          navigate('/provider/tasks')
         } else {
-          localStorage.setItem('token', data.token)
-          localStorage.setItem('user', JSON.stringify(data.user))
+          loginUser(user, token)
           toast.success('Login successful!')
-          window.location.href = '/user/dashboard'
+          navigate('/user/dashboard')
         }
       } else {
         toast.error(data.msg || 'Login failed')
@@ -64,67 +54,71 @@ export default function Login() {
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-[#F9FAFB]">
       <Navbar />
-      <ToastContainer />
-      {/* {loading && <Loader fullScreen />} */}
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            mt: 10,
-            p: 4,
-            boxShadow: 3,
-            borderRadius: 3,
-            bgcolor: 'background.paper',
-          }}
-        >
-          <Typography
-            variant="h4"
-            textAlign="center"
-            color="primary"
-            fontWeight="bold"
-          >
+      <main className="flex-grow flex items-center justify-center px-4">
+        <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md border border-[#E0E0E0] mt-10 mb-10">
+          <h2 className="text-3xl font-bold text-center text-[#1A3D8F]">
             Welcome Back
-          </Typography>
-
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={3} mt={4}>
-              <TextField
-                label="Email Address"
-                name="email"
+          </h2>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="block mb-1 font-medium text-[#666666]"
+              >
+                Email Address
+              </label>
+              <input
                 type="email"
+                name="email"
+                id="email"
                 value={form.email}
                 onChange={handleChange}
                 required
-                fullWidth
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] text-[#666666]"
               />
-              <TextField
-                label="Password"
-                name="password"
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block mb-1 font-medium text-[#666666]"
+              >
+                Password
+              </label>
+              <input
                 type="password"
+                name="password"
+                id="password"
                 value={form.password}
                 onChange={handleChange}
                 required
-                fullWidth
+                className="w-full px-4 py-2 border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] text-[#666666]"
               />
+            </div>
 
-              <Button variant="contained" type="submit" size="large" fullWidth>
-                Login
-              </Button>
+            <button
+              type="submit"
+              className="w-full bg-[#1A3D8F] hover:bg-[#163373] text-white py-2 rounded-md font-medium transition disabled:opacity-60"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
 
-              <Typography
-                textAlign="center"
-                variant="body2"
-                color="textSecondary"
+            <p className="text-center text-sm text-[#999999]">
+              Don’t have an account?{' '}
+              <NavLink
+                to="/register"
+                className="text-[#1A3D8F] hover:underline font-medium"
               >
-                Don't have an account?{' '}
-                <NavLink to="/register">Register</NavLink>
-              </Typography>
-            </Stack>
+                Register
+              </NavLink>
+            </p>
           </form>
-        </Box>
-      </Container>
+        </div>
+      </main>
       <Footer />
-    </>
+    </div>
   )
 }

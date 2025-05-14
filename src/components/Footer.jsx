@@ -1,40 +1,28 @@
-import { Box, Container, Typography, Link as MuiLink } from '@mui/material'
-
 export default function Footer() {
   return (
-    <Box
-      component="footer"
-      sx={{
-        bgcolor: 'primary.main',
-        color: 'primary.contrastText',
-        py: 4,
-        mt: 8,
-      }}
-    >
-      <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          ConnectMyTask
-        </Typography>
+    <footer className="bg-[#1A3D8F] text-white py-6 ">
+      <div className="max-w-7xl mx-auto px-4 text-center">
+        <h2 className="text-lg font-semibold">ConnectMyTask</h2>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2 }}>
-          <MuiLink href="/about" color="inherit" underline="hover">
+        <div className="flex justify-center gap-6 mt-4 flex-wrap">
+          <a href="/about" className="hover:underline hover:text-gray-200">
             About
-          </MuiLink>
-          <MuiLink href="/privacy" color="inherit" underline="hover">
+          </a>
+          <a href="/privacy" className="hover:underline hover:text-gray-200">
             Privacy Policy
-          </MuiLink>
-          <MuiLink href="/terms" color="inherit" underline="hover">
+          </a>
+          <a href="/terms" className="hover:underline hover:text-gray-200">
             Terms & Conditions
-          </MuiLink>
-          <MuiLink href="/contact" color="inherit" underline="hover">
+          </a>
+          <a href="/contact" className="hover:underline hover:text-gray-200">
             Contact
-          </MuiLink>
-        </Box>
+          </a>
+        </div>
 
-        <Typography variant="body2" sx={{ mt: 3 }}>
+        <p className="text-sm mt-4">
           © {new Date().getFullYear()} ConnectMyTask. All rights reserved.
-        </Typography>
-      </Container>
-    </Box>
+        </p>
+      </div>
+    </footer>
   )
 }

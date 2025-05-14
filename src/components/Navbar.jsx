@@ -1,31 +1,35 @@
-import React from 'react'
-import { AppBar, Toolbar, Typography, Button } from '@mui/material'
 import { Link } from 'react-router-dom'
 
 export default function Navbar() {
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography
-          variant="h6"
-          sx={{ flexGrow: 1 }}
-          component={Link}
-          to="/"
-          color="white"
-          style={{ textDecoration: 'none' }}
-        >
-          ConnectMyTask
-        </Typography>
-        <Button color="inherit" component={Link} to="/">
-          Home
-        </Button>
-        <Button color="inherit" component={Link} to="/register">
-          Register
-        </Button>
-        <Button color="inherit" component={Link} to="/login">
-          Login
-        </Button>
-      </Toolbar>
-    </AppBar>
+    <nav className="bg-[#1A3D8F] text-white shadow">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <Link to="/" className="text-xl font-bold hover:text-gray-200">
+            ConnectMyTask
+          </Link>
+          <div className="space-x-4">
+            <Link
+              to="/"
+              className="hover:bg-[#163274] px-4 py-2 rounded transition"
+            >
+              Home
+            </Link>
+            <Link
+              to="/register"
+              className="hover:bg-[#163274] px-4 py-2 rounded transition"
+            >
+              Register
+            </Link>
+            <Link
+              to="/login"
+              className="hover:bg-[#163274] px-4 py-2 rounded transition"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
   )
 }

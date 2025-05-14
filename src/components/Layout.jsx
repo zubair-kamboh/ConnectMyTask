@@ -1,4 +1,3 @@
-// components/Layout.js
 import {
   AppBar,
   Toolbar,
@@ -30,7 +29,7 @@ import {
   Notifications,
 } from '@mui/icons-material'
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles'
-import { useEffect, useState, cloneElement, isValidElement } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 const drawerWidth = 240
@@ -45,7 +44,8 @@ const Layout = ({ children }) => {
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
-      primary: { main: '#1976d2' },
+      primary: { main: '#1A3D8F' }, // Your primary blue color
+      secondary: { main: '#06D6A0' }, // Accent color (greenish)
     },
   })
 
@@ -107,12 +107,17 @@ const Layout = ({ children }) => {
         <AppBar
           position="fixed"
           sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          className="bg-[#1A3D8F]"
         >
           <Toolbar>
             <IconButton color="inherit" onClick={toggleDrawer} sx={{ mr: 2 }}>
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{ flexGrow: 1 }}
+              className="text-white"
+            >
               ConnectMyTask
             </Typography>
             <IconButton color="inherit">
@@ -192,6 +197,7 @@ const Layout = ({ children }) => {
             flexGrow: 1,
             p: 3,
             width: { sm: `calc(100% - ${drawerOpen ? drawerWidth : 56}px)` },
+            className: 'bg-[#F9FAFB]',
           }}
         >
           <Toolbar />

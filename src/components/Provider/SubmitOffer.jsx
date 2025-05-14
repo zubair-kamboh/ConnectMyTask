@@ -11,6 +11,8 @@ const SubmitOffer = ({
   handleSubmitOffer,
   estimatedTime,
   setEstimatedTime,
+  comment,
+  setComment,
 }) => {
   return (
     <AnimatePresence>
@@ -54,7 +56,7 @@ const SubmitOffer = ({
                   <ClockIcon className="mr-2" size={18} />
                   {format(new Date(task.deadline), 'p')}
                 </div>
-                <div className="text-lg font-bold text-[#0073FF] ml-auto">
+                <div className="text-lg font-bold text-[#1A3D8F] ml-auto">
                   Budget: ${task.budget}
                 </div>
               </div>
@@ -65,21 +67,28 @@ const SubmitOffer = ({
               <input
                 type="number"
                 placeholder="Enter your offer amount"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:primary"
                 value={offerAmount}
                 onChange={(e) => setOfferAmount(e.target.value)}
               />
-
-              <textarea
+              <input
+                type="text"
                 placeholder="Write an estimated time & details about your offer..."
-                className="w-full border border-gray-300 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:primary"
                 value={estimatedTime}
                 onChange={(e) => setEstimatedTime(e.target.value)}
               />
 
+              <textarea
+                placeholder="Write a comment about your offer..."
+                className="w-full border border-gray-300 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:primary"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+
               <button
                 onClick={() => handleSubmitOffer(task._id)}
-                className="w-full bg-[#0073FF] hover:bg-[#005ed9] text-white text-lg font-semibold rounded-full py-3 transition"
+                className="w-full bg-[#1A3D8F] hover:bg-[#163373] text-white text-lg font-semibold rounded-full py-3 transition"
               >
                 Submit Offer
               </button>

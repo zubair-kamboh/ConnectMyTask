@@ -193,11 +193,11 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b bg-gray-100 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-gray-800 truncate">
+      <div className="px-4 py-3 border-b bg-[#1A3D8F] text-white flex items-center justify-between">
+        <h2 className="text-base font-semibold text-white truncate">
           Chat with {otherUser?.name || 'User'}
         </h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+        <button onClick={onClose} className="text-white hover:text-gray-300">
           <FaTimes size={16} />
         </button>
       </div>
@@ -205,7 +205,7 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
       {/* Message Area */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50"
+        className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[#F9FAFB]"
       >
         {messages.map((msg, idx) => {
           const isCurrentUser = msg.sender === currentUser?.id
@@ -214,8 +214,8 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
               key={idx}
               className={`relative group max-w-[75%] px-4 py-2 rounded-lg text-sm break-words ${
                 isCurrentUser
-                  ? 'bg-blue-600 text-white ml-auto text-right'
-                  : 'bg-gray-200 text-gray-800 text-left'
+                  ? 'bg-[#1A3D8F] text-white ml-auto text-right'
+                  : 'bg-[#E0E0E0] text-gray-800 text-left'
               }`}
             >
               <div>{msg.text}</div>
@@ -223,7 +223,7 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
                 <div
                   className={`text-xs opacity-60 mt-1 ${
                     isCurrentUser ? 'text-right' : 'text-left'
-                  }`}
+                  } text-[#999999]`}
                 >
                   {formatTime(msg.timestamp)}
                 </div>
@@ -242,12 +242,12 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
           placeholder="Type a message..."
         />
         <button
           onClick={sendMessage}
-          className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition"
+          className="bg-[#1A3D8F] text-white px-4 py-2 rounded-full hover:bg-[#163373] transition"
         >
           Send
         </button>

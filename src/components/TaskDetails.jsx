@@ -1,6 +1,4 @@
-'use client'
-
-import { useParams } from 'react-router-dom'
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Layout from './Layout'
@@ -11,6 +9,8 @@ import {
   FaTag,
   FaMapMarkerAlt,
   FaUser,
+  FaEdit,
+  FaTrashAlt,
   FaComments,
 } from 'react-icons/fa'
 import useAcceptBid from '../hooks/useAcceptBid'
@@ -18,6 +18,11 @@ import ChatModal from './ChatModal'
 import axios from 'axios'
 import Loader from './Loader'
 import UserComments from './UserComments'
+import TaskCompletionSection from './TaskCompletion'
+import { format } from 'date-fns'
+
+import PostTaskModal from './PostTaskModel'
+import { toast } from 'react-toastify'
 
 export default function TaskDetailsPage() {
   const { taskId } = useParams()
@@ -25,6 +30,9 @@ export default function TaskDetailsPage() {
   const [accepting, setAccepting] = useState(false)
   const { acceptBid, loading } = useAcceptBid()
   const [isOpen, setIsOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+
+  const navigate = useNavigate()
 
   const fetchTask = async () => {
     try {
@@ -65,6 +73,25 @@ export default function TaskDetailsPage() {
 
   const currentUser = JSON.parse(localStorage.getItem('user'))
 
+  const handleDeleteTask = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this task?'
+    )
+    if (!confirmed) return
+
+    const token = localStorage.getItem('token')
+    try {
+      await axios.delete(`http://localhost:3300/api/tasks/${taskId}`, {
+        headers: { Authorization: `${token}` },
+      })
+      toast.success('Task deleted successfully!')
+      navigate('/user/dashboard/tasks')
+    } catch (err) {
+      toast.error('Failed to delete task.')
+      console.error(err)
+    }
+  }
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -74,25 +101,44 @@ export default function TaskDetailsPage() {
           transition={{ duration: 0.5 }}
           className="bg-white shadow-lg rounded-2xl p-6 space-y-6"
         >
-          <h1 className="text-3xl font-bold text-gray-800">{task.title}</h1>
+          <h1 className="text-3xl font-bold text-[#1A3D8F]">{task.title}</h1>
+          {currentUser?.id === task?.user._id && (
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setEditModalOpen(true)}
+                className="inline-flex items-center gap-2 bg-[#1A3D8F] hover:bg-[#14538A] text-white px-4 py-2 rounded-md text-sm transition"
+              >
+                <FaEdit className="text-white" />
+                Edit Task
+              </button>
+
+              <button
+                onClick={handleDeleteTask}
+                className="inline-flex items-center gap-2 bg-[#1A3D8F] hover:bg-[#14538A] text-white px-4 py-2 rounded-md text-sm transition"
+              >
+                <FaTrashAlt className="text-white" />
+                Delete Task
+              </button>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-2 bg-[#1A3D8F] text-white px-3 py-1 rounded-full">
               <FaDollarSign /> ${task.budget}
             </span>
-            <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-2 bg-[#F0F5FF] text-[#1A3D8F] px-3 py-1 rounded-full">
               <FaCalendarAlt /> {new Date(task.deadline).toLocaleDateString()}
             </span>
-            <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-2 bg-[#06D6A0] text-white px-3 py-1 rounded-full">
               <FaCheckCircle /> {task.status}
             </span>
-            <span className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-2 bg-[#FF6B6B] text-white px-3 py-1 rounded-full">
               <FaTag /> {task.category}
             </span>
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold text-gray-700 mb-1">
+            <h2 className="text-xl font-semibold text-[#1A3D8F] mb-1">
               Description
             </h2>
             <p className="text-gray-600">{task.description}</p>
@@ -100,13 +146,13 @@ export default function TaskDetailsPage() {
 
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
-              <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-[#1A3D8F] flex items-center gap-2">
                 <FaMapMarkerAlt /> Location
               </h2>
               <p className="text-gray-600 mt-1">{task.location?.address}</p>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-[#1A3D8F] flex items-center gap-2">
                 <FaUser /> Posted by
               </h2>
               <div className="flex items-center mt-2 gap-3">
@@ -123,7 +169,7 @@ export default function TaskDetailsPage() {
 
           {task.images.length > 0 && (
             <div className="mt-4">
-              <h2 className="text-lg font-semibold text-gray-700 mb-2">
+              <h2 className="text-lg font-semibold text-[#1A3D8F] mb-2">
                 Images
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -138,80 +184,139 @@ export default function TaskDetailsPage() {
             </div>
           )}
 
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">Offers</h2>
-
-            {task.status === 'In Progress' &&
-            task.assignedProvider &&
-            currentUser.id === task.user._id ? (
-              <OfferAcceptedSection
-                task={task}
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-              />
-            ) : sortedBids.length === 0 ? (
-              <p className="text-gray-500">No offers yet.</p>
-            ) : (
-              <div className="space-y-4">
-                {sortedBids.map((bid) => (
-                  <div
-                    key={bid._id}
-                    className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-semibold">
-                        {bid.provider.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-gray-800 font-medium">
-                          {bid.provider.name}
-                        </p>
-                        <p className="text-gray-500 text-sm">
-                          {new Date(bid.date).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-gray-700 mt-2">
-                      Estimated Time: {bid.estimatedTime}
-                    </p>
-                    <p className="text-green-600 font-semibold mt-1">
-                      ${bid.price}
-                    </p>
-
-                    {currentUser.id === task.user._id && (
-                      <button
-                        disabled={loading}
-                        onClick={() => handleAcceptOffer(bid)}
-                        className="mt-2 inline-block text-sm text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md disabled:opacity-50"
-                      >
-                        {loading ? 'Accepting...' : 'Accept Offer'}
-                      </button>
-                    )}
-                  </div>
-                ))}
+          {task.status === 'Completed' ? (
+            <div className="bg-[#1A3D8F] border-l-4 border-[#2EC4B6] text-white p-6 rounded-lg shadow mb-6">
+              <h2 className="text-3xl font-bold mb-2">🎉 Task Completed!</h2>
+              <p className="text-white text-lg">
+                This task has been successfully completed. Thank you for your
+                contribution!
+              </p>
+              <div className="mt-4 text-white space-y-2">
+                <p>
+                  <strong>Title:</strong> {task.title}
+                </p>
+                <p>
+                  <strong>Location:</strong> {task.location?.address}
+                </p>
+                <p>
+                  <strong>Budget:</strong> ${task.budget}
+                </p>
+                <p>
+                  <strong>Deadline:</strong>{' '}
+                  {format(new Date(task.deadline), 'PPP')}
+                </p>
+                <p>
+                  <strong>Posted By:</strong> {task.user.name}
+                </p>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              {/* Hide Offers Section when Task is completed */}
+              {task.status !== 'Completed' && (
+                <div className="mt-6">
+                  <h2 className="text-xl font-semibold text-[#1A3D8F] mb-2">
+                    Offers
+                  </h2>
 
-          {/* Task Completion and Review Form Section */}
-          {task.status === 'In Progress' &&
-            currentUser.id === task.user._id && (
-              <TaskCompletionSection task={task} completeTask={completeTask} />
-            )}
+                  {task.status === 'In Progress' &&
+                  task.assignedProvider &&
+                  currentUser.id === task.user._id ? (
+                    <OfferAcceptedSection
+                      task={task}
+                      isOpen={isOpen}
+                      setIsOpen={setIsOpen}
+                    />
+                  ) : sortedBids.length === 0 ? (
+                    <p className="text-gray-500">No offers yet.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {sortedBids.map((bid) => (
+                        <div
+                          key={bid._id}
+                          className="p-4 bg-[#F9FAFB] rounded-lg border border-[#E0E0E0]"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="bg-[#1A3D8F] text-white w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                              {bid.provider.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="text-[#1A3D8F] font-medium">
+                                {bid.provider.name}
+                              </p>
+                              <p className="text-gray-500 text-sm">
+                                {new Date(bid.date).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="mt-3 text-gray-600">{bid.details}</p>
+                          <div className="mt-3 flex justify-between items-center">
+                            <div>
+                              <p className="text-[#1A3D8F] font-semibold">
+                                ${bid.price}
+                              </p>
+                              <p className="text-[#1A3D8F]">
+                                Comments: {bid.comment ? bid.comment : 'N/A'}
+                              </p>
+                            </div>
+                            {task.status === 'Active' &&
+                              task.user._id === currentUser.id && (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleAcceptOffer(bid)}
+                                    className="px-4 py-2 bg-[#1A3D8F] text-white rounded-md hover:bg-[#163473] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={loading}
+                                  >
+                                    {loading ? 'Accepting...' : 'Accept Offer'}
+                                  </button>
+                                  <NavLink
+                                    to={`/provider/profile/${bid.provider._id}`}
+                                    className="px-4 py-2 bg-[#1A3D8F] text-white rounded-md hover:bg-[#163473] transition-colors"
+                                  >
+                                    View Profile
+                                  </NavLink>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
-          <UserComments
-            taskId={task._id}
-            comments={task.comments}
-            refreshTask={fetchTask}
-          />
+              <UserComments
+                taskId={task._id}
+                comments={task.comments}
+                refreshTask={fetchTask}
+              />
+            </>
+          )}
         </motion.div>
       </div>
     </Layout>
   )
 }
 
-// Lifted state version of OfferAcceptedSection
-function OfferAcceptedSection({ task, isOpen, setIsOpen }) {
+// Function to handle completing the task via the backend API
+const completeTask = async (taskId, reviewData) => {
+  const token = localStorage.getItem('token')
+  try {
+    const response = await axios.put(
+      `http://localhost:3300/api/tasks/${taskId}/completeTask`,
+      reviewData,
+      {
+        headers: { Authorization: `${token}` },
+      }
+    )
+    return response.data
+  } catch (err) {
+    console.error('Error completing task:', err)
+    throw err
+  }
+}
+
+const OfferAcceptedSection = ({ task, isOpen, setIsOpen }) => {
   const currentUser = JSON.parse(localStorage.getItem('user'))
   const isOwner = currentUser?.id === task?.user._id
   const isInProgress = task?.status === 'In Progress'
@@ -221,19 +326,34 @@ function OfferAcceptedSection({ task, isOpen, setIsOpen }) {
     (bid) => bid.provider._id === assignedProvider?._id
   )
 
+  const [completionModalOpen, setCompletionModalOpen] = useState(false)
+
+  useEffect(() => {
+    if (completionModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [completionModalOpen])
+
   if (!isOwner || !isInProgress || !assignedProvider) return null
 
   return (
-    <div className="bg-green-50 border border-green-200 rounded-2xl p-6 shadow-md mt-6">
-      <h2 className="text-2xl font-bold text-green-800 mb-4">Offer Accepted</h2>
+    <div className="bg-[#F0F5FF] border border-[#1A3D8F]/20 rounded-2xl p-6 shadow-md mt-6">
+      <h2 className="text-2xl font-bold text-[#1A3D8F] mb-4">Offer Accepted</h2>
+
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
         <img
           src={assignedProvider.profilePhoto}
           alt={assignedProvider.name}
           className="w-24 h-24 rounded-full border-4 border-white shadow-sm object-cover"
         />
+
         <div className="flex-1 space-y-2">
-          <p className="text-lg font-semibold text-gray-800">
+          <p className="text-lg font-semibold text-[#1A3D8F]">
             {assignedProvider.name}
           </p>
           <p className="text-gray-700">{assignedProvider.email}</p>
@@ -241,7 +361,7 @@ function OfferAcceptedSection({ task, isOpen, setIsOpen }) {
           {acceptedBid && (
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-500">Accepted Offer</p>
-              <p className="text-gray-800 font-medium text-lg">
+              <p className="text-[#1A3D8F] font-medium text-lg">
                 ${acceptedBid.price}{' '}
                 <span className="text-sm text-gray-500">
                   ({acceptedBid.estimatedTime})
@@ -250,7 +370,6 @@ function OfferAcceptedSection({ task, isOpen, setIsOpen }) {
             </div>
           )}
 
-          {/* Chat Modal at the bottom of main component */}
           <ChatModal
             isOpen={isOpen}
             onClose={() => setIsOpen(false)}
@@ -258,23 +377,51 @@ function OfferAcceptedSection({ task, isOpen, setIsOpen }) {
             task={task}
           />
 
-          {/* <ChatModal
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-            user={task?.user}
-            task={task}
-          /> */}
+          <div className="flex flex-wrap gap-3 mt-4">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="bg-[#1A3D8F] text-white px-5 py-2 rounded-lg hover:bg-[#163473] flex items-center gap-2 transition"
+            >
+              <FaComments className="text-white" /> Contact Provider
+            </button>
 
-          <button
-            onClick={() => {
-              setIsOpen(true)
-            }}
-            className="mt-4 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 transition"
-          >
-            <FaComments className="text-white" /> Contact Provider
-          </button>
+            <Link
+              to={`/provider/profile/${assignedProvider._id}`}
+              className="bg-[#1A3D8F] text-white px-5 py-2 rounded-lg hover:bg-[#163473] flex items-center gap-2 transition"
+            >
+              View Full Profile
+            </Link>
+
+            <button
+              onClick={() => setCompletionModalOpen(true)}
+              className="bg-[#06D6A0] text-white px-5 py-2 rounded-lg hover:bg-[#05b790] flex items-center gap-2 transition"
+            >
+              <FaCheckCircle /> Complete Task
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Modal for Completing Task */}
+      {completionModalOpen && (
+        <div className="fixed z-[9999] inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white max-w-lg w-full rounded-xl p-6 shadow-xl relative">
+            <button
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl"
+              onClick={() => setCompletionModalOpen(false)}
+            >
+              ×
+            </button>
+            <TaskCompletionSection
+              task={task}
+              completeTask={async (taskId, reviewData) => {
+                await completeTask(taskId, reviewData)
+                setCompletionModalOpen(false)
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

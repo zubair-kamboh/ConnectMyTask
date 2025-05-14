@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Modal } from '@mui/material'
 import Loader from './Loader'
 import axios from 'axios'
-import { toast } from 'react-toastify'
+import { toast } from 'react-hot-toast'
 import { useMapsLibrary } from '@vis.gl/react-google-maps'
 
 const categories = [
@@ -18,7 +18,7 @@ const categories = [
   'Other',
 ]
 
-export default function PostTaskModal({ open, onClose }) {
+export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
@@ -34,6 +34,25 @@ export default function PostTaskModal({ open, onClose }) {
     images: [],
     category: '',
   })
+
+  useEffect(() => {
+    if (taskToEdit) {
+      setFormData({
+        title: taskToEdit.title || '',
+        description: taskToEdit.description || '',
+        budget: taskToEdit.budget || '',
+        deadline: taskToEdit.deadline?.split('T')[0] || '',
+        locationType: taskToEdit.location?.type || 'remote',
+        locationDetails: {
+          address: taskToEdit.location?.address || '',
+          lat: taskToEdit.location?.lat || null,
+          lng: taskToEdit.location?.lng || null,
+        },
+        images: [], // Leave empty; don't preload URLs
+        category: taskToEdit.category || '',
+      })
+    }
+  }, [taskToEdit])
 
   const handleChange = (e) => {
     const { name, value, files } = e.target
@@ -70,130 +89,131 @@ export default function PostTaskModal({ open, onClose }) {
     })
 
     try {
-      await axios.post('http://localhost:3300/api/tasks', taskData, {
-        headers: {
-          Authorization: `${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      if (taskToEdit) {
+        const updateData = new FormData()
 
-      toast.success('Task posted successfully!')
-      setFormData({
-        title: '',
-        description: '',
-        budget: '',
-        deadline: '',
-        location: '',
-        images: [],
-        category: '',
-      })
+        updateData.append('title', formData.title)
+        updateData.append('description', formData.description)
+        updateData.append('budget', formData.budget)
+        updateData.append('deadline', formData.deadline)
+        updateData.append('category', formData.category)
+
+        const locationPayload =
+          formData.locationType === 'remote'
+            ? { type: 'remote' }
+            : {
+                type: 'physical',
+                address: formData.locationDetails.address,
+                lat: formData.locationDetails.lat,
+                lng: formData.locationDetails.lng,
+              }
+
+        updateData.append('location', JSON.stringify(locationPayload))
+
+        await axios.put(
+          `http://localhost:3300/api/tasks/${taskToEdit._id}`,
+          updateData,
+          {
+            headers: {
+              Authorization: `${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        )
+      } else {
+        await axios.post('http://localhost:3300/api/tasks', taskData, {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        toast.success('Task posted successfully!')
+      }
+
       onClose()
     } catch (err) {
-      toast.error('Failed to post task. Please try again.')
+      toast.error('Failed to submit task. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  {
-    loading && (
-      <div className="fixed top-0 left-0 w-full h-full z-[1000] bg-black bg-opacity-50 flex items-center justify-center">
-        <Loader />
-      </div>
-    )
+  if (loading) {
+    return <Loader fullScreen />
   }
 
   return (
     <Modal open={open} onClose={onClose}>
-      <div className="flex justify-center items-center h-screen bg-opacity-80 overflow-auto">
-        <div className="relative z-[999] w-full max-w-4xl p-8 bg-white dark:bg-gray-900 rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-3xl font-semibold text-gray-800 dark:text-white">
-              Post a Task
+      <div className="flex justify-center items-center h-screen bg-black bg-opacity-50 overflow-y-auto px-4">
+        <div className="relative z-[999] w-full max-w-2xl p-6 md:p-8 bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+              {taskToEdit ? 'Edit Task' : 'Post a Task'}
             </h3>
             <button
               onClick={onClose}
-              className="text-3xl text-gray-800 dark:text-white hover:text-red-500"
+              className="text-3xl text-primary hover:text-primaryDark transform hover:scale-125 transition"
             >
               &times;
             </button>
           </div>
 
-          <div className="space-y-6">
-            <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                What do you need done?
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="e.g. Help move my sofa"
-                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
-              />
-            </div>
+          <div className="space-y-5">
+            {/* Title */}
+            <InputField
+              label="What do you need done?"
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="e.g. Help move my sofa"
+            />
 
-            <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Describe your task in detail
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows="5"
-                placeholder="e.g. I need help moving furniture"
-                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
-              />
-            </div>
+            {/* Description */}
+            <TextareaField
+              label="Describe your task in detail"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="e.g. I need help moving furniture"
+            />
 
-            <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Your budget (in $)
-              </label>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget}
-                onChange={handleChange}
-                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
-              />
-            </div>
+            {/* Budget */}
+            <InputField
+              label="Your budget (in $)"
+              type="number"
+              name="budget"
+              value={formData.budget}
+              onChange={handleChange}
+            />
 
-            <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                When is the deadline?
-              </label>
-              <input
-                type="date"
-                name="deadline"
-                value={formData.deadline}
-                onChange={handleChange}
-                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
-              />
-            </div>
+            {/* Deadline */}
+            <InputField
+              label="When is the deadline?"
+              type="date"
+              name="deadline"
+              value={formData.deadline}
+              onChange={handleChange}
+            />
 
-            <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Location Type
-              </label>
-              <select
-                name="locationType"
-                value={formData.locationType}
-                onChange={(e) =>
-                  setFormData({ ...formData, locationType: e.target.value })
-                }
-                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
-              >
-                <option value="remote">Remote</option>
-                <option value="physical">Physical</option>
-              </select>
-            </div>
+            {/* Location Type */}
+            <SelectField
+              label="Location Type"
+              name="locationType"
+              value={formData.locationType}
+              onChange={(e) =>
+                setFormData({ ...formData, locationType: e.target.value })
+              }
+              options={[
+                { label: 'Remote', value: 'remote' },
+                { label: 'Physical', value: 'physical' },
+              ]}
+            />
 
+            {/* Address for Physical Location */}
             {formData.locationType === 'physical' && (
               <div>
-                <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Address
                 </label>
                 <PlaceAutocomplete
@@ -201,27 +221,24 @@ export default function PostTaskModal({ open, onClose }) {
                     const address = place?.formatted_address || ''
                     const lat = place?.geometry?.location?.lat()
                     const lng = place?.geometry?.location?.lng()
-
                     setFormData((prev) => ({
                       ...prev,
-                      locationDetails: {
-                        address,
-                        lat,
-                        lng,
-                      },
+                      locationDetails: { address, lat, lng },
                     }))
                   }}
                 />
               </div>
             )}
+
+            {/* Images Upload */}
             <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+              <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Upload images (Max 3)
               </label>
-              <div className="flex flex-col ">
+              <div className="flex flex-col gap-3">
                 <label
                   htmlFor="file-upload"
-                  className="w-full max-w-xs p-4 text-center bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-700 transition duration-200"
+                  className="w-full max-w-sm p-3 text-center text-white bg-primary hover:bg-primaryDark rounded-md cursor-pointer transition"
                 >
                   Click to Upload
                   <input
@@ -232,22 +249,20 @@ export default function PostTaskModal({ open, onClose }) {
                     accept="image/*"
                     multiple
                     onChange={handleChange}
-                    maxLength={3}
                     className="hidden"
                   />
                 </label>
-
                 {formData.images.length > 0 && (
-                  <div className="mt-4 flex space-x-2">
+                  <div className="flex gap-2 flex-wrap">
                     {formData.images.map((file, index) => (
                       <div
                         key={index}
-                        className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-md overflow-hidden"
+                        className="w-20 h-20 rounded-md overflow-hidden border bg-gray-100"
                       >
                         <img
                           src={URL.createObjectURL(file)}
                           alt={`preview-${index}`}
-                          className="object-cover w-full h-full"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     ))}
@@ -256,40 +271,28 @@ export default function PostTaskModal({ open, onClose }) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Select a category
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
-              >
-                <option value="" disabled>
-                  Select a category
-                </option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Category */}
+            <SelectField
+              label="Select a category"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              options={categories.map((c) => ({ label: c, value: c }))}
+            />
 
-            <div className="flex justify-between mt-6">
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 pt-4">
               <button
                 onClick={onClose}
-                className="px-6 py-3 border rounded-md dark:text-white"
+                className="px-5 py-2 rounded-md border border-gray-400 text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-800 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={loading}
-                className="px-6 py-3 bg-blue-600 text-white rounded-md"
+                className="px-6 py-2 rounded-md bg-primary text-white hover:bg-primaryDark transition"
               >
-                Post Task
+                {taskToEdit ? 'Update Task' : 'Post Task'}
               </button>
             </div>
           </div>
@@ -298,6 +301,54 @@ export default function PostTaskModal({ open, onClose }) {
     </Modal>
   )
 }
+
+const InputField = ({ label, ...props }) => (
+  <div>
+    <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+      {label}
+    </label>
+    <input
+      {...props}
+      className="w-full p-3 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+)
+
+const TextareaField = ({ label, ...props }) => (
+  <div>
+    <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+      {label}
+    </label>
+    <textarea
+      {...props}
+      rows="5"
+      className="w-full p-3 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+)
+
+const SelectField = ({ label, name, value, onChange, options }) => (
+  <div>
+    <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+      {label}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full p-3 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="" disabled>
+        Select
+      </option>
+      {options.map((opt, i) => (
+        <option key={i} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  </div>
+)
 
 const PlaceAutocomplete = ({ onPlaceSelect }) => {
   const placesLib = useMapsLibrary('places')
@@ -334,7 +385,7 @@ const PlaceAutocomplete = ({ onPlaceSelect }) => {
         ref={inputRef}
         type="text"
         placeholder="Search for an address"
-        className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white"
+        className="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
         autoComplete="off"
       />
     </div>

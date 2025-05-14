@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from 'react-hot-toast'
 import axios from 'axios'
 
 const Avatar = ({ name, src }) => {
@@ -31,7 +31,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
   const token = localStorage.getItem('providerToken')
   const loggedInProviderId = JSON.parse(localStorage.getItem('provider')).id
-
+  console.log(comments)
   const handlePostComment = async () => {
     if (!textValue.trim()) {
       toast.error('Please enter a comment.')
@@ -112,22 +112,6 @@ const Comments = ({ taskId, comments, refreshTask }) => {
     <div className="mt-8 mb-8">
       <h2 className="text-xl font-bold mb-4">Comments</h2>
 
-      <div className="mb-6">
-        <textarea
-          className="w-full border rounded-md p-3"
-          rows="3"
-          placeholder="Write a comment..."
-          value={textValue}
-          onChange={(e) => setTextValue(e.target.value)}
-        />
-        <button
-          onClick={handlePostComment}
-          className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Post Comment
-        </button>
-      </div>
-
       {comments?.length === 0 ? (
         <p className="text-gray-500">No comments yet.</p>
       ) : (
@@ -163,7 +147,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
                         replyingTo === comment._id ? null : comment._id
                       )
                     }
-                    className="text-sm text-blue-500 hover:underline"
+                    className="text-sm text-[#1A3D8F] hover:underline"
                   >
                     {replyingTo === comment._id ? 'Cancel' : 'Reply'}
                   </button>
@@ -179,7 +163,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
                       />
                       <button
                         onClick={() => handlePostReply(comment._id)}
-                        className="mt-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                        className="mt-1 bg-[#1A3D8F] hover:bg-[#163373] text-white px-3 py-1 rounded text-sm"
                       >
                         Post Reply
                       </button>
@@ -195,6 +179,22 @@ const Comments = ({ taskId, comments, refreshTask }) => {
           ))}
         </div>
       )}
+
+      <div className="mb-6">
+        <textarea
+          className="w-full border rounded-md p-3"
+          rows="3"
+          placeholder="Write a comment..."
+          value={textValue}
+          onChange={(e) => setTextValue(e.target.value)}
+        />
+        <button
+          onClick={handlePostComment}
+          className="mt-2 bg-[#1A3D8F] hover:bg-[#163373] text-white px-4 py-2 rounded"
+        >
+          Post Comment
+        </button>
+      </div>
     </div>
   )
 }

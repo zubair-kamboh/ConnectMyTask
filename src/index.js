@@ -4,12 +4,15 @@ import './index.css'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 import { APIProvider } from '@vis.gl/react-google-maps'
+import { AuthProvider } from './context/AuthContext'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     <APIProvider apiKey="AIzaSyCw5oCey7i_yWvKuJVQ-apK_xenWUqgsUY">
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </APIProvider>
   </React.StrictMode>
 )

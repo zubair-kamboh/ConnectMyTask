@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
 import Loader from '../Loader'
-import { toast } from 'react-toastify'
+import { toast } from 'react-hot-toast'
 import useSubmitOffer from '../../hooks/useSubmitOffer'
 import SubmitOffer from './SubmitOffer'
 import Comments from './Comments'
@@ -40,7 +40,7 @@ const ProviderTaskDetails = () => {
   const [error, setError] = useState('')
   const [offerAmount, setOfferAmount] = useState('')
   const [estimatedTime, setEstimatedTime] = useState('')
-  const [showOfferForm, setShowOfferForm] = useState(false)
+  const [comment, setComment] = useState('')
   const navigate = useNavigate()
   const [showModal, setShowModal] = useState(false)
   const [inputValue, setInputValue] = useState('')
@@ -92,7 +92,7 @@ const ProviderTaskDetails = () => {
   )
 
   const handleSubmitOffer = async (id) => {
-    if (!offerAmount || !estimatedTime) {
+    if (!offerAmount || !estimatedTime || !comment) {
       toast.error('Please fill in all the fields.')
       return
     }
@@ -100,6 +100,7 @@ const ProviderTaskDetails = () => {
     const offerData = {
       price: parseFloat(offerAmount),
       estimatedTime,
+      comment,
     }
 
     const response = await submitOffer(id, offerData)
@@ -165,11 +166,19 @@ const ProviderTaskDetails = () => {
             >
               <XIcon size={24} />
             </button>
-
+            {console.log(task)}
             {/* Status + Title */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div>
-                <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
+                <span
+                  className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
+                    task.status === 'Active'
+                      ? 'text-[#FF6B6B]'
+                      : task.status === 'In Progress'
+                      ? 'text-[#2EC4B6]'
+                      : 'text-[#666666]'
+                  }`}
+                >
                   {task.status.toUpperCase()}
                 </span>
                 <h1 className="text-3xl font-extrabold mt-2 text-[#001B5D]">
@@ -188,7 +197,7 @@ const ProviderTaskDetails = () => {
                 {!hasAlreadyBid ? (
                   <button
                     onClick={() => setShowModal(true)}
-                    className="mt-4 bg-[#0073FF] hover:bg-[#005ed9] text-white text-lg font-semibold rounded-full px-6 py-3 w-full transition-all"
+                    className="mt-4 bg-[#1A3D8F] hover:bg-[#163373] text-white text-lg font-semibold rounded-full px-6 py-3 w-full transition-all"
                   >
                     Make an offer
                   </button>
@@ -263,117 +272,166 @@ const ProviderTaskDetails = () => {
               </div>
             )}
 
-            <Comments
-              taskId={task._id}
-              comments={task.comments}
-              refreshTask={fetchTask}
-            />
-
-            {task.bids && task.bids.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-[#001B5D] mb-4">
-                  Bids
+            {task.status === 'Completed' ? (
+              <div className="bg-[#F9FAFB] border-l-4 border-[#1A3D8F] text-[#1A3D8F] p-6 rounded-lg shadow mb-6">
+                <h2 className="text-3xl font-bold mb-2 text-[#1A3D8F]">
+                  🎉 Task Completed!
                 </h2>
-                <div className="max-h-[400px] overflow-y-auto space-y-4">
-                  {task.bids.map((bid) => (
-                    <div
-                      key={bid._id}
-                      className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white"
-                    >
-                      <div className="flex items-center mb-2">
-                        <Avatar name={bid.provider.name} />
-                        <div className="ml-3">
-                          <div className="text-md font-semibold text-[#001B5D]">
-                            {bid.provider.name}{' '}
-                            {loggedInProviderId === bid.provider._id && (
-                              <span className="text-sm text-gray-500">
-                                (You)
-                              </span>
-                            )}
+                <p className="text-[#1A3D8F] text-lg">
+                  This task has been successfully completed. Thank you for your
+                  contribution!
+                </p>
+                <div className="mt-4 text-gray-800 space-y-2">
+                  <p>
+                    <strong>Title:</strong> {task.title}
+                  </p>
+                  <p>
+                    <strong>Location:</strong> {task.location?.address || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Budget:</strong> ${task.budget}
+                  </p>
+                  <p>
+                    <strong>Deadline:</strong>{' '}
+                    {format(new Date(task.deadline), 'PPP')}
+                  </p>
+                  <p>
+                    <strong>Posted By:</strong> {task.user.name}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Comments
+                  taskId={task._id}
+                  comments={task.comments}
+                  refreshTask={fetchTask}
+                />
+
+                {task.bids && task.bids.length > 0 && (
+                  <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-[#001B5D] mb-4">
+                      Bids
+                    </h2>
+                    <div className="max-h-[400px] overflow-y-auto space-y-4">
+                      {task.bids.map((bid) => (
+                        <div
+                          key={bid._id}
+                          className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white"
+                        >
+                          <div className="flex items-center mb-2">
+                            <Avatar name={bid.provider.name} />
+                            <div className="ml-3">
+                              <div className="text-md font-semibold text-[#001B5D]">
+                                {bid.provider.name}{' '}
+                                {loggedInProviderId === bid.provider._id && (
+                                  <span className="text-sm text-gray-500">
+                                    (You)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {bid.provider.email}
+                              </div>
+                            </div>
                           </div>
+                          <div className="text-gray-800 mb-1">
+                            <strong>Price:</strong> ${bid.price}
+                          </div>
+                          <div className="text-gray-800 mb-1">
+                            <strong>Estimated Time:</strong> {bid.estimatedTime}
+                          </div>
+                          {bid.comment && (
+                            <div className="text-gray-800 mb-1">
+                              <strong>Comment:</strong> {bid.comment}
+                            </div>
+                          )}
                           <div className="text-sm text-gray-500">
-                            {bid.provider.email}
+                            {format(new Date(bid.date), 'PPPp')}
                           </div>
                         </div>
-                      </div>
-                      <div className="text-gray-800 mb-1">
-                        <strong>Price:</strong> ${bid.price}
-                      </div>
-                      <div className="text-gray-800 mb-1">
-                        <strong>Estimated Time:</strong> {bid.estimatedTime}
-                      </div>
-                      {bid.comment && (
-                        <div className="text-gray-800 mb-1">
-                          <strong>Comment:</strong> {bid.comment}
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {isBidAccepted && (
+                  <div className="mt-8 border border-[#1A3D8F] bg-[#F9FAFB] p-6 rounded-xl shadow-lg">
+                    <h2 className="text-xl font-semibold text-[#1A3D8F]">
+                      Bid Accepted
+                    </h2>
+                    <div className="mt-4 text-[#666666]">
+                      <p>Your bid has been accepted for this task.</p>
+                      <div className="mt-6">
+                        <h3 className="text-md font-semibold text-[#1A3D8F]">
+                          Task Details:
+                        </h3>
+                        <p className="text-gray-800 mt-2">
+                          <strong>Location:</strong> {task.location.address}
+                        </p>
+                        <p className="text-gray-800 mt-2">
+                          <strong>Budget:</strong> ${task.budget}
+                        </p>
+                        <p className="text-gray-800 mt-2">
+                          <strong>Deadline:</strong>{' '}
+                          {format(new Date(task.deadline), 'PPPp')}
+                        </p>
+                        <div className="mt-6">
+                          <button
+                            onClick={() => setIsOpen(true)}
+                            className="bg-[#1A3D8F] text-white px-6 py-3 rounded-full hover:bg-[#163373] focus:ring-2 focus:ring-[#1A3D8F] transition duration-200"
+                          >
+                            Contact {task?.user.name || 'User'}
+                          </button>
                         </div>
-                      )}
-                      <div className="text-sm text-gray-500">
-                        {format(new Date(bid.date), 'PPPp')}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {isBidAccepted && (
-              <div className="mt-8 border border-green-500 bg-green-100 p-4 rounded-lg shadow-sm">
-                <h2 className="text-lg font-semibold text-green-700">
-                  Bid Accepted
-                </h2>
-                <div className="mt-2">
-                  <p>Your bid has been accepted for this task.</p>
-
-                  <div className="mt-4">
-                    <h3 className="text-md font-semibold text-[#001B5D]">
-                      Task Details:
-                    </h3>
-                    <p className="text-gray-800">
-                      <strong>Location:</strong> {task.location.address}
-                    </p>
-                    <p className="text-gray-800">
-                      <strong>Budget:</strong> ${task.budget}
-                    </p>
-                    <p className="text-gray-800">
-                      <strong>Deadline:</strong>{' '}
-                      {format(new Date(task.deadline), 'PPPp')}
-                    </p>
-                    <button
-                      onClick={() => setIsOpen(true)}
-                      className="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 focus:ring-2 focus:ring-green-500 transition"
-                    >
-                      Contact {task?.user.name || 'User'}
-                    </button>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            <SubmitOffer
-              isVisible={showModal}
-              onClose={() => setShowModal(false)}
-              onSubmit={handleSubmitOffer}
-              setOfferAmount={setOfferAmount}
-              setEstimatedTime={setEstimatedTime}
-              offerAmount={offerAmount}
-              task={task}
-              estimatedTime={estimatedTime}
-              handleSubmitOffer={handleSubmitOffer}
-            >
-              <input
-                type="text"
-                placeholder="Enter something"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-              />
-              <textarea
-                placeholder="More details..."
-                className="w-full border border-gray-300 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={textValue}
-                onChange={(e) => setTextValue(e.target.value)}
-              />
-            </SubmitOffer>
+                {/* Adding the task status with tags */}
+                <div className="mt-4 flex gap-2">
+                  {task.status === 'Urgent' && (
+                    <span className="bg-[#FF6B6B] text-white text-xs font-semibold px-4 py-1 rounded-full">
+                      Urgent
+                    </span>
+                  )}
+                  {task.status === 'Ongoing' && (
+                    <span className="bg-[#2EC4B6] text-white text-xs font-semibold px-4 py-1 rounded-full">
+                      Ongoing
+                    </span>
+                  )}
+                </div>
+
+                <SubmitOffer
+                  isVisible={showModal}
+                  onClose={() => setShowModal(false)}
+                  onSubmit={handleSubmitOffer}
+                  setOfferAmount={setOfferAmount}
+                  setEstimatedTime={setEstimatedTime}
+                  offerAmount={offerAmount}
+                  comment={comment}
+                  setComment={setComment}
+                  task={task}
+                  estimatedTime={estimatedTime}
+                  handleSubmitOffer={handleSubmitOffer}
+                >
+                  <input
+                    type="text"
+                    placeholder="Enter something"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                  />
+                  <textarea
+                    placeholder="More details..."
+                    className="w-full border border-gray-300 rounded-lg p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={textValue}
+                    onChange={(e) => setTextValue(e.target.value)}
+                  />
+                </SubmitOffer>
+              </>
+            )}
           </motion.div>
         </motion.div>
       )}
