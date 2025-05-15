@@ -18,11 +18,14 @@ import Profile from './components/Provider/Profile'
 import ProviderTaskDetails from './components/Provider/ProviderTaskDetails'
 import OfferProviderProfile from './components/OfferProviderProfile'
 import { Toaster } from 'react-hot-toast'
+import Messages from './pages/Messages'
+import Loader from './components/Loader'
+import ProviderHome from './pages/ProviderHome'
 
 function App() {
   const { user, provider, loading } = useAuth()
 
-  if (loading) return null // Or show a spinner like <Loader fullScreen />
+  if (loading) return <Loader fullScreen />
   return (
     <Router>
       <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
@@ -45,6 +48,8 @@ function App() {
               path="/provider/profile/:providerId"
               element={<OfferProviderProfile />}
             />
+            <Route path="/user/messages" element={<Messages />} />
+
             <Route
               path="*"
               element={<Navigate to="/user/dashboard" replace />}
@@ -52,7 +57,9 @@ function App() {
           </>
         ) : provider ? (
           <>
+            <Route path="/provider/home" element={<ProviderHome />} />
             <Route path="/provider/tasks" element={<ProviderTasks />} />
+            <Route path="/provider/messages" element={<Messages />} />
             <Route
               path="/provider/tasks/:taskId"
               element={<ProviderTaskDetails />}

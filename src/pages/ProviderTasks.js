@@ -79,8 +79,8 @@ export default function ProviderTasks() {
       {/* <TaskList tasks={filteredTasks} /> */}
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-center gap-6 py-6">
         <div className="w-full h-[650px] md:max-w-[420px] bg-[#F9FAFB] p-4 space-y-6 overflow-y-auto">
-          {tasks !== null &&
-            [...tasks]
+          {filteredTasks !== null &&
+            [...filteredTasks]
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .map((task, index) => (
                 <div
@@ -147,8 +147,8 @@ export default function ProviderTasks() {
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-            {tasks !== null &&
-              tasks.map((task, index) => (
+            {filteredTasks !== null &&
+              filteredTasks.map((task, index) => (
                 <Marker
                   key={index}
                   position={[

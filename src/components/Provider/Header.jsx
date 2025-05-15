@@ -62,36 +62,36 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.clear()
-
     window.location.href = '/'
   }
 
   return (
     <header className="bg-white shadow px-6 md:px-10 py-6 border-b">
-      <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-6">
+      <div className="w-full max-w-7xl mx-auto flex justify-between items-center">
+        {/* Logo - Left Side */}
+        <div className="flex items-center">
           <NavLink
-            to={'/provider/tasks'}
+            to={'/provider/home'}
             className="text-3xl md:text-4xl font-extrabold text-[#1A3D8F] tracking-tight"
           >
             Connectmytask
           </NavLink>
-          <button className="bg-[#1A3D8F] hover:bg-[#163373] text-white text-lg font-semibold rounded-full px-6 py-3 shadow transition">
-            Post a task
-          </button>
-          <nav className="flex flex-wrap items-center space-x-4 text-[#1A3D8F] text-lg font-medium">
-            <a href="#" className="hover:underline">
-              Browse tasks
-            </a>
-            <a href="#" className="hover:underline">
-              My tasks
-            </a>
-            <a href="#" className="hover:underline">
-              List my services
-            </a>
-          </nav>
         </div>
 
+        {/* Navigation Links - Center */}
+        <nav className="hidden md:flex items-center justify-center gap-6 text-[#1A3D8F] text-lg font-medium flex-grow">
+          <NavLink to="/provider/tasks" className="hover:underline">
+            Browse tasks
+          </NavLink>
+          <NavLink to="#" className="hover:underline">
+            My tasks
+          </NavLink>
+          <NavLink to="#" className="hover:underline">
+            List my services
+          </NavLink>
+        </nav>
+
+        {/* Profile and Other Links - Right Side */}
         <div className="flex items-center space-x-4 text-[#1A3D8F] text-lg font-medium">
           <a href="#" className="hover:underline">
             Help
@@ -99,9 +99,9 @@ const Header = () => {
           <a href="#" className="hover:underline">
             Notifications
           </a>
-          <a href="#" className="hover:underline">
+          <NavLink to="/provider/messages" className="hover:underline">
             Messages
-          </a>
+          </NavLink>
 
           {loading ? (
             <Loader size="small" />

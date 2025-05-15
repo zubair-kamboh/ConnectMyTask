@@ -5,13 +5,16 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import { APIProvider } from '@vis.gl/react-google-maps'
 import { AuthProvider } from './context/AuthContext'
+import { SocketProvider } from './context/SocketContext'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     <APIProvider apiKey="AIzaSyCw5oCey7i_yWvKuJVQ-apK_xenWUqgsUY">
       <AuthProvider>
-        <App />
+        <SocketProvider>
+          <App />
+        </SocketProvider>
       </AuthProvider>
     </APIProvider>
   </React.StrictMode>

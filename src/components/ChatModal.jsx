@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { FaTimes } from 'react-icons/fa'
+import { FaPaperclip, FaTimes } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
-import io from 'socket.io-client'
-
-const socket = io('http://localhost:3300')
+import { socket } from '../socket'
+import Loader from './Loader'
 
 export default function ChatModal({ isOpen, onClose, provider, user, task }) {
   const [currentUser, setCurrentUser] = useState(null)
@@ -60,11 +59,19 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const inputRef = useRef(null)
+  const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef(null)
   const scrollContainerRef = useRef(null)
   const token =
     typeof window !== 'undefined' ? localStorage.getItem(tokenKey) : null
+  const [imageFile, setImageFile] = useState(null)
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file && file.type.startsWith('image/')) {
+      setImageFile(file)
+    }
+  }
   // Fetch chat history
   useEffect(() => {
     if (!otherUser?._id || !token || !task?._id) return
@@ -154,32 +161,33 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
   }, [inputRef])
 
   const sendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() && !imageFile) return
 
-    const messageData = {
-      sender: currentUser._id,
-      receiverId: otherUser._id,
-      text: input,
-    }
+    const formData = new FormData()
+    formData.append('sender', currentUser._id)
+    formData.append('receiverId', otherUser._id)
+    formData.append('text', input)
+    if (imageFile) formData.append('image', imageFile)
 
     try {
+      setIsSending(true)
       const res = await fetch(
         `http://localhost:3300/api/messages/${task._id}`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-          body: JSON.stringify(messageData),
+          headers: { Authorization: token },
+          body: formData,
         }
       )
 
       if (res.ok) {
         setInput('')
+        setImageFile(null)
       }
     } catch (err) {
       console.error('Send message failed:', err)
+    } finally {
+      setIsSending(false)
     }
   }
 
@@ -228,6 +236,13 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
                   {formatTime(msg.timestamp)}
                 </div>
               )}
+              {msg.image && (
+                <img
+                  src={`${msg.image}`}
+                  alt="attachment"
+                  className="mt-2 rounded max-w-full"
+                />
+              )}
             </div>
           )
         })}
@@ -235,23 +250,57 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
       </div>
 
       {/* Input Area */}
-      <div className="p-3 border-t flex gap-2 bg-white">
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
-          placeholder="Type a message..."
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-[#1A3D8F] text-white px-4 py-2 rounded-full hover:bg-[#163373] transition"
-        >
-          Send
-        </button>
-      </div>
+      {isSending ? (
+        <Loader />
+      ) : (
+        <div className="p-3 border-t flex flex-col gap-2 bg-white">
+          {imageFile && (
+            <div className="relative max-w-xs">
+              <img
+                src={URL.createObjectURL(imageFile)}
+                alt="preview"
+                className="w-32 h-32 object-cover rounded"
+              />
+              <button
+                onClick={() => setImageFile(null)}
+                className="absolute top-0 right-0 bg-white text-red-500 p-1 rounded-full"
+              >
+                <FaTimes size={12} />
+              </button>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
+              placeholder="Type a message..."
+            />
+            <label className="relative cursor-pointer">
+              <div className="w-9 h-9 bg-[#E0E0E0] hover:bg-[#d0d0d0] flex items-center justify-center rounded-full text-[#1A3D8F]">
+                <FaPaperclip size={16} />
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleImageChange}
+              />
+            </label>
+
+            <button
+              onClick={sendMessage}
+              disabled={isSending}
+              className="bg-[#1A3D8F] text-white px-4 py-2 rounded-full hover:bg-[#163373] transition disabled:opacity-50 flex items-center gap-2"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

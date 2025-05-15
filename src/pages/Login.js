@@ -36,7 +36,7 @@ export default function Login() {
         if (user.role === 'provider') {
           loginProvider(user, token)
           toast.success('Provider login successful!')
-          navigate('/provider/tasks')
+          navigate('/provider/home')
         } else {
           loginUser(user, token)
           toast.success('Login successful!')

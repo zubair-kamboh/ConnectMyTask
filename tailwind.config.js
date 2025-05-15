@@ -29,5 +29,5 @@ module.exports = {
     },
   },
   darkMode: 'class', // Enable dark mode toggling via class
-  plugins: [],
+  plugins: [require('tailwind-scrollbar-hide')],
 }

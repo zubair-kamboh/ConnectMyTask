@@ -30,6 +30,7 @@ import geoCodeLocations from '../util/geoCodeLocations'
 import TaskDetails from './TaskDetails'
 import { useTheme } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
+import Filters from './Provider/Filters'
 
 // Marker Icon for Leaflet
 const DefaultIcon = L.icon({
@@ -63,7 +64,8 @@ export default function TaskPage() {
   const [selectedTask, setSelectedTask] = useState(null)
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user'))
-
+  const [filteredTasks, setFilteredTasks] = useState(tasks)
+  console.log(filteredTasks)
   const navigate = useNavigate()
 
   // Fetch tasks immediately
@@ -126,7 +128,7 @@ export default function TaskPage() {
 
         {selectedTask && <TaskDetails task={selectedTask} />}
 
-        <Box
+        {/* <Box
           p={2}
           display="flex"
           alignItems="center"
@@ -172,7 +174,9 @@ export default function TaskPage() {
               Post a Task
             </Button>
           </Box>
-        </Box>
+        </Box> */}
+
+        <Filters tasks={tasks} onFiltered={setFilteredTasks} />
 
         <Box display="flex" flex={1} overflow="hidden">
           {/* Sidebar */}
@@ -186,77 +190,67 @@ export default function TaskPage() {
               OPEN TASKS
             </Typography>
 
-            {tasks.map((task) => (
-              <Card
-                sx={{
-                  mb: 2,
-                  cursor: 'pointer',
-                  borderColor: '#E0E0E0',
-                  '&:hover': {
-                    borderColor: '#1A3D8F',
-                  },
-                }}
-                key={task._id}
-                onClick={() => navigate(`/user/dashboard/task/${task._id}`)}
-              >
-                <CardContent>
-                  <Grid container justifyContent="space-between">
-                    <Typography variant="h6">{task.title}</Typography>
-                    <Typography variant="h6" color="primary">
-                      ${task.budget}
-                    </Typography>
-                  </Grid>
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      {task.location?.address}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <EventIcon fontSize="small" sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      {new Date(task.deadline).toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      {task.location?.type}
-                    </Typography>
-                  </Box>
-                  <Box mt={2} display="flex" justifyContent="space-between">
-                    <div
-                      className="text-[#06D6A0] font-medium"
-                      style={{
-                        color:
-                          task.status === 'Active'
-                            ? '#FF6B6B'
-                            : task.status === 'In Progress'
-                            ? '#2EC4B6'
-                            : '#666666',
-                      }}
-                    >
-                      {task.status}
-                      {task.bids.length > 0 && `· ${task.bids.length} offer(s)`}
-                    </div>
-
-                    {/* {task.user?._id === user.id && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteTask(task._id)
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    )} */}
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
+            {filteredTasks !== null &&
+              [...filteredTasks]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .map((task, index) => (
+                  <Card
+                    sx={{
+                      mb: 2,
+                      cursor: 'pointer',
+                      borderColor: '#E0E0E0',
+                      '&:hover': {
+                        borderColor: '#1A3D8F',
+                      },
+                    }}
+                    key={task._id}
+                    onClick={() => navigate(`/user/dashboard/task/${task._id}`)}
+                  >
+                    <CardContent>
+                      <Grid container justifyContent="space-between">
+                        <Typography variant="h6">{task.title}</Typography>
+                        <Typography variant="h6" color="primary">
+                          ${task.budget}
+                        </Typography>
+                      </Grid>
+                      <Box display="flex" alignItems="center" mt={1}>
+                        <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          {task.location?.address}
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" mt={1}>
+                        <EventIcon fontSize="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          {new Date(task.deadline).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" mt={1}>
+                        <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          {task.location?.type}
+                        </Typography>
+                      </Box>
+                      <Box mt={2} display="flex" justifyContent="space-between">
+                        <div
+                          className="text-[#06D6A0] font-medium"
+                          style={{
+                            color:
+                              task.status === 'Active'
+                                ? '#FF6B6B'
+                                : task.status === 'In Progress'
+                                ? '#2EC4B6'
+                                : '#666666',
+                          }}
+                        >
+                          {task.status}
+                          {task.bids.length > 0 &&
+                            `· ${task.bids.length} offer(s)`}
+                        </div>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
           </Box>
 
           {/* Map Section */}
@@ -270,7 +264,6 @@ export default function TaskPage() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              {console.log(taskMarkers)}
               {taskMarkers.map(
                 (task) =>
                   task.coordinates && (

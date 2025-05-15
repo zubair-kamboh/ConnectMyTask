@@ -27,6 +27,7 @@ import {
   Brightness4,
   Brightness7,
   Notifications,
+  Message,
 } from '@mui/icons-material'
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles'
 import { useEffect, useState } from 'react'
@@ -44,8 +45,8 @@ const Layout = ({ children }) => {
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
-      primary: { main: '#1A3D8F' }, // Your primary blue color
-      secondary: { main: '#06D6A0' }, // Accent color (greenish)
+      primary: { main: '#1A3D8F' },
+      secondary: { main: '#06D6A0' },
     },
   })
 
@@ -55,7 +56,12 @@ const Layout = ({ children }) => {
   const location = useLocation()
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen)
-  const toggleTheme = () => setDarkMode(!darkMode)
+  const toggleTheme = () => {
+    const newMode = !darkMode
+    setDarkMode(newMode)
+    localStorage.setItem('darkMode', newMode)
+    document.documentElement.classList.toggle('dark', newMode)
+  }
 
   const handleAvatarClick = (e) => setAnchorEl(e.currentTarget)
   const handleMenuClose = () => setAnchorEl(null)
@@ -72,9 +78,15 @@ const Layout = ({ children }) => {
       icon: <AccountCircle />,
       path: '/user/dashboard/profile',
     },
-    { text: 'Messages', icon: <Settings />, path: '/user/Messages' },
+    { text: 'Messages', icon: <Message />, path: '/user/messages' },
     { text: 'Logout', icon: <Logout />, action: handleLogout },
   ]
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('darkMode') === 'true'
+    setDarkMode(storedTheme)
+    document.documentElement.classList.toggle('dark', storedTheme)
+  }, [])
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -193,11 +205,9 @@ const Layout = ({ children }) => {
         {/* Main Content */}
         <Box
           component="main"
+          className="flex-grow p-3 bg-[#F9FAFB] dark:bg-gray-900 dark:text-white"
           sx={{
-            flexGrow: 1,
-            p: 3,
             width: { sm: `calc(100% - ${drawerOpen ? drawerWidth : 56}px)` },
-            className: 'bg-[#F9FAFB]',
           }}
         >
           <Toolbar />

@@ -1,88 +1,52 @@
-import React, { useState } from 'react'
-import { Listbox, Transition } from '@headlessui/react'
-import {
-  ChevronDown,
-  MapPin,
-  Tag,
-  DollarSign,
-  Filter as FilterIcon,
-  X,
-} from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Filter as FilterIcon, X } from 'lucide-react'
 
-const categories = [
-  'All Categories',
-  'Cleaning',
-  'Delivery',
-  'Gardening',
-  'Tech Help',
-]
-const locations = ['Anywhere', 'Within 5km', 'Within 20km', 'Hadfield VIC']
-const prices = ['Any Price', 'Under $50', '$50 - $100', '$100+']
-const sortOptions = ['Newest First', 'Lowest Price', 'Highest Price']
+const Filters = ({ tasks, onFiltered }) => {
+  const [status, setStatus] = useState('')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [category, setCategory] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
-const FilterDropdown = ({ label, icon: Icon, options, selected, onChange }) => (
-  <div className="w-full sm:w-auto">
-    <Listbox value={selected} onChange={onChange}>
-      {({ open }) => (
-        <div className="relative">
-          <Listbox.Button
-            className="bg-[#F2F3F7] text-[#1A3D8F] px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 
-  hover:bg-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1 
-  transition-all w-full sm:w-48 text-left"
-          >
-            <Icon size={16} />
-            <span className="truncate">{selected}</span>
-            <ChevronDown
-              size={16}
-              className={`${open ? 'rotate-180 transform' : ''}`}
-            />
-          </Listbox.Button>
-          <Transition
-            enter="transition ease-out duration-100"
-            enterFrom="opacity-0 -translate-y-2"
-            enterTo="opacity-100 translate-y-0"
-            leave="transition ease-in duration-75"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className="absolute mt-1 z-10 w-full sm:w-48 bg-white shadow-lg rounded-xl overflow-hidden text-sm text-[#1A3D8F] ring-1 ring-gray-200">
-              {options.map((option, i) => (
-                <Listbox.Option
-                  key={i}
-                  value={option}
-                  className={({ active }) =>
-                    `cursor-pointer px-4 py-2 ${active ? 'bg-[#F2F3F7]' : ''}`
-                  }
-                >
-                  {option}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </div>
-      )}
-    </Listbox>
-  </div>
-)
+  const filteredTasks = useMemo(() => {
+    if (!Array.isArray(tasks)) return []
 
-const Filters = () => {
-  const [category, setCategory] = useState(categories[0])
-  const [location, setLocation] = useState(locations[0])
-  const [price, setPrice] = useState(prices[0])
-  const [sort, setSort] = useState(sortOptions[0])
+    return tasks.filter((task) => {
+      const matchesStatus = status ? task.status === status : true
+      const matchesCategory = category ? task.category === category : true
+      const matchesMinPrice = minPrice
+        ? task.budget >= parseFloat(minPrice)
+        : true
+      const matchesMaxPrice = maxPrice
+        ? task.budget <= parseFloat(maxPrice)
+        : true
+      const matchesSearch = searchQuery
+        ? task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.description.toLowerCase().includes(searchQuery.toLowerCase())
+        : true
 
-  const isFiltered =
-    category !== categories[0] ||
-    location !== locations[0] ||
-    price !== prices[0] ||
-    sort !== sortOptions[0]
+      return (
+        matchesStatus &&
+        matchesCategory &&
+        matchesMinPrice &&
+        matchesMaxPrice &&
+        matchesSearch
+      )
+    })
+  }, [tasks, status, category, minPrice, maxPrice, searchQuery])
+
+  useEffect(() => {
+    onFiltered(filteredTasks)
+  }, [filteredTasks, onFiltered])
 
   const clearFilters = () => {
-    setCategory(categories[0])
-    setLocation(locations[0])
-    setPrice(prices[0])
-    setSort(sortOptions[0])
+    setStatus('')
+    setCategory('')
+    setMinPrice('')
+    setMaxPrice('')
   }
+
+  const isFiltered = status || category || minPrice || maxPrice
 
   return (
     <div className="bg-white px-6 md:px-10 py-5 border-b shadow-sm sticky top-0 z-10">
@@ -95,38 +59,58 @@ const Filters = () => {
         <input
           type="text"
           placeholder="Search for a task..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="bg-[#F2F3F7] text-sm px-5 py-2.5 rounded-full placeholder:text-[#9CA3AF]
-    focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1
-    hover:bg-[#E5E7EB] transition-all duration-200 flex-1 min-w-[200px]"
+  focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1
+  hover:bg-[#E5E7EB] transition-all duration-200 flex-1 min-w-[200px]"
         />
 
-        <FilterDropdown
-          label="Category"
-          icon={Tag}
-          options={categories}
-          selected={category}
-          onChange={setCategory}
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="bg-[#F2F3F7] text-[#1A3D8F] text-sm font-medium px-5 py-2.5 rounded-full 
+          hover:bg-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1
+          transition-all w-full sm:w-48"
+        >
+          <option value="">All Statuses</option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="bg-[#F2F3F7] text-[#1A3D8F] text-sm font-medium px-5 py-2.5 rounded-full 
+          hover:bg-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1
+          transition-all w-full sm:w-48"
+        >
+          <option value="">All Categories</option>
+          <option value="Cleaning">Cleaning</option>
+          <option value="Moving">Moving</option>
+          <option value="Handyman">Handyman</option>
+          <option value="Delivery">Delivery</option>
+        </select>
+
+        <input
+          type="number"
+          placeholder="Min Price"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          className="bg-[#F2F3F7] text-sm text-[#1A3D8F] px-5 py-2.5 rounded-full w-24
+          placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1
+          hover:bg-[#E5E7EB] transition-all"
         />
-        <FilterDropdown
-          label="Location"
-          icon={MapPin}
-          options={locations}
-          selected={location}
-          onChange={setLocation}
-        />
-        <FilterDropdown
-          label="Price"
-          icon={DollarSign}
-          options={prices}
-          selected={price}
-          onChange={setPrice}
-        />
-        <FilterDropdown
-          label="Sort"
-          icon={ChevronDown}
-          options={sortOptions}
-          selected={sort}
-          onChange={setSort}
+
+        <input
+          type="number"
+          placeholder="Max Price"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          className="bg-[#F2F3F7] text-sm text-[#1A3D8F] px-5 py-2.5 rounded-full w-24
+          placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] focus:ring-offset-1
+          hover:bg-[#E5E7EB] transition-all"
         />
 
         {isFiltered && (
