@@ -36,7 +36,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen dark:bg-gray-900">
         <Loader />
       </div>
     )
@@ -44,7 +44,7 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-600">
+      <div className="flex justify-center items-center h-screen text-gray-600 dark:bg-gray-900 dark:text-white">
         Failed to load profile.
       </div>
     )
@@ -53,17 +53,19 @@ const Profile = () => {
   return (
     <>
       <Header />
-      <div className="flex items-center justify-center bg-gray-100 p-6">
-        <div className="max-w-lg w-full bg-white rounded-3xl shadow-2xl p-8 sm:p-10 transition transform hover:scale-[1.015] duration-300">
+      <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-6 h-[90vh]">
+        <div className="max-w-lg w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 sm:p-10 transition transform hover:scale-[1.015] duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase text-blue-400 font-semibold tracking-wide">
                 Meet
               </p>
-              <h1 className="text-3xl font-bold text-gray-800">{user.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+                {user.name}
+              </h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-300">
                   Online less than a day ago
                 </p>
               </div>
@@ -75,20 +77,21 @@ const Profile = () => {
             />
           </div>
 
-          {/* Stats */}
-          <div className="mt-6 bg-gray-50 rounded-xl p-5 flex justify-between items-center">
+          <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-xl p-5 flex justify-between items-center">
             <div className="text-center w-1/2">
               <p className="text-2xl font-semibold text-yellow-500">
                 {user.averageRating?.toFixed(1)}{' '}
                 <span className="text-yellow-400">★</span>
               </p>
-              <p className="text-gray-600 text-sm mt-1">Overall Rating</p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
+                Overall Rating
+              </p>
               <p className="text-xs text-blue-600 underline mt-0.5">
                 {user.totalReviews} reviews
               </p>
             </div>
 
-            <div className="w-px h-10 bg-gray-300 mx-4" />
+            <div className="w-px h-10 bg-gray-300 dark:bg-gray-500 mx-4" />
 
             <div className="text-center w-1/2">
               <p
@@ -98,29 +101,31 @@ const Profile = () => {
               >
                 {user.isVerified ? 'Verified' : 'Not Verified'}
               </p>
-              <p className="text-gray-600 text-sm mt-1">Role: {user.role}</p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
+                Role: {user.role}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-400 mt-0.5">
                 Email: {user.email}
               </p>
             </div>
           </div>
 
-          {/* Rank & Task Stats */}
-          <div className="mt-4 text-sm text-gray-600 flex justify-between">
+          <div className="mt-4 text-sm text-gray-600 dark:text-gray-300 flex justify-between">
             <p>Completed Tasks: {user.completedTasks}</p>
             <p>Recommendations: {user.recommendations}</p>
             <p>Rank: {user.rank}</p>
           </div>
 
-          {/* Skills */}
           {user.skills?.length > 0 && (
             <div className="mt-5">
-              <p className="text-sm text-gray-500 mb-2 font-medium">Skills</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mb-2 font-medium">
+                Skills
+              </p>
               <div className="flex flex-wrap gap-2">
                 {user.skills.map((skill, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-medium"
+                    className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-medium dark:bg-blue-800 dark:text-blue-100"
                   >
                     {skill}
                   </span>
@@ -129,12 +134,10 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Created At */}
           <div className="mt-6 text-xs text-gray-400">
             <p>Joined: {new Date(user.createdAt).toDateString()}</p>
           </div>
 
-          {/* Update Profile Button */}
           <div className="mt-6">
             <button
               onClick={() => setShowUpdate(true)}

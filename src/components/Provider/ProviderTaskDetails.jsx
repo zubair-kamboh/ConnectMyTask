@@ -10,6 +10,7 @@ import useSubmitOffer from '../../hooks/useSubmitOffer'
 import SubmitOffer from './SubmitOffer'
 import Comments from './Comments'
 import ChatModal from '../ChatModal'
+import { useDarkMode } from '../../context/ThemeContext'
 
 const Avatar = ({ name, src }) => {
   if (src) {
@@ -26,8 +27,9 @@ const Avatar = ({ name, src }) => {
     .map((word) => word[0])
     .join('')
     .slice(0, 2)
+
   return (
-    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-sm">
+    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-white font-bold flex items-center justify-center text-sm">
       {initials}
     </div>
   )
@@ -46,6 +48,7 @@ const ProviderTaskDetails = () => {
   const [inputValue, setInputValue] = useState('')
   const [textValue, setTextValue] = useState('')
   const [isOpen, setIsOpen] = useState(false)
+  const { darkMode } = useDarkMode()
 
   const {
     submitOffer,
@@ -64,7 +67,7 @@ const ProviderTaskDetails = () => {
     const token = localStorage.getItem('providerToken')
     try {
       const response = await axios.get(
-        `http://localhost:3300/api/tasks/${taskId}`,
+        `http://localhost:3300/api/tasks/${taskId}/data`,
         {
           headers: {
             Authorization: `${token}`,
@@ -151,7 +154,7 @@ const ProviderTaskDetails = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-white z-50 overflow-y-auto"
+          className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
         >
           <motion.div
             initial={{ y: 40, opacity: 0 }}
@@ -160,13 +163,13 @@ const ProviderTaskDetails = () => {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="max-w-5xl mx-auto p-6 sm:p-10 relative"
           >
+            {/* Close Button */}
             <button
               onClick={() => navigate('/provider/tasks')}
-              className="absolute top-6 right-6 text-gray-500 hover:text-gray-700"
+              className="absolute top-6 right-6 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
             >
               <XIcon size={24} />
             </button>
-            {console.log(task)}
             {/* Status + Title */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div>
@@ -176,22 +179,21 @@ const ProviderTaskDetails = () => {
                       ? 'text-[#FF6B6B]'
                       : task.status === 'In Progress'
                       ? 'text-[#2EC4B6]'
-                      : 'text-[#666666]'
+                      : 'text-[#888888]'
                   }`}
                 >
                   {task.status.toUpperCase()}
                 </span>
-                <h1 className="text-3xl font-extrabold mt-2 text-[#001B5D]">
+                <h1 className="text-3xl font-extrabold mt-2 text-[#001B5D] dark:text-[#D1E0FF]">
                   {task.title}
                 </h1>
               </div>
 
-              {/* Budget box */}
-              <div className="bg-[#f5f7fa] p-6 rounded-xl shadow-sm text-center">
-                <div className="text-sm font-medium text-gray-500 mb-1">
+              <div className="bg-[#f5f7fa] dark:bg-gray-800 p-6 rounded-xl shadow-sm text-center">
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                   TASK BUDGET
                 </div>
-                <div className="text-4xl font-extrabold text-[#001B5D]">
+                <div className="text-4xl font-extrabold text-[#001B5D] dark:text-white">
                   ${task.budget}
                 </div>
                 {!hasAlreadyBid ? (
@@ -202,33 +204,34 @@ const ProviderTaskDetails = () => {
                     Make an offer
                   </button>
                 ) : (
-                  <p className="mt-4 text-sm text-red-600 font-medium">
+                  <p className="mt-4 text-sm text-red-600 dark:text-red-400 font-medium">
                     You have already submitted an offer for this task.
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Poster info */}
             <div className="flex items-center space-x-4 mb-4">
               <Avatar name={task.user.name} src={task.user.avatar} />
               <div>
-                <div className="text-sm text-gray-500">Posted by</div>
-                <div className="text-md font-medium text-[#001B5D]">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Posted by
+                </div>
+                <div className="text-md font-medium text-[#001B5D] dark:text-white">
                   {task.user.name}
                 </div>
-
                 <ChatModal
                   isOpen={isOpen}
                   onClose={() => setIsOpen(false)}
                   user={task?.user}
                   task={task}
+                  darkMode={darkMode}
                 />
               </div>
             </div>
 
             {/* Location + Time */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-gray-600 mb-6 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-gray-600 dark:text-gray-300 mb-6 gap-4">
               <div className="flex items-center">
                 <MapPinIcon className="mr-2" size={20} />
                 {task.location?.address}
@@ -245,10 +248,10 @@ const ProviderTaskDetails = () => {
 
             {/* Task description */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
+              <h2 className="text-xl font-semibold text-[#001B5D] dark:text-white mb-2">
                 Details
               </h2>
-              <p className="text-gray-700 whitespace-pre-line">
+              <p className="text-gray-700 dark:text-gray-200 whitespace-pre-line">
                 {task.description}
               </p>
             </div>
@@ -256,7 +259,7 @@ const ProviderTaskDetails = () => {
             {/* Image gallery */}
             {task.images && task.images.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-[#001B5D] mb-2">
+                <h2 className="text-xl font-semibold text-[#001B5D] dark:text-white mb-2">
                   Attachments
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -273,15 +276,15 @@ const ProviderTaskDetails = () => {
             )}
 
             {task.status === 'Completed' ? (
-              <div className="bg-[#F9FAFB] border-l-4 border-[#1A3D8F] text-[#1A3D8F] p-6 rounded-lg shadow mb-6">
-                <h2 className="text-3xl font-bold mb-2 text-[#1A3D8F]">
+              <div className="bg-gray-100 dark:bg-gray-800 border-l-4 border-[#1A3D8F] text-[#1A3D8F] p-6 rounded-lg shadow mb-6">
+                <h2 className="text-3xl font-bold mb-2 text-[#1A3D8F] dark:text-blue-300">
                   🎉 Task Completed!
                 </h2>
-                <p className="text-[#1A3D8F] text-lg">
+                <p className="text-[#1A3D8F] text-lg dark:text-blue-300">
                   This task has been successfully completed. Thank you for your
                   contribution!
                 </p>
-                <div className="mt-4 text-gray-800 space-y-2">
+                <div className="mt-4 text-gray-800 dark:text-gray-200 space-y-2">
                   <p>
                     <strong>Title:</strong> {task.title}
                   </p>
@@ -310,43 +313,43 @@ const ProviderTaskDetails = () => {
 
                 {task.bids && task.bids.length > 0 && (
                   <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-[#001B5D] mb-4">
+                    <h2 className="text-xl font-semibold text-[#001B5D] dark:text-blue-300 mb-4">
                       Bids
                     </h2>
-                    <div className="max-h-[400px] overflow-y-auto space-y-4">
+                    <div className="max-h-[400px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                       {task.bids.map((bid) => (
                         <div
                           key={bid._id}
-                          className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white"
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm bg-white dark:bg-gray-900"
                         >
                           <div className="flex items-center mb-2">
                             <Avatar name={bid.provider.name} />
                             <div className="ml-3">
-                              <div className="text-md font-semibold text-[#001B5D]">
+                              <div className="text-md font-semibold text-[#001B5D] dark:text-blue-200">
                                 {bid.provider.name}{' '}
                                 {loggedInProviderId === bid.provider._id && (
-                                  <span className="text-sm text-gray-500">
+                                  <span className="text-sm text-gray-500 dark:text-gray-400">
                                     (You)
                                   </span>
                                 )}
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {bid.provider.email}
                               </div>
                             </div>
                           </div>
-                          <div className="text-gray-800 mb-1">
+                          <div className="text-gray-800 dark:text-gray-200 mb-1">
                             <strong>Price:</strong> ${bid.price}
                           </div>
-                          <div className="text-gray-800 mb-1">
+                          <div className="text-gray-800 dark:text-gray-200 mb-1">
                             <strong>Estimated Time:</strong> {bid.estimatedTime}
                           </div>
                           {bid.comment && (
-                            <div className="text-gray-800 mb-1">
+                            <div className="text-gray-800 dark:text-gray-200 mb-1">
                               <strong>Comment:</strong> {bid.comment}
                             </div>
                           )}
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             {format(new Date(bid.date), 'PPPp')}
                           </div>
                         </div>
@@ -354,24 +357,25 @@ const ProviderTaskDetails = () => {
                     </div>
                   </div>
                 )}
+
                 {isBidAccepted && (
-                  <div className="mt-8 border border-[#1A3D8F] bg-[#F9FAFB] p-6 rounded-xl shadow-lg">
-                    <h2 className="text-xl font-semibold text-[#1A3D8F]">
+                  <div className="mt-8 border border-[#1A3D8F] dark:border-blue-500 bg-[#F9FAFB] dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <h2 className="text-xl font-semibold text-[#1A3D8F] dark:text-blue-300">
                       Bid Accepted
                     </h2>
-                    <div className="mt-4 text-[#666666]">
+                    <div className="mt-4 text-[#666666] dark:text-gray-300">
                       <p>Your bid has been accepted for this task.</p>
                       <div className="mt-6">
-                        <h3 className="text-md font-semibold text-[#1A3D8F]">
+                        <h3 className="text-md font-semibold text-[#1A3D8F] dark:text-blue-300">
                           Task Details:
                         </h3>
-                        <p className="text-gray-800 mt-2">
+                        <p className="text-gray-800 dark:text-gray-200 mt-2">
                           <strong>Location:</strong> {task.location.address}
                         </p>
-                        <p className="text-gray-800 mt-2">
+                        <p className="text-gray-800 dark:text-gray-200 mt-2">
                           <strong>Budget:</strong> ${task.budget}
                         </p>
-                        <p className="text-gray-800 mt-2">
+                        <p className="text-gray-800 dark:text-gray-200 mt-2">
                           <strong>Deadline:</strong>{' '}
                           {format(new Date(task.deadline), 'PPPp')}
                         </p>
@@ -390,16 +394,18 @@ const ProviderTaskDetails = () => {
 
                 {/* Adding the task status with tags */}
                 <div className="mt-4 flex gap-2">
-                  {task.status === 'Urgent' && (
-                    <span className="bg-[#FF6B6B] text-white text-xs font-semibold px-4 py-1 rounded-full">
-                      Urgent
-                    </span>
-                  )}
-                  {task.status === 'Ongoing' && (
-                    <span className="bg-[#2EC4B6] text-white text-xs font-semibold px-4 py-1 rounded-full">
-                      Ongoing
-                    </span>
-                  )}
+                  <div className="mt-4 flex gap-2">
+                    {task.status === 'Urgent' && (
+                      <span className="bg-[#FF6B6B] text-white text-xs font-semibold px-4 py-1 rounded-full shadow dark:shadow-none">
+                        Urgent
+                      </span>
+                    )}
+                    {task.status === 'Ongoing' && (
+                      <span className="bg-[#2EC4B6] text-white text-xs font-semibold px-4 py-1 rounded-full shadow dark:shadow-none">
+                        Ongoing
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <SubmitOffer

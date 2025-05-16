@@ -19,3 +19,27 @@ code {
 .pac-container {
   z-index: 2000 !important;
 }
+
+@layer utilities {
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.5);
+    border-radius: 8px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background-color: #f9fafb;
+  }
+
+  .dark .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgba(160, 160, 160, 0.4);
+  }
+
+  .dark .scrollbar-custom::-webkit-scrollbar-track {
+    background-color: #1e1e1e;
+  }
+}

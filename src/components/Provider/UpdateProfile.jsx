@@ -15,7 +15,7 @@ const UpdateProfile = ({ user, onClose, onUpdate }) => {
       setFormData({
         name: user.name || '',
         skills: user.skills?.join(', ') || '',
-        profilePhoto: null, // initially null
+        profilePhoto: null,
       })
     }
   }, [user])
@@ -77,14 +77,15 @@ const UpdateProfile = ({ user, onClose, onUpdate }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 w-full max-w-md relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
+          aria-label="Close"
         >
           ✕
         </button>
-        <h2 className="text-2xl font-bold mb-4 text-[#1A3D8F]">
+        <h2 className="text-2xl font-bold mb-4 text-[#1A3D8F] dark:text-[#74a9ff]">
           Update Profile
         </h2>
         <form
@@ -98,7 +99,7 @@ const UpdateProfile = ({ user, onClose, onUpdate }) => {
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full border p-3 rounded-lg"
+            className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             name="skills"
@@ -106,10 +107,10 @@ const UpdateProfile = ({ user, onClose, onUpdate }) => {
             placeholder="Skills (comma separated)"
             value={formData.skills}
             onChange={handleChange}
-            className="w-full border p-3 rounded-lg"
+            className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <div>
-            <label className="block mb-1 font-medium text-[#666666]">
+            <label className="block mb-1 font-medium text-[#666666] dark:text-gray-300">
               Profile Photo
             </label>
             <input
@@ -120,7 +121,8 @@ const UpdateProfile = ({ user, onClose, onUpdate }) => {
                   file:rounded-md file:border-0
                   file:text-sm file:font-semibold
                   file:bg-[#1A3D8F] file:text-white
-                  hover:file:bg-[#163373] cursor-pointer"
+                  hover:file:bg-[#163373] cursor-pointer
+                  dark:text-gray-400"
             />
           </div>
           <button

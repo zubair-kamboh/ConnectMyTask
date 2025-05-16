@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import axios from 'axios'
+import { useDarkMode } from '../context/ThemeContext'
 
 const Avatar = ({ name, src }) => {
   if (src) {
@@ -18,7 +19,7 @@ const Avatar = ({ name, src }) => {
     .join('')
 
   return (
-    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-sm">
+    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-bold flex items-center justify-center text-sm">
       {initials.slice(0, 2)}
     </div>
   )
@@ -28,9 +29,10 @@ const Comments = ({ taskId, comments, refreshTask }) => {
   const [textValue, setTextValue] = useState('')
   const [replyingTo, setReplyingTo] = useState(null)
   const [replyText, setReplyText] = useState('')
-
+  const { darkMode } = useDarkMode()
+  console.log(comments)
   const token = localStorage.getItem('token')
-  const loggedInProviderId = JSON.parse(localStorage.getItem('user')).id
+  const loggedInProviderId = JSON.parse(localStorage.getItem('user'))?.id
 
   const handlePostComment = async () => {
     if (!textValue.trim()) {
@@ -77,12 +79,15 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
   const formatDateTime = (timestamp) => {
     const date = new Date(timestamp)
-    return date.toLocaleString() // e.g., "12/05/2025, 10:30:45 AM"
+    return date.toLocaleString()
   }
 
-  const renderReplies = (replies = []) => {
-    return replies.map((reply) => (
-      <div key={reply._id} className="ml-12 mt-3 border-l pl-4 border-gray-200">
+  const renderReplies = (replies = []) =>
+    replies.map((reply) => (
+      <div
+        key={reply._id}
+        className="ml-12 mt-3 border-l pl-4 border-gray-200 dark:border-gray-700"
+      >
         <div className="flex items-start gap-3">
           <Avatar
             name={reply.user?.name}
@@ -90,36 +95,38 @@ const Comments = ({ taskId, comments, refreshTask }) => {
           />
           <div>
             <div className="mb-1">
-              <span className="font-semibold text-[#001B5D]">
+              <span className="font-semibold text-[#001B5D] dark:text-blue-200">
                 {reply.user?.name}
               </span>
               {loggedInProviderId === reply.user?._id && (
-                <span className="text-sm text-gray-500 ml-1">(You)</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
+                  (You)
+                </span>
               )}
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                 {formatDateTime(reply.date)}
               </p>
             </div>
-
-            <p className="text-gray-700">{reply.text}</p>
+            <p className="text-gray-700 dark:text-gray-300">{reply.text}</p>
           </div>
         </div>
       </div>
     ))
-  }
 
   return (
     <div className="mt-8 mb-8">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Comments</h2>
-
+      <h2 className="font-semibold text-[#1A3D8F] flex items-center gap-2 text-xl  dark:text-white mb-1">
+        Comments
+      </h2>
+      {/* {comments} */}
       {comments?.length === 0 ? (
-        <p className="text-gray-500">No comments yet.</p>
+        <p className="text-gray-500 dark:text-gray-400">No comments yet.</p>
       ) : (
         <div className={`${comments.length > 3 ? ' pr-2' : ''}`}>
           {comments.map((comment) => (
             <div
               key={comment._id}
-              className="mb-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-white"
+              className="mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-900"
             >
               <div className="flex items-start gap-3">
                 <Avatar
@@ -128,18 +135,22 @@ const Comments = ({ taskId, comments, refreshTask }) => {
                 />
                 <div className="w-full">
                   <div className="mb-1">
-                    <span className="font-semibold text-[#001B5D]">
+                    <span className="font-semibold text-[#001B5D] dark:text-blue-200">
                       {comment.user?.name}
                     </span>
                     {loggedInProviderId === comment.user?._id && (
-                      <span className="text-sm text-gray-500 ml-1">(You)</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
+                        (You)
+                      </span>
                     )}
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                       {formatDateTime(comment.date)}
                     </p>
                   </div>
 
-                  <p className="text-gray-700 mb-2">{comment.text}</p>
+                  <p className="text-gray-700 dark:text-gray-300 mb-2">
+                    {comment.text}
+                  </p>
 
                   <button
                     onClick={() =>
@@ -147,7 +158,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
                         replyingTo === comment._id ? null : comment._id
                       )
                     }
-                    className="text-sm text-[#1A3D8F] hover:underline"
+                    className="text-sm text-[#1A3D8F] dark:text-blue-400 hover:underline"
                   >
                     {replyingTo === comment._id ? 'Cancel' : 'Reply'}
                   </button>
@@ -155,7 +166,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
                   {replyingTo === comment._id && (
                     <div className="mt-2">
                       <textarea
-                        className="w-full border rounded-md p-2 text-sm"
+                        className="w-full border rounded-md p-2 text-sm bg-white dark:bg-gray-800 dark:text-white dark:border-gray-600"
                         rows="2"
                         placeholder="Write a reply..."
                         value={replyText}
@@ -170,8 +181,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
                     </div>
                   )}
 
-                  {comment.replies &&
-                    comment.replies.length > 0 &&
+                  {comment.replies?.length > 0 &&
                     renderReplies(comment.replies)}
                 </div>
               </div>
@@ -182,7 +192,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
       <div className="mb-6">
         <textarea
-          className="w-full border rounded-md p-3 text-sm"
+          className="w-full border rounded-md p-3 text-sm bg-white dark:bg-gray-800 dark:text-white dark:border-gray-600"
           rows="3"
           placeholder="Write a comment..."
           value={textValue}

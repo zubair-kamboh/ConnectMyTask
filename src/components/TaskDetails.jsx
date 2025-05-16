@@ -24,6 +24,7 @@ import { format } from 'date-fns'
 import PostTaskModal from './PostTaskModel'
 import { toast } from 'react-toastify'
 import AcceptOfferModal from './ConfirmAcceptOffer'
+import { useDarkMode } from '../context/ThemeContext'
 
 export default function TaskDetailsPage() {
   const { taskId } = useParams()
@@ -34,6 +35,7 @@ export default function TaskDetailsPage() {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedBid, setSelectedBid] = useState(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const { darkMode } = useDarkMode()
 
   const navigate = useNavigate()
 
@@ -41,11 +43,12 @@ export default function TaskDetailsPage() {
     try {
       const token = localStorage.getItem('token')
       const response = await axios.get(
-        `http://localhost:3300/api/tasks/${taskId}`,
+        `http://localhost:3300/api/tasks/${taskId}/data`,
         {
           headers: { Authorization: `${token}` },
         }
       )
+      console.log(response.data)
       setTask(response.data)
     } catch (err) {
       console.error('Error fetching task:', err)
@@ -102,9 +105,13 @@ export default function TaskDetailsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white shadow-lg rounded-2xl p-6 space-y-6"
+          className={`shadow-lg rounded-2xl p-6 space-y-6 ${
+            darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'
+          }`}
         >
-          <h1 className="text-3xl font-bold text-[#1A3D8F]">{task.title}</h1>
+          <h1 className="text-2xl font-semibold dark:text-white mb-6 text-[#1A3D8F]">
+            {task.title}
+          </h1>
           {currentUser?.id === task?.user._id && (
             <div className="flex gap-3 mt-4">
               <button
@@ -126,36 +133,60 @@ export default function TaskDetailsPage() {
           )}
 
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 bg-[#1A3D8F] text-white px-3 py-1 rounded-full">
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
+                darkMode ? 'bg-gray-700 text-white' : 'bg-[#1A3D8F] text-white'
+              }`}
+            >
               <FaDollarSign /> ${task.budget}
             </span>
-            <span className="inline-flex items-center gap-2 bg-[#F0F5FF] text-[#1A3D8F] px-3 py-1 rounded-full">
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
+                darkMode ? 'bg-gray-700 text-white' : 'bg-[#1A3D8F] text-white'
+              }`}
+            >
               <FaCalendarAlt /> {new Date(task.deadline).toLocaleDateString()}
             </span>
-            <span className="inline-flex items-center gap-2 bg-[#06D6A0] text-white px-3 py-1 rounded-full">
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
+                darkMode ? 'bg-gray-700 text-white' : 'bg-[#1A3D8F] text-white'
+              }`}
+            >
               <FaCheckCircle /> {task.status}
             </span>
-            <span className="inline-flex items-center gap-2 bg-[#FF6B6B] text-white px-3 py-1 rounded-full">
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
+                darkMode ? 'bg-gray-700 text-white' : 'bg-[#1A3D8F] text-white'
+              }`}
+            >
               <FaTag /> {task.category}
             </span>
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold text-[#1A3D8F] mb-1">
+            <h2 className="text-xl font-semibold dark:text-white mb-1 text-[#1A3D8F]">
               Description
             </h2>
-            <p className="text-gray-600">{task.description}</p>
+            <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
+              {task.description}
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
-              <h2 className="text-lg font-semibold text-[#1A3D8F] flex items-center gap-2">
+              <h2 className="font-semibold text-[#1A3D8F] flex items-center gap-2 text-xl  dark:text-white mb-1 ">
                 <FaMapMarkerAlt /> Location
               </h2>
-              <p className="text-gray-600 mt-1">{task.location?.address}</p>
+              <p
+                className={
+                  darkMode ? 'text-gray-300 mt-1' : 'text-gray-600 mt-1'
+                }
+              >
+                {task.location?.address}
+              </p>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-[#1A3D8F] flex items-center gap-2">
+              <h2 className="font-semibold text-[#1A3D8F] flex items-center gap-2 text-xl  dark:text-white mb-1">
                 <FaUser /> Posted by
               </h2>
               <div className="flex items-center mt-2 gap-3">
@@ -163,8 +194,20 @@ export default function TaskDetailsPage() {
                   {task.user.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-gray-800 font-medium">{task.user.name}</p>
-                  <p className="text-gray-500 text-sm">{task.user.email}</p>
+                  <p
+                    className={
+                      darkMode ? 'text-gray-300 ' : 'text-gray-600 font-medium'
+                    }
+                  >
+                    {task.user.name}
+                  </p>
+                  <p
+                    className={
+                      darkMode ? 'text-gray-300 ' : 'text-gray-600 font-sm'
+                    }
+                  >
+                    {task.user.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -172,7 +215,7 @@ export default function TaskDetailsPage() {
 
           {task.images.length > 0 && (
             <div className="mt-4">
-              <h2 className="text-lg font-semibold text-[#1A3D8F] mb-2">
+              <h2 className="font-semibold text-[#1A3D8F] flex items-center gap-2 text-xl  dark:text-white mb-1">
                 Images
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -217,8 +260,8 @@ export default function TaskDetailsPage() {
             <>
               {/* Hide Offers Section when Task is completed */}
               {task.status !== 'Completed' && (
-                <div className="mt-6">
-                  <h2 className="text-xl font-semibold text-[#1A3D8F] mb-2">
+                <div className="mt-6 ">
+                  <h2 className="font-semibold text-[#1A3D8F] flex items-center gap-2 text-xl  dark:text-white mb-1">
                     Offers
                   </h2>
 
@@ -229,6 +272,7 @@ export default function TaskDetailsPage() {
                       task={task}
                       isOpen={isOpen}
                       setIsOpen={setIsOpen}
+                      darkMode={darkMode}
                     />
                   ) : sortedBids.length === 0 ? (
                     <p className="text-gray-500">No offers yet.</p>
@@ -237,7 +281,7 @@ export default function TaskDetailsPage() {
                       {sortedBids.map((bid) => (
                         <div
                           key={bid._id}
-                          className="p-4 bg-[#F9FAFB] rounded-lg border border-[#E0E0E0]"
+                          className="bg-[#F0F5FF] dark:bg-gray-900 border border-[#1A3D8F]/20 dark:border-slate-600 p-4  rounded-lg border-[#E0E0E0]"
                         >
                           <div className="flex items-center gap-3">
                             <div className="bg-[#1A3D8F] text-white w-10 h-10 rounded-full flex items-center justify-center font-semibold">
@@ -330,7 +374,7 @@ const completeTask = async (taskId, reviewData) => {
   }
 }
 
-const OfferAcceptedSection = ({ task, isOpen, setIsOpen }) => {
+const OfferAcceptedSection = ({ task, isOpen, setIsOpen, darkMode }) => {
   const currentUser = JSON.parse(localStorage.getItem('user'))
   const isOwner = currentUser?.id === task?.user._id
   const isInProgress = task?.status === 'In Progress'
@@ -356,8 +400,10 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen }) => {
   if (!isOwner || !isInProgress || !assignedProvider) return null
 
   return (
-    <div className="bg-[#F0F5FF] border border-[#1A3D8F]/20 rounded-2xl p-6 shadow-md mt-6">
-      <h2 className="text-2xl font-bold text-[#1A3D8F] mb-4">Offer Accepted</h2>
+    <div className="bg-[#F0F5FF] dark:bg-[#1e293b] border border-[#1A3D8F]/20 dark:border-slate-600 rounded-2xl p-6 shadow-md mt-6">
+      <h2 className="text-2xl font-bold text-[#1A3D8F] dark:text-white mb-4">
+        Offer Accepted
+      </h2>
 
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
         <img
@@ -367,17 +413,21 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen }) => {
         />
 
         <div className="flex-1 space-y-2">
-          <p className="text-lg font-semibold text-[#1A3D8F]">
+          <p className="text-lg font-semibold text-[#1A3D8F] dark:text-white">
             {assignedProvider.name}
           </p>
-          <p className="text-gray-700">{assignedProvider.email}</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            {assignedProvider.email}
+          </p>
 
           {acceptedBid && (
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">Accepted Offer</p>
-              <p className="text-[#1A3D8F] font-medium text-lg">
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Accepted Offer
+              </p>
+              <p className="text-[#1A3D8F] dark:text-green-400 font-medium text-lg">
                 ${acceptedBid.price}{' '}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   ({acceptedBid.estimatedTime})
                 </span>
               </p>
@@ -389,6 +439,7 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen }) => {
             onClose={() => setIsOpen(false)}
             provider={task?.assignedProvider}
             task={task}
+            darkMode={darkMode}
           />
 
           <div className="flex flex-wrap gap-3 mt-4">
@@ -418,10 +469,10 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen }) => {
 
       {/* Modal for Completing Task */}
       {completionModalOpen && (
-        <div className="fixed z-[9999] inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white max-w-lg w-full rounded-xl p-6 shadow-xl relative">
+        <div className="fixed z-[9999] inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-800 max-w-lg w-full rounded-xl p-6 shadow-xl relative">
             <button
-              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl"
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-xl"
               onClick={() => setCompletionModalOpen(false)}
             >
               ×

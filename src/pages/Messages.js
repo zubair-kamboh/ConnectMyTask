@@ -14,25 +14,26 @@ const Avatar = ({ name }) => {
     .join('')
     .slice(0, 2)
   return (
-    <div className="w-10 h-10 rounded-full bg-[#E0E0E0] text-[#1A3D8F] font-bold flex items-center justify-center text-sm">
+    <div className="w-10 h-10 rounded-full bg-[#E0E0E0] text-[#1A3D8F] font-bold flex items-center justify-center text-sm dark:bg-gray-700 dark:text-white">
       {initials}
     </div>
   )
 }
 
-// Message Card component for listing conversations
 const MessageCard = ({ message, onClick }) => (
   <div
-    className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-transform hover:scale-[1.02] mb-4"
+    className="flex items-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-transform hover:scale-[1.02] mb-4"
     onClick={onClick}
   >
     <Avatar name={message.sender.name} />
     <div className="flex-1 ml-4">
-      <div className="font-semibold text-[#1A3D8F]">{message.sender.name}</div>
-      <div className="text-sm text-[#999999]">
+      <div className="font-semibold text-[#1A3D8F] dark:text-white">
+        {message.sender.name}
+      </div>
+      <div className="text-sm text-[#999999] dark:text-gray-400">
         {message.preview || 'No preview available'}
       </div>
-      <div className="text-xs text-[#666666]">
+      <div className="text-xs text-[#666666] dark:text-gray-500">
         {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
       </div>
     </div>
@@ -119,12 +120,12 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
   }
 
   return (
-    <div className="flex flex-col flex-1 bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="flex flex-col flex-1 bg-white dark:bg-gray-900 shadow-md rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center space-x-4 p-4 border-b border-gray-200">
+      <div className="flex items-center space-x-4 p-4 border-b border-gray-200 dark:border-gray-700">
         <Avatar name={message.sender.name} />
         <div className="flex-1">
-          <div className="font-semibold text-[#1A3D8F]">
+          <div className="font-semibold text-[#1A3D8F] dark:text-white">
             {message.sender.name}
           </div>
           {typing && <div className="text-xs text-gray-500">Typing...</div>}
@@ -138,7 +139,7 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2 bg-[#F9FAFB]">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2 bg-[#F9FAFB] dark:bg-gray-800">
         {chatLog.map((msg, index) => (
           <div
             key={index}
@@ -150,7 +151,7 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
               className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm ${
                 msg.from === 'you'
                   ? 'bg-[#1A3D8F] text-white rounded-br-none'
-                  : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                  : 'bg-gray-200 text-gray-900 rounded-bl-none dark:bg-gray-700 dark:text-white'
               }`}
             >
               {msg.type === 'image' ? (
@@ -175,11 +176,11 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
       </div>
 
       {/* Input Section */}
-      <div className="relative p-4 border-t border-gray-200 bg-white">
+      <div className="relative p-4 border-t border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700">
         <div className="relative">
           <input
             type="text"
-            className="w-full p-3 pl-20 pr-12 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
+            className="w-full p-3 pl-20 pr-12 border border-gray-300 dark:border-gray-600 rounded-full bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
             placeholder="Type a message..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -187,7 +188,6 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
             onFocus={() => setTyping(true)}
           />
 
-          {/* Emoji Button */}
           <button
             onClick={() => setShowEmojiPicker((prev) => !prev)}
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#1A3D8F]"
@@ -196,7 +196,6 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
             <Smile size={20} />
           </button>
 
-          {/* Image Upload Button */}
           <button
             onClick={() => fileInputRef.current.click()}
             className="absolute left-10 top-1/2 transform -translate-y-1/2 text-[#1A3D8F]"
@@ -212,7 +211,6 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
             className="hidden"
           />
 
-          {/* Send Button */}
           <button
             onClick={handleSend}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#1A3D8F]"
@@ -221,7 +219,6 @@ const ChatPanel = ({ message, closeChat, onSend }) => {
           </button>
         </div>
 
-        {/* Emoji Picker Dropdown */}
         {showEmojiPicker && (
           <div className="absolute bottom-20 left-4 z-50">
             <EmojiPicker onEmojiClick={onEmojiClick} />
@@ -270,6 +267,41 @@ export default function Messages() {
     setSelectedMessage(null)
   }
 
+  const Sidebar = (
+    <div className="w-1/3 bg-white dark:bg-gray-900 shadow-md rounded-lg p-4 space-y-4 overflow-y-auto">
+      <div className="font-semibold text-[#1A3D8F] dark:text-white text-lg">
+        Messages
+      </div>
+      <div className="space-y-4">
+        {messages.map((message, index) => (
+          <MessageCard
+            key={index}
+            message={message}
+            onClick={() => handleMessageClick(message)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+
+  const Chat = (
+    <div className="flex flex-col flex-1 bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden min-h-0">
+      {selectedMessage ? (
+        <ChatPanel
+          message={selectedMessage}
+          closeChat={closeChat}
+          onSend={(newMessage) => {
+            console.log('User sent:', newMessage)
+          }}
+        />
+      ) : (
+        <div className="text-center text-gray-400 dark:text-gray-500 flex items-center justify-center flex-1">
+          Select a message to chat
+        </div>
+      )}
+    </div>
+  )
+
   if (role === 'user') {
     return (
       <Layout>
@@ -278,38 +310,8 @@ export default function Messages() {
             <Loader fullScreen />
           ) : (
             <div className="flex flex-1 w-full max-w-7xl mx-auto min-h-0 h-full">
-              {/* Left Sidebar for Conversations */}
-              <div className="w-1/3 bg-white shadow-md rounded-lg p-4 space-y-4 overflow-y-auto">
-                <div className="font-semibold text-[#1A3D8F] text-lg">
-                  Messages
-                </div>
-                <div className="space-y-4">
-                  {messages.map((message, index) => (
-                    <MessageCard
-                      key={index}
-                      message={message}
-                      onClick={() => handleMessageClick(message)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Right Panel for Chat */}
-              <div className="flex flex-col flex-1 bg-white shadow-md rounded-lg overflow-hidden min-h-0">
-                {selectedMessage ? (
-                  <ChatPanel
-                    message={selectedMessage}
-                    closeChat={closeChat}
-                    onSend={(newMessage) => {
-                      console.log('User sent:', newMessage)
-                    }}
-                  />
-                ) : (
-                  <div className="text-center text-gray-400 flex items-center justify-center flex-1">
-                    Select a message to chat
-                  </div>
-                )}
-              </div>
+              {Sidebar}
+              {Chat}
             </div>
           )}
         </div>
@@ -318,41 +320,34 @@ export default function Messages() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {role === 'provider' && <Header />}
+
       {loading ? (
         <Loader fullScreen />
       ) : (
-        <div className="flex flex-1 w-full max-w-7xl mx-auto min-h-0">
-          {/* Left Sidebar for Conversations */}
-          <div className="w-1/3 bg-white shadow-md rounded-lg p-4 space-y-4 overflow-y-auto">
-            <div className="font-semibold text-[#1A3D8F] text-lg">Messages</div>
-            <div className="space-y-4">
-              {messages.map((message, index) => (
-                <MessageCard
-                  key={index}
-                  message={message}
-                  onClick={() => handleMessageClick(message)}
-                />
-              ))}
-            </div>
-          </div>
+        <div className="flex flex-1 w-full max-w-7xl mx-auto min-h-0 gap-6 p-4">
+          {/* Sidebar stays as is */}
 
-          {/* Right Panel for Chat */}
-          <div className="flex flex-col flex-1 bg-white shadow-md rounded-lg overflow-hidden min-h-0">
-            {selectedMessage ? (
-              <ChatPanel
-                message={selectedMessage}
-                closeChat={closeChat}
-                onSend={(newMessage) => {
-                  console.log('User sent:', newMessage)
-                }}
-              />
-            ) : (
-              <div className="text-center text-gray-400 flex items-center justify-center flex-1">
-                Select a message to chat
-              </div>
-            )}
+          {Sidebar}
+
+          {/* Chat container */}
+          <div
+            className="
+            flex-1
+            bg-white dark:bg-gray-800 
+            rounded-2xl 
+            shadow-lg 
+            p-6
+            overflow-y-auto
+            flex
+            flex-col
+            transition
+            duration-300
+            "
+            style={{ maxHeight: 'calc(100vh - 64px)' }} // optional fixed max height if needed
+          >
+            {Chat}
           </div>
         </div>
       )}

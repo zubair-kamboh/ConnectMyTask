@@ -21,27 +21,29 @@ import {
   Dashboard,
   Assignment,
   AccountCircle,
-  Settings,
   Logout,
   Menu as MenuIcon,
-  Brightness4,
-  Brightness7,
   Notifications,
   Message,
 } from '@mui/icons-material'
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles'
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useDarkMode } from '../context/ThemeContext'
+
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
+import { useAuth } from '../context/AuthContext'
 
 const drawerWidth = 240
 
 const Layout = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode, toggleDarkMode } = useDarkMode()
   const [drawerOpen, setDrawerOpen] = useState(true)
   const [anchorEl, setAnchorEl] = useState(null)
   const [profile, setProfile] = useState(null)
-
   const muiTheme = useTheme()
+  const { logout } = useAuth()
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
@@ -58,7 +60,7 @@ const Layout = ({ children }) => {
   const toggleDrawer = () => setDrawerOpen(!drawerOpen)
   const toggleTheme = () => {
     const newMode = !darkMode
-    setDarkMode(newMode)
+    // setDarkMode(newMode)
     localStorage.setItem('darkMode', newMode)
     document.documentElement.classList.toggle('dark', newMode)
   }
@@ -66,8 +68,8 @@ const Layout = ({ children }) => {
   const handleAvatarClick = (e) => setAnchorEl(e.currentTarget)
   const handleMenuClose = () => setAnchorEl(null)
   const handleLogout = () => {
-    localStorage.clear()
-    navigate('/login')
+    logout()
+    navigate('/')
   }
 
   const menuItems = [
@@ -82,11 +84,14 @@ const Layout = ({ children }) => {
     { text: 'Logout', icon: <Logout />, action: handleLogout },
   ]
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem('darkMode') === 'true'
-    setDarkMode(storedTheme)
-    document.documentElement.classList.toggle('dark', storedTheme)
-  }, [])
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+
+  // useEffect(() => {
+  //   const stored = localStorage.getItem('darkMode')
+  //   const initialMode = stored !== null ? stored === 'true' : prefersDarkMode
+  //   setDarkMode(initialMode)
+  //   document.documentElement.classList.toggle('dark', initialMode)
+  // }, [prefersDarkMode])
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -120,49 +125,87 @@ const Layout = ({ children }) => {
           position="fixed"
           sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
           className="bg-[#1A3D8F]"
+          elevation={2}
         >
-          <Toolbar>
-            <IconButton color="inherit" onClick={toggleDrawer} sx={{ mr: 2 }}>
-              <MenuIcon />
+          <Toolbar className="gap-4 px-4">
+            <IconButton
+              color="inherit"
+              onClick={toggleDrawer}
+              sx={{ p: 1.5, borderRadius: 2 }}
+            >
+              <MenuIcon fontSize="medium" />
             </IconButton>
+
             <Typography
               variant="h6"
               sx={{ flexGrow: 1 }}
-              className="text-white"
+              className="text-white font-bold tracking-wide"
             >
               ConnectMyTask
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-            <IconButton onClick={toggleTheme} color="inherit">
-              {darkMode ? <Brightness7 /> : <Brightness4 />}
-            </IconButton>
-            <IconButton onClick={handleAvatarClick} color="inherit">
-              <Avatar
-                src={profile?.profilePhoto}
-                sx={{ width: 32, height: 32 }}
-              />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={openMenu}
-              onClose={handleMenuClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-              <MenuItem
-                onClick={() => {
-                  handleMenuClose()
-                  navigate('/user/dashboard/profile')
+
+            <Box className="flex gap-3 items-center">
+              <IconButton
+                color="inherit"
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  p: 1.2,
+                  borderRadius: 2,
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
                 }}
               >
-                Account
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
+                <Badge badgeContent={4} color="error">
+                  <Notifications fontSize="medium" />
+                </Badge>
+              </IconButton>
+
+              <DarkModeToggleButton />
+
+              <IconButton
+                onClick={handleAvatarClick}
+                sx={{
+                  p: 0.5,
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  borderRadius: '50%',
+                  '&:hover': { borderColor: '#fff' },
+                }}
+              >
+                <Avatar
+                  src={profile?.profilePhoto}
+                  sx={{ width: 36, height: 36 }}
+                />
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                PaperProps={{
+                  sx: {
+                    mt: 1,
+                    borderRadius: 2,
+                    minWidth: 160,
+                    boxShadow: 3,
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose()
+                    navigate('/user/dashboard/profile')
+                  }}
+                >
+                  <AccountCircle sx={{ mr: 1 }} />
+                  Account
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <Logout sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
           </Toolbar>
         </AppBar>
 
@@ -193,9 +236,31 @@ const Layout = ({ children }) => {
                     item.action ? item.action() : navigate(item.path)
                     if (isMobile) toggleDrawer()
                   }}
+                  sx={{
+                    py: 1.5,
+                    px: drawerOpen ? 2 : 1,
+                    mx: 1,
+                    my: 0.5,
+                    borderRadius: 2,
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.light',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                    },
+                    '&:hover': {
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                    },
+                  }}
                 >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  {drawerOpen && <ListItemText primary={item.text} />}
+                  <ListItemIcon sx={{ minWidth: 36 }}>{item.icon}</ListItemIcon>
+                  {drawerOpen && (
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{ fontWeight: 500 }}
+                    />
+                  )}
                 </ListItem>
               </ListItem>
             ))}
@@ -222,3 +287,37 @@ const Layout = ({ children }) => {
 }
 
 export default Layout
+
+const DarkModeToggleButton = () => {
+  const { darkMode, toggleDarkMode } = useDarkMode()
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs md:text-sm hidden md:inline">
+        {darkMode ? 'Light Mode' : 'Dark Mode'}
+      </span>
+      <button
+        onClick={toggleDarkMode}
+        className={`w-14 h-8 flex items-center rounded-full px-1 transition duration-300 ${
+          darkMode ? 'bg-blue-600' : 'bg-gray-300'
+        }`}
+        aria-label="Toggle Dark Mode"
+      >
+        <div
+          className={`w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transform transition-transform duration-300 ${
+            darkMode ? 'translate-x-6' : 'translate-x-0'
+          }`}
+        >
+          {darkMode ? (
+            <LightModeOutlinedIcon
+              fontSize="small"
+              className="text-yellow-400"
+            />
+          ) : (
+            <DarkModeOutlinedIcon fontSize="small" className="text-blue-900" />
+          )}
+        </div>
+      </button>
+    </div>
+  )
+}

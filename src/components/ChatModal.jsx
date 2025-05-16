@@ -4,7 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { socket } from '../socket'
 import Loader from './Loader'
 
-export default function ChatModal({ isOpen, onClose, provider, user, task }) {
+export default function ChatModal({
+  isOpen,
+  onClose,
+  provider,
+  user,
+  task,
+  darkMode = false,
+}) {
   const [currentUser, setCurrentUser] = useState(null)
   const [otherParty, setOtherParty] = useState(null)
 
@@ -39,7 +46,12 @@ export default function ChatModal({ isOpen, onClose, provider, user, task }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.3 }}
-            className="h-[550px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col"
+            className={`h-[550px] rounded-2xl shadow-2xl overflow-hidden border flex flex-col
+              ${
+                darkMode
+                  ? 'bg-gray-900 border-gray-700 text-gray-100'
+                  : 'bg-white border-gray-200 text-gray-900'
+              }`}
           >
             <ChatUI
               currentUser={currentUser}
@@ -47,6 +59,7 @@ export default function ChatModal({ isOpen, onClose, provider, user, task }) {
               tokenKey={tokenKey}
               task={task}
               onClose={onClose}
+              darkMode={darkMode}
             />
           </motion.div>
         )}
@@ -55,7 +68,7 @@ export default function ChatModal({ isOpen, onClose, provider, user, task }) {
   )
 }
 
-function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
+function ChatUI({ currentUser, otherUser, tokenKey, task, onClose, darkMode }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const inputRef = useRef(null)
@@ -72,7 +85,7 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
       setImageFile(file)
     }
   }
-  // Fetch chat history
+
   useEffect(() => {
     if (!otherUser?._id || !token || !task?._id) return
 
@@ -102,7 +115,6 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
     fetchMessages()
   }, [otherUser, token, task?._id])
 
-  // Join/leave socket room
   useEffect(() => {
     if (!task?._id || !currentUser?.id) return
 
@@ -119,7 +131,6 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
     }
   }, [task?._id, currentUser?.id])
 
-  // Handle incoming messages
   useEffect(() => {
     const handleReceive = (data) => {
       const taskMatches = data.taskId === task._id
@@ -150,12 +161,10 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
     return () => socket.off('receiveMessage', handleReceive)
   }, [currentUser?.id, otherUser?._id, task?._id])
 
-  // Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Auto focus input
   useEffect(() => {
     inputRef.current?.focus()
   }, [inputRef])
@@ -201,11 +210,21 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b bg-[#1A3D8F] text-white flex items-center justify-between">
-        <h2 className="text-base font-semibold text-white truncate">
+      <div
+        className={`px-4 py-3 border-b flex items-center justify-between ${
+          darkMode
+            ? 'bg-gray-800 border-gray-700 text-white'
+            : 'bg-[#1A3D8F] text-white border-transparent'
+        }`}
+      >
+        <h2 className="text-base font-semibold truncate">
           Chat with {otherUser?.name || 'User'}
         </h2>
-        <button onClick={onClose} className="text-white hover:text-gray-300">
+        <button
+          onClick={onClose}
+          className="hover:text-gray-300 text-white"
+          aria-label="Close chat"
+        >
           <FaTimes size={16} />
         </button>
       </div>
@@ -213,7 +232,9 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
       {/* Message Area */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[#F9FAFB]"
+        className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 ${
+          darkMode ? 'bg-gray-900' : 'bg-[#F9FAFB]'
+        }`}
       >
         {messages.map((msg, idx) => {
           const isCurrentUser = msg.sender === currentUser?.id
@@ -222,7 +243,11 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
               key={idx}
               className={`relative group max-w-[75%] px-4 py-2 rounded-lg text-sm break-words ${
                 isCurrentUser
-                  ? 'bg-[#1A3D8F] text-white ml-auto text-right'
+                  ? darkMode
+                    ? 'bg-blue-700 text-white ml-auto text-right'
+                    : 'bg-[#1A3D8F] text-white ml-auto text-right'
+                  : darkMode
+                  ? 'bg-gray-700 text-gray-200 text-left'
                   : 'bg-[#E0E0E0] text-gray-800 text-left'
               }`}
             >
@@ -231,7 +256,7 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
                 <div
                   className={`text-xs opacity-60 mt-1 ${
                     isCurrentUser ? 'text-right' : 'text-left'
-                  } text-[#999999]`}
+                  } ${darkMode ? 'text-gray-400' : 'text-[#999999]'}`}
                 >
                   {formatTime(msg.timestamp)}
                 </div>
@@ -253,7 +278,13 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
       {isSending ? (
         <Loader />
       ) : (
-        <div className="p-3 border-t flex flex-col gap-2 bg-white">
+        <div
+          className={`p-3 border-t flex flex-col gap-2 ${
+            darkMode
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-white border-gray-200'
+          }`}
+        >
           {imageFile && (
             <div className="relative max-w-xs">
               <img
@@ -263,7 +294,12 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
               />
               <button
                 onClick={() => setImageFile(null)}
-                className="absolute top-0 right-0 bg-white text-red-500 p-1 rounded-full"
+                className={`absolute top-0 right-0 ${
+                  darkMode
+                    ? 'bg-gray-800 text-red-400'
+                    : 'bg-white text-red-500'
+                } p-1 rounded-full`}
+                aria-label="Remove image preview"
               >
                 <FaTimes size={12} />
               </button>
@@ -276,11 +312,21 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
+              className={`flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 ${
+                darkMode
+                  ? 'bg-gray-700 border-gray-600 text-gray-200 focus:ring-blue-500'
+                  : 'bg-white border-gray-300 text-gray-900 focus:ring-[#1A3D8F]'
+              }`}
               placeholder="Type a message..."
             />
             <label className="relative cursor-pointer">
-              <div className="w-9 h-9 bg-[#E0E0E0] hover:bg-[#d0d0d0] flex items-center justify-center rounded-full text-[#1A3D8F]">
+              <div
+                className={`w-9 h-9 ${
+                  darkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-blue-400'
+                    : 'bg-[#E0E0E0] hover:bg-[#d0d0d0] text-[#1A3D8F]'
+                } flex items-center justify-center rounded-full`}
+              >
                 <FaPaperclip size={16} />
               </div>
               <input
@@ -294,7 +340,11 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose }) {
             <button
               onClick={sendMessage}
               disabled={isSending}
-              className="bg-[#1A3D8F] text-white px-4 py-2 rounded-full hover:bg-[#163373] transition disabled:opacity-50 flex items-center gap-2"
+              className={`px-4 py-2 rounded-full hover:brightness-90 transition flex items-center gap-2 ${
+                darkMode
+                  ? 'bg-blue-700 text-white disabled:opacity-50'
+                  : 'bg-[#1A3D8F] text-white disabled:opacity-50'
+              }`}
             >
               Send
             </button>
