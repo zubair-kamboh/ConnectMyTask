@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Card,
@@ -11,8 +11,6 @@ import {
   Tab,
   Paper,
   Avatar,
-  createTheme,
-  ThemeProvider,
   CssBaseline,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
@@ -26,7 +24,6 @@ import markerIconPng from 'leaflet/dist/images/marker-icon.png'
 import markerShadowPng from 'leaflet/dist/images/marker-shadow.png'
 import PostTaskModal from './PostTaskModel'
 import axios from 'axios'
-import geoCodeLocations from '../util/geoCodeLocations'
 import TaskDetails from './TaskDetails'
 import { useTheme } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
@@ -39,36 +36,19 @@ const DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1A3D8F', // Primary Blue
-    },
-    secondary: {
-      main: '#06D6A0', // Accent Green/Teal
-    },
-    background: {
-      default: '#F9FAFB', // Light Background
-    },
-    text: {
-      primary: '#666666', // Grey text color
-      secondary: '#999999', // Lighter grey for icons
-    },
-  },
-})
-
 export default function TaskPage() {
   const [openModal, setOpenModal] = useState(false)
   const [tasks, setTasks] = useState([])
   const [taskMarkers, setTaskMarkers] = useState([])
   const [selectedTask, setSelectedTask] = useState(null)
   const token = localStorage.getItem('token')
-  const user = JSON.parse(localStorage.getItem('user'))
   const [filteredTasks, setFilteredTasks] = useState(tasks)
-  console.log(filteredTasks)
   const navigate = useNavigate()
+  const theme = useTheme()
+  const isDarkMode = theme.palette.mode === 'dark'
 
-  // Fetch tasks immediately
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -81,7 +61,6 @@ export default function TaskPage() {
           }
         )
 
-        // Sort tasks by creation date (newest first)
         const sortedTasks = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         )
@@ -120,88 +99,58 @@ export default function TaskPage() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <CssBaseline />
       <Box height="100vh" display="flex" flexDirection="column">
-        {/* Fullscreen Modal */}
         <PostTaskModal open={openModal} onClose={() => setOpenModal(false)} />
-
         {selectedTask && <TaskDetails task={selectedTask} />}
-
-        {/* <Box
-          p={2}
-          display="flex"
-          alignItems="center"
-          bgcolor="background.paper"
-          boxShadow={1}
-        >
-          <Paper
-            component="form"
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              width: 300,
-              mr: 4,
-              p: '2px 8px',
-              bgcolor: '#FFFFFF',
-            }}
-          >
-            <SearchIcon />
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Search for a task"
-            />
-          </Paper>
-
-          <Tabs value={0} textColor="primary" indicatorColor="primary">
-            <Tab label="All tasks" />
-            <Tab label="Tasks Assigned" />
-            <Tab label="Offers Pending" />
-            <Tab label="Task Completed" />
-          </Tabs>
-
-          <Box ml="auto" display="flex" alignItems="center" gap={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{
-                textTransform: 'none',
-                bgcolor: '#1A3D8F',
-                '&:hover': { bgcolor: '#163373' },
-              }}
-              onClick={() => setOpenModal(true)} // Trigger fullscreen modal
-            >
-              Post a Task
-            </Button>
-          </Box>
-        </Box> */}
-
         <Filters tasks={tasks} onFiltered={setFilteredTasks} />
 
         <Box display="flex" flex={1} overflow="hidden">
           {/* Sidebar */}
           <Box
             width="30%"
-            bgcolor="background.default"
+            bgcolor={theme.palette.background.default}
+            color={theme.palette.text.primary}
             p={2}
-            sx={{ overflowY: 'auto' }}
+            sx={{
+              overflowY: 'auto',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: isDarkMode ? '#2e2e2e' : '#f0f0f0',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: isDarkMode ? '#555' : '#c1c1c1',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: isDarkMode ? '#888' : '#a0a0a0',
+              },
+              scrollbarWidth: 'thin',
+              scrollbarColor: isDarkMode ? '#555 #2e2e2e' : '#c1c1c1 #f0f0f0',
+            }}
           >
             <Typography variant="h6" gutterBottom>
               OPEN TASKS
             </Typography>
 
-            {filteredTasks !== null &&
+            {filteredTasks &&
               [...filteredTasks]
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .map((task, index) => (
+                .map((task) => (
                   <Card
                     sx={{
                       mb: 2,
                       cursor: 'pointer',
                       borderColor: '#E0E0E0',
                       '&:hover': {
-                        borderColor: '#1A3D8F',
+                        borderColor: theme.palette.primary.main,
                       },
+                      backgroundColor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
                     }}
                     key={task._id}
                     onClick={() => navigate(`/user/dashboard/task/${task._id}`)}
@@ -233,19 +182,18 @@ export default function TaskPage() {
                       </Box>
                       <Box mt={2} display="flex" justifyContent="space-between">
                         <div
-                          className="text-[#06D6A0] font-medium"
                           style={{
                             color:
                               task.status === 'Active'
                                 ? '#FF6B6B'
                                 : task.status === 'In Progress'
                                 ? '#2EC4B6'
-                                : '#666666',
+                                : theme.palette.text.primary,
                           }}
                         >
                           {task.status}
                           {task.bids.length > 0 &&
-                            `· ${task.bids.length} offer(s)`}
+                            ` · ${task.bids.length} offer(s)`}
                         </div>
                       </Box>
                     </CardContent>
@@ -261,16 +209,24 @@ export default function TaskPage() {
               style={{ height: '100%', width: '100%' }}
             >
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution={
+                  isDarkMode
+                    ? '&copy; <a href="https://carto.com/attributions">CARTO</a> contributors'
+                    : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }
+                url={
+                  isDarkMode
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                }
               />
+
               {taskMarkers.map(
                 (task) =>
                   task.coordinates && (
                     <Marker key={task._id} position={task.coordinates}>
                       <Popup>
-                        <div className="max-w-sm bg-white rounded-xl shadow-md p-3">
-                          {/* Task Image */}
+                        <div className="max-w-sm rounded-xl shadow-md p-3 dark:bg-gray-900 bg-white dark:text-gray-100 text-gray-800">
                           {task.images?.length > 0 && (
                             <div className="mb-2 overflow-hidden rounded-lg">
                               <img
@@ -281,9 +237,8 @@ export default function TaskPage() {
                             </div>
                           )}
 
-                          {/* Title & Budget */}
                           <div className="flex justify-between mb-1">
-                            <h3 className="text-lg font-semibold text-gray-800">
+                            <h3 className="text-lg font-semibold">
                               {task.title}
                             </h3>
                             <p className="text-md font-medium text-primary">
@@ -291,38 +246,34 @@ export default function TaskPage() {
                             </p>
                           </div>
 
-                          {/* Location */}
-                          <div className="flex items-center mb-1 text-sm text-gray-600">
+                          <div className="flex items-center mb-1 text-sm">
                             <LocationOnIcon className="mr-1 text-primary" />
                             <p className="truncate">{task.location?.address}</p>
                           </div>
 
-                          {/* Deadline */}
-                          <div className="flex items-center mb-1 text-sm text-gray-600">
+                          <div className="flex items-center mb-1 text-sm">
                             <EventIcon className="mr-1 text-primary" />
                             <p>
                               {new Date(task.deadline).toLocaleDateString()}
                             </p>
                           </div>
 
-                          {/* Status */}
                           <div className="mb-2">
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-semibold ${
                                 task.status === 'Completed'
-                                  ? 'bg-green-100 text-green-600'
+                                  ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
                                   : task.status === 'Active'
-                                  ? 'bg-red-100 text-red-600'
-                                  : 'bg-gray-100 text-gray-600'
+                                  ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300'
+                                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
                               }`}
                             >
                               {task.status}
                             </span>
                           </div>
 
-                          {/* View Task Button */}
                           <button
-                            className="w-full py-1 mt-2 text-white bg-primary rounded-lg hover:bg-primary-dark focus:outline-none"
+                            className="w-full py-1 mt-2 text-white bg-[#1A3D8F] rounded-lg hover:bg-[#163373] focus:outline-none"
                             onClick={() =>
                               navigate(`/user/dashboard/task/${task._id}`)
                             }
@@ -335,9 +286,34 @@ export default function TaskPage() {
                   )
               )}
             </MapContainer>
+
+            {/* Floating Post Task Button - OUTSIDE map and flex containers */}
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => setIsModalOpen(true)}
+              sx={{
+                position: 'fixed',
+                bottom: 24,
+                right: 24,
+                zIndex: 1300, // MUI modal zIndex is ~1300, so above that or less is fine
+                borderRadius: '50px',
+                px: 4,
+                py: 1.5,
+                fontWeight: 'bold',
+                boxShadow: 3,
+              }}
+            >
+              + Post a Task
+            </Button>
+
+            <PostTaskModal
+              open={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
           </Box>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   )
 }

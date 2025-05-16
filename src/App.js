@@ -21,6 +21,8 @@ import { Toaster } from 'react-hot-toast'
 import Messages from './pages/Messages'
 import Loader from './components/Loader'
 import ProviderHome from './pages/ProviderHome'
+import PublicRoute from './components/ProtectedRoutes/PublicRoute'
+import PrivateRoute from './components/ProtectedRoutes/PrivateRoute'
 
 function App() {
   const { user, provider, loading } = useAuth()
@@ -30,48 +32,126 @@ function App() {
     <Router>
       <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/provider/profile" element={<Profile />} />
+        {/* Public Routes */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Home />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
 
-        {user ? (
-          <>
-            <Route path="/user/dashboard" element={<Dashboard />} />
-            <Route path="/user/dashboard/profile" element={<UserPage />} />
-            <Route path="/user/dashboard/tasks" element={<TaskPage />} />
-            <Route
-              path="/user/dashboard/task/:taskId"
-              element={<TaskDetailsPage />}
-            />
-            <Route
-              path="/provider/profile/:providerId"
-              element={<OfferProviderProfile />}
-            />
-            <Route path="/user/messages" element={<Messages />} />
+        {/* User Routes */}
+        <Route
+          path="/user/dashboard"
+          element={
+            <PrivateRoute role="user">
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/user/dashboard/profile"
+          element={
+            <PrivateRoute role="user">
+              <UserPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/user/dashboard/tasks"
+          element={
+            <PrivateRoute role="user">
+              <TaskPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/user/dashboard/task/:taskId"
+          element={
+            <PrivateRoute role="user">
+              <TaskDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider/profile/:providerId"
+          element={
+            <PrivateRoute role="user">
+              <OfferProviderProfile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/user/messages"
+          element={
+            <PrivateRoute role="user">
+              <Messages />
+            </PrivateRoute>
+          }
+        />
 
-            <Route
-              path="*"
-              element={<Navigate to="/user/dashboard" replace />}
-            />
-          </>
-        ) : provider ? (
-          <>
-            <Route path="/provider/home" element={<ProviderHome />} />
-            <Route path="/provider/tasks" element={<ProviderTasks />} />
-            <Route path="/provider/messages" element={<Messages />} />
-            <Route
-              path="/provider/tasks/:taskId"
-              element={<ProviderTaskDetails />}
-            />
-            <Route
-              path="*"
-              element={<Navigate to="/provider/tasks" replace />}
-            />
-          </>
-        ) : (
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        )}
+        {/* Provider Routes */}
+        <Route
+          path="/provider/home"
+          element={
+            <PrivateRoute role="provider">
+              <ProviderHome />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider/tasks"
+          element={
+            <PrivateRoute role="provider">
+              <ProviderTasks />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider/messages"
+          element={
+            <PrivateRoute role="provider">
+              <Messages />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider/profile"
+          element={
+            <PrivateRoute role="provider">
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider/tasks/:taskId"
+          element={
+            <PrivateRoute role="provider">
+              <ProviderTaskDetails />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Default Fallback */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   )

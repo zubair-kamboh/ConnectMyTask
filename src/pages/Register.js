@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import Loader from '../components/Loader'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -82,6 +83,10 @@ export default function Register() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (loading) {
+    return <Loader fullScreen />
   }
 
   return (
@@ -227,9 +232,8 @@ export default function Register() {
             <button
               type="submit"
               className="w-full bg-[#1A3D8F] hover:bg-[#163373] text-white py-2 rounded-md font-medium transition disabled:opacity-60"
-              disabled={loading}
             >
-              {loading ? 'Registering...' : 'Register'}
+              Register
             </button>
 
             <p className="text-center text-sm text-[#999999]">
