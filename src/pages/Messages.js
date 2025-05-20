@@ -73,6 +73,11 @@ export default function Messages() {
 
   const closeChat = () => {
     setSelectedMessage(null)
+    if (userData) {
+      navigate('/user/messages')
+    } else {
+      navigate('/provider/messages')
+    }
   }
 
   const Sidebar = (
