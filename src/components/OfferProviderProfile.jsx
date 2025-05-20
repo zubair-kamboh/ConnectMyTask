@@ -4,6 +4,7 @@ import axios from 'axios'
 import Loader from '../components/Loader'
 import Layout from './Layout'
 import { motion } from 'framer-motion'
+import Avatar from './Avatar'
 
 const OfferProviderProfile = () => {
   const { providerId } = useParams()
@@ -57,10 +58,11 @@ const OfferProviderProfile = () => {
                 </p>
               </div>
             </div>
-            <img
-              src={provider?.profilePhoto}
-              alt="Profile"
-              className="w-20 h-20 rounded-full object-cover border-4 border-blue-500 shadow-md"
+            <Avatar
+              name={provider.name}
+              profilePhoto={provider.profilePhoto}
+              size="xl"
+              className="border-4 border-blue-500 shadow-md"
             />
           </div>
 

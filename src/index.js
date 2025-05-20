@@ -7,8 +7,6 @@ import { APIProvider } from '@vis.gl/react-google-maps'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider } from './context/SocketContext'
 import { ThemeProvider } from './context/ThemeContext'
-import { ProviderThemeProvider } from './context/ProviderThemeContext'
-import { BrowserRouter } from 'react-router-dom'
 
 const AppWrapper = () => {
   const providerToken = localStorage.getItem('providerToken')

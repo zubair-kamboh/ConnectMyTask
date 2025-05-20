@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Layout from '../components/Layout'
 
@@ -94,18 +94,18 @@ export default function UserDashboard() {
             Ready to get things done?
           </h2>
           <div className="space-x-4 mt-4">
-            <button
+            <NavLink
               className="bg-green-600 hover:bg-green-700 text-white text-base px-6 py-3 rounded-full shadow-md"
-              onClick={() => navigate('/user/post-task')}
+              to="/user/dashboard/tasks"
             >
               Post a Task
-            </button>
-            <button
+            </NavLink>
+            <NavLink
               className="text-primary border border-primary px-6 py-3 rounded-full hover:bg-blue-50 dark:hover:bg-gray-700 transition"
-              onClick={() => navigate('/user/my-tasks')}
+              to="/user/messages"
             >
-              My Tasks
-            </button>
+              Messages
+            </NavLink>
           </div>
         </section>
       </div>

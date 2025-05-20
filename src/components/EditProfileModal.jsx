@@ -1,31 +1,47 @@
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
   Button,
   Avatar,
   Typography,
   Box,
   CircularProgress,
+  IconButton,
 } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
+import PlaceAutoComplete from './PlaceAutoComplete' // Adjust the import path as needed
+import CountrySelect from './CountrySelect'
 
 export default function EditProfileModal({ open, onClose, profile, onSave }) {
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    profilePhoto: '',
+    location: {
+      country: '',
+      lat: null,
+      lng: null,
+    },
+  })
   const [previewPhoto, setPreviewPhoto] = useState('')
   const [loading, setLoading] = useState(false)
-  console.log(profile)
+  const [countryLoading, setCountryLoading] = useState(false)
+
   useEffect(() => {
     if (profile) {
       setFormData({
         name: profile.name || '',
         email: profile.email || '',
-
         profilePhoto: profile.profilePhoto || '',
+        location: {
+          country: profile.location?.country || '',
+          lat: profile.location?.lat,
+          lng: profile.location?.lng,
+        },
       })
       setPreviewPhoto(profile.profilePhoto || '')
     }
@@ -33,14 +49,28 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (name === 'address') {
+      setFormData((prev) => ({
+        ...prev,
+        location: { ...prev.location, address: value },
+      }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleCountryChange = ({ country, lat, lng }) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: { country, lat, lng },
+    }))
   }
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
       setPreviewPhoto(URL.createObjectURL(file))
-      setFormData((prev) => ({ ...prev, profilePhoto: file })) // Save File object
+      setFormData((prev) => ({ ...prev, profilePhoto: file }))
     }
   }
 
@@ -48,18 +78,22 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
-
-      // Prepare form data
       const form = new FormData()
       form.append('name', formData.name)
       form.append('email', formData.email)
-      form.append('state', formData.state)
-      form.append('city', formData.city)
-      form.append('suburb', formData.suburb)
-      form.append('skills', formData.skills)
-      if (formData.profilePhoto instanceof File) {
-        form.append('profilePhoto', formData.profilePhoto) // actual file
+
+      if (formData.profilePhoto && typeof formData.profilePhoto !== 'string') {
+        form.append('profilePhoto', formData.profilePhoto)
       }
+
+      form.append(
+        'location',
+        JSON.stringify({
+          country: formData.location.country || '',
+          lat: formData.location.lat,
+          lng: formData.location.lng,
+        })
+      )
 
       const res = await axios.put(
         `http://localhost:3300/api/auth/profile/${profile._id}`,
@@ -73,9 +107,8 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
       )
 
       toast.success('Profile updated successfully!')
-      setTimeout(() => {
-        window.location.reload()
-      }, 500)
+      onSave(res.data)
+      onClose()
     } catch (error) {
       console.error(error)
       toast.error('Failed to update profile.')
@@ -86,16 +119,43 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Profile</DialogTitle>
-      <DialogContent dividers>
-        <Box textAlign="center" mb={2}>
+      <DialogContent
+        sx={{
+          px: 4,
+          py: 3,
+          bgcolor: 'background.paper',
+          borderRadius: 3,
+          position: 'relative',
+        }}
+      >
+        <IconButton
+          onClick={onClose}
+          sx={{ position: 'absolute', right: 16, top: 16 }}
+        >
+          <CloseIcon />
+        </IconButton>
+
+        <Typography
+          variant="h5"
+          sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}
+        >
+          Edit Profile
+        </Typography>
+
+        <Box textAlign="center" mb={3}>
           <Avatar
             src={previewPhoto}
-            alt="Profile Photo"
-            sx={{ width: 80, height: 80, margin: 'auto' }}
+            alt="Profile"
+            sx={{
+              width: 90,
+              height: 90,
+              mx: 'auto',
+              border: '3px solid #1e88e5',
+              boxShadow: 3,
+            }}
           />
           <Typography variant="body2" mt={1}>
-            Click to upload a new photo
+            Upload a new profile photo
           </Typography>
           <Button
             variant="outlined"
@@ -103,7 +163,7 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
             size="small"
             sx={{ mt: 1 }}
           >
-            Upload Photo
+            Choose File
             <input
               type="file"
               accept="image/*"
@@ -126,23 +186,46 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
           margin="normal"
           label="Email"
           name="email"
-          disabled
+          sx={{ mb: 3 }}
           value={formData.email}
-          onChange={handleChange}
+          disabled
         />
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Select your country
+        </Typography>
+        <CountrySelect
+          value={formData.location.country}
+          defaultValue={formData.location.country}
+          onCountryChange={handleCountryChange}
+          onGeocodingStart={() => setCountryLoading(true)}
+          onGeocodingEnd={() => setCountryLoading(false)}
+        />
+
+        <Box
+          mt={4}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Button onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={loading || countryLoading}
+            sx={{ px: 4, py: 1.2, fontWeight: 'bold', borderRadius: 999 }}
+          >
+            {loading || countryLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              'Save'
+            )}
+          </Button>
+        </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={loading}>
-          {loading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            'Save Changes'
-          )}
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }

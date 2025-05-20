@@ -23,6 +23,7 @@ import Loader from './components/Loader'
 import ProviderHome from './pages/ProviderHome'
 import PublicRoute from './components/ProtectedRoutes/PublicRoute'
 import PrivateRoute from './components/ProtectedRoutes/PrivateRoute'
+import 'leaflet/dist/leaflet.css'
 
 function App() {
   const { user, provider, loading } = useAuth()
@@ -107,6 +108,14 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/user/messages/:userId"
+          element={
+            <PrivateRoute role="user">
+              <Messages />
+            </PrivateRoute>
+          }
+        />
 
         {/* Provider Routes */}
         <Route
@@ -146,6 +155,14 @@ function App() {
           element={
             <PrivateRoute role="provider">
               <ProviderTaskDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider/messages/:userId"
+          element={
+            <PrivateRoute role="provider">
+              <Messages />
             </PrivateRoute>
           }
         />

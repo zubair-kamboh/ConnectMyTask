@@ -28,6 +28,7 @@ import TaskDetails from './TaskDetails'
 import { useTheme } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import Filters from './Provider/Filters'
+import DescriptionIcon from '@mui/icons-material/Description'
 
 // Marker Icon for Leaflet
 const DefaultIcon = L.icon({
@@ -158,15 +159,27 @@ export default function TaskPage() {
                     <CardContent>
                       <Grid container justifyContent="space-between">
                         <Typography variant="h6">{task.title}</Typography>
-                        <Typography variant="h6" color="primary">
-                          ${task.budget}
-                        </Typography>
+                        <Typography variant="h6">${task.budget}</Typography>
                       </Grid>
                       <Box display="flex" alignItems="center" mt={1}>
-                        <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />
-                        <Typography variant="body2">
-                          {task.location?.address}
-                        </Typography>
+                        {task.location?.type === 'remote' ? (
+                          <>
+                            <DescriptionIcon fontSize="small" sx={{ mr: 1 }} />
+                            <Typography variant="body2">
+                              {task.description
+                                ?.split(' ')
+                                .slice(0, 8)
+                                .join(' ') + '...'}
+                            </Typography>
+                          </>
+                        ) : (
+                          <>
+                            <LocationOnIcon fontSize="small" sx={{ mr: 1 }} />
+                            <Typography variant="body2">
+                              {task.location?.address}
+                            </Typography>
+                          </>
+                        )}
                       </Box>
                       <Box display="flex" alignItems="center" mt={1}>
                         <EventIcon fontSize="small" sx={{ mr: 1 }} />
