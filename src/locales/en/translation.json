@@ -1,0 +1,20 @@
+{
+  "welcome": "Welcome back, {{name}}!",
+  "intro": "ConnectMyTask helps you post tasks, manage offers, and connect with trusted providers to get things done efficiently.",
+  "features": {
+    "titles": ["Post a Task", "Track Offers", "Complete Tasks"],
+    "descriptions": [
+      "Describe your task, set your budget, and let reliable providers come to you.",
+      "View and manage provider offers in real-time, with messaging built-in.",
+      "Track progress and complete tasks seamlessly while staying in control."
+    ]
+  },
+  "why_love": "Why Users Love ConnectMyTask",
+  "testimonial1": "“I posted a task and found someone to help within minutes. Super convenient!”",
+  "testimonial2": "“The messaging feature and transparent offers made the process smooth and safe.”",
+  "sarah": "– Sarah J., Melbourne",
+  "daniel": "– Daniel K., Sydney",
+  "cta": "Ready to get things done?",
+  "post_task": "Post a Task",
+  "messages": "Messages"
+}

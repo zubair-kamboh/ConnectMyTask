@@ -24,6 +24,7 @@ import ProviderHome from './pages/ProviderHome'
 import PublicRoute from './components/ProtectedRoutes/PublicRoute'
 import PrivateRoute from './components/ProtectedRoutes/PrivateRoute'
 import 'leaflet/dist/leaflet.css'
+import './i18n'
 
 function App() {
   const { user, provider, loading } = useAuth()

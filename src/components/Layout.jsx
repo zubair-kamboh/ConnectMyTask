@@ -34,6 +34,7 @@ import { useDarkMode } from '../context/ThemeContext'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import { useAuth } from '../context/AuthContext'
+import LanguageSwitcher from './LanguageSwitcher'
 
 const drawerWidth = 240
 
@@ -160,7 +161,7 @@ const Layout = ({ children }) => {
               </IconButton>
 
               <DarkModeToggleButton />
-
+              <LanguageSwitcher />
               <IconButton
                 onClick={handleAvatarClick}
                 sx={{

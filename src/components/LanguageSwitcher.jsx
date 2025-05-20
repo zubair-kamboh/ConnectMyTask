@@ -1,18 +1,64 @@
-// import { useTranslation } from 'react-i18next'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { MenuItem, Select, FormControl, InputLabel, Box } from '@mui/material'
+import TranslateIcon from '@mui/icons-material/Translate'
+import { useDarkMode } from '../context/ThemeContext' // Adjust this import path as needed
 
-// export default function LanguageSwitcher() {
-//   const { i18n } = useTranslation()
+const LanguageSwitcher = () => {
+  const { i18n } = useTranslation()
+  const { darkMode } = useDarkMode()
 
-//   const changeLanguage = (lng) => {
-//     i18n.changeLanguage(lng)
-//     localStorage.setItem('lng', lng)
-//   }
+  const handleChange = (event) => {
+    const newLang = event.target.value
+    i18n.changeLanguage(newLang)
+    localStorage.setItem('lang', newLang)
+  }
 
-//   return (
-//     <div className="flex gap-2 justify-end p-4">
-//       <button onClick={() => changeLanguage('en')}>English</button>
-//       <button onClick={() => changeLanguage('ur')}>اردو</button>
-//       <button onClick={() => changeLanguage('hi')}>हिन्दी</button>
-//     </div>
-//   )
-// }
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        bgcolor: darkMode ? 'background.paper' : '#f0f0f0',
+        p: 1,
+        borderRadius: 2,
+        boxShadow: 3,
+        width: 'fit-content',
+        backgroundColor: darkMode
+          ? 'rgba(255, 255, 255, 0.05)'
+          : 'rgba(0, 0, 0, 0.05)',
+      }}
+    >
+      <FormControl size="small" sx={{ minWidth: 120 }}>
+        <Select
+          labelId="language-switcher-label"
+          value={i18n.language}
+          label="Language"
+          onChange={handleChange}
+          sx={{
+            color: darkMode ? '#fff' : '#000',
+            backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#fff',
+            '.MuiOutlinedInput-notchedOutline': {
+              borderColor: darkMode
+                ? 'rgba(255,255,255,0.2)'
+                : 'rgba(0,0,0,0.2)',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: darkMode ? '#90caf9' : '#1976d2',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: darkMode ? '#90caf9' : '#1976d2',
+            },
+          }}
+        >
+          <MenuItem value="en">English</MenuItem>
+          <MenuItem value="ur">اردو</MenuItem>
+          <MenuItem value="hi">हिन्दी</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
+  )
+}
+
+export default LanguageSwitcher
