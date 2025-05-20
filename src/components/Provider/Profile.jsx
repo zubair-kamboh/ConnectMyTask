@@ -4,19 +4,25 @@ import Header from './Header'
 import Loader from '../Loader'
 import UpdateProfile from './UpdateProfile'
 import Avatar from '../Avatar'
+import { useLocation, useParams } from 'react-router-dom'
 
 const Profile = () => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showUpdate, setShowUpdate] = useState(false)
+  const { userId } = useParams()
+  const location = useLocation()
+  const fromTaskPage = location.state?.fromTaskPage
 
   const fetchProfile = async () => {
     setLoading(true)
     try {
       const token = localStorage.getItem('providerToken')
-      const providerId = JSON.parse(localStorage.getItem('provider')).id
+      const loggedInProvider = JSON.parse(localStorage.getItem('provider'))
+      const idToFetch = userId || loggedInProvider?.id
+
       const response = await axios.get(
-        `http://localhost:3300/api/auth/profile/${providerId}`,
+        `http://localhost:3300/api/auth/profile/${idToFetch}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -109,6 +115,9 @@ const Profile = () => {
               <p className="text-xs text-gray-400 dark:text-gray-400 mt-0.5">
                 Email: {user.email}
               </p>
+              <p className="text-xs text-gray-400 dark:text-gray-400 mt-0.5">
+                Country: {user.location?.country}
+              </p>
             </div>
           </div>
 
@@ -140,14 +149,16 @@ const Profile = () => {
             <p>Joined: {new Date(user.createdAt).toDateString()}</p>
           </div>
 
-          <div className="mt-6">
-            <button
-              onClick={() => setShowUpdate(true)}
-              className="w-full bg-[#1A3D8F] hover:bg-[#163373] text-white font-semibold py-2 px-4 rounded-xl transition"
-            >
-              Update Profile
-            </button>
-          </div>
+          {!fromTaskPage && (
+            <div className="mt-6">
+              <button
+                onClick={() => setShowUpdate(true)}
+                className="w-full bg-[#1A3D8F] hover:bg-[#163373] text-white font-semibold py-2 px-4 rounded-xl transition"
+              >
+                Update Profile
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

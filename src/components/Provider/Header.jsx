@@ -18,14 +18,13 @@ const Header = () => {
   const { logout } = useAuth()
 
   const navigate = useNavigate()
+  const token = localStorage.getItem('providerToken')
+  const providerId = JSON.parse(localStorage.getItem('provider')).id
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       setLoading(true)
       try {
-        const token = localStorage.getItem('providerToken')
-        const providerId = JSON.parse(localStorage.getItem('provider')).id
-
         const response = await axios.get(
           `http://localhost:3300/api/auth/profile/${providerId}`,
           {
@@ -102,7 +101,7 @@ const Header = () => {
         {/* Right Actions */}
         <div className="flex items-center gap-4">
           <NavLink
-            to="/provider/profile"
+            to={`/profile/${providerId}`}
             className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition text-sm md:text-base"
           >
             Profile
@@ -164,7 +163,7 @@ const Header = () => {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1A3D8F] border border-gray-200 dark:border-[#334466] rounded-md shadow-lg z-50 overflow-hidden">
                   <NavLink
-                    to="/provider/profile"
+                    to={`/profile/${providerId}`}
                     className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white dark:hover:text-[#1A3D8F] transition"
                   >
                     Profile

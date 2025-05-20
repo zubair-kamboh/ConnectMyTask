@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Select from 'react-select'
 import Flag from 'react-world-flags'
 import { toast } from 'react-hot-toast'
@@ -11,8 +11,40 @@ export default function CountrySelect({
   onCountryChange,
   onGeocodingStart = () => {},
   onGeocodingEnd = () => {},
+  isDarkMode = true,
 }) {
   const [loading, setLoading] = useState(false)
+  // const [isDarkMode, setIsDarkMode] = useState(false)
+
+  const customStyles = {
+    control: (base) => ({
+      ...base,
+      backgroundColor: isDarkMode ? '#2C2C2C' : '#fff',
+      borderColor: '#E0E0E0',
+      color: isDarkMode ? '#fff' : '#333',
+      boxShadow: 'none',
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: isDarkMode ? '#2C2C2C' : '#fff',
+      color: isDarkMode ? '#fff' : '#333',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: isDarkMode ? '#fff' : '#333',
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused
+        ? isDarkMode
+          ? '#3b3b3b'
+          : '#F0F0F0'
+        : isDarkMode
+        ? '#2C2C2C'
+        : '#fff',
+      color: isDarkMode ? '#fff' : '#333',
+    }),
+  }
 
   const handleCountrySelect = async (selectedOption) => {
     setLoading(true)
@@ -49,7 +81,12 @@ export default function CountrySelect({
             {e.label}
           </div>
         )}
-        className="w-full border border-[#E0E0E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F]"
+        className={`w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3D8F] ${
+          isDarkMode
+            ? 'dark:bg-gray-800 dark:border-gray-600 dark:text-white'
+            : ''
+        }`}
+        styles={customStyles} // Apply custom styles for dark/light mode
       />
       {loading && (
         <div className="absolute right-3 top-2.5 text-[#1A3D8F] animate-spin">

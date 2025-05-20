@@ -207,7 +207,6 @@ export default function Register() {
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
-                    required
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) =>
@@ -249,6 +248,7 @@ export default function Register() {
                 Country
               </label>
               <CountrySelect
+                isDarkMode={false}
                 defaultValue={form.location.country}
                 onCountryChange={(location) =>
                   setForm((prev) => ({

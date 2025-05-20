@@ -143,13 +143,14 @@ function App() {
           }
         />
         <Route
-          path="/provider/profile"
+          path="/profile/:userId"
           element={
             <PrivateRoute role="provider">
               <Profile />
             </PrivateRoute>
           }
         />
+
         <Route
           path="/provider/tasks/:taskId"
           element={

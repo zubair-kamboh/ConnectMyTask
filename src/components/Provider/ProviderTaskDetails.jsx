@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { CalendarIcon, ClockIcon, MapPinIcon, XIcon } from 'lucide-react'
+import {
+  CalendarIcon,
+  ClockIcon,
+  MailIcon,
+  MapPinIcon,
+  XIcon,
+} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import axios from 'axios'
-import { useNavigate, useParams } from 'react-router-dom'
+import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import Loader from '../Loader'
 import { toast } from 'react-hot-toast'
 import useSubmitOffer from '../../hooks/useSubmitOffer'
@@ -211,7 +217,11 @@ const ProviderTaskDetails = () => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 mb-4">
+            <NavLink
+              to={`/profile/${task.user._id}`}
+              state={{ fromTaskPage: true }}
+              className="flex items-center space-x-4 mb-4"
+            >
               <Avatar name={task.user.name} src={task.user.avatar} />
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -228,7 +238,7 @@ const ProviderTaskDetails = () => {
                   darkMode={darkMode}
                 />
               </div>
-            </div>
+            </NavLink>
 
             {/* Location + Time */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-gray-600 dark:text-gray-300 mb-6 gap-4">
@@ -305,17 +315,21 @@ const ProviderTaskDetails = () => {
               </div>
             ) : (
               <>
-                <Comments
-                  taskId={task._id}
-                  comments={task.comments}
-                  refreshTask={fetchTask}
-                />
-
                 {task.bids && task.bids.length > 0 && (
                   <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-[#001B5D] dark:text-blue-300 mb-4">
-                      Bids
-                    </h2>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-[#001B5D] dark:text-blue-300">
+                        Bids
+                      </h2>
+                      <button
+                        onClick={() => navigate('/provider/messages')}
+                        className="flex items-center gap-2 bg-[#f0f4ff] dark:bg-[#1a2b5d] hover:bg-[#dce6ff] dark:hover:bg-[#2a3f75] text-[#1A3D8F] dark:text-white font-medium px-4 py-2 rounded-full shadow-sm transition"
+                      >
+                        <MailIcon size={18} />
+                        Inbox
+                      </button>
+                    </div>
+
                     <div className="max-h-[400px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                       {task.bids.map((bid) => (
                         <div
@@ -357,7 +371,11 @@ const ProviderTaskDetails = () => {
                     </div>
                   </div>
                 )}
-
+                <Comments
+                  taskId={task._id}
+                  comments={task.comments}
+                  refreshTask={fetchTask}
+                />
                 {isBidAccepted && (
                   <div className="mt-8 border border-[#1A3D8F] dark:border-blue-500 bg-[#F9FAFB] dark:bg-gray-800 p-6 rounded-xl shadow-lg">
                     <h2 className="text-xl font-semibold text-[#1A3D8F] dark:text-blue-300">
