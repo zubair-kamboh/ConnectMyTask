@@ -25,6 +25,7 @@ import PostTaskModal from './PostTaskModel'
 import { toast } from 'react-toastify'
 import AcceptOfferModal from './ConfirmAcceptOffer'
 import { useDarkMode } from '../context/ThemeContext'
+import Avatar from './Avatar'
 
 export default function TaskDetailsPage() {
   const { taskId } = useParams()
@@ -334,7 +335,7 @@ export default function TaskDetailsPage() {
 
                                   <ChatModal
                                     isOpen={isOpen}
-                                    onClose={setIsOpen}
+                                    onClose={() => setIsOpen(false)}
                                     provider={bid.provider}
                                     task={task}
                                     darkMode={darkMode}
@@ -426,10 +427,11 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen, darkMode }) => {
         Offer Accepted
       </h2>
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-        <img
-          src={assignedProvider.profilePhoto}
-          alt={assignedProvider.name}
-          className="w-24 h-24 rounded-full border-4 border-white shadow-sm object-cover"
+        <Avatar
+          name={assignedProvider.name}
+          profilePhoto={assignedProvider.profilePhoto}
+          size="xl"
+          className="border-4 border-blue-500 shadow-md"
         />
 
         <div className="flex-1 space-y-2">

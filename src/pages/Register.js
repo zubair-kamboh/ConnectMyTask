@@ -3,8 +3,13 @@ import { toast } from 'react-hot-toast'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import PlaceAutoComplete from '../components/PlaceAutoComplete'
 import Loader from '../components/Loader'
+import Select from 'react-select'
+import Flag from 'react-world-flags'
+import geoCodeLocation from '../util/geoCodeLocations'
+import { countryOptions } from '../util/countryOptions'
+import CountrySelect from '../components/CountrySelect'
+
 export default function Register() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
@@ -18,9 +23,9 @@ export default function Register() {
     skills: [],
     profilePhoto: null,
     location: {
-      address: '',
-      lat: '',
-      lng: '',
+      country: 'AU',
+      lat: '-24.7761086',
+      lng: '134.755',
     },
   })
 
@@ -50,7 +55,6 @@ export default function Register() {
       skills: prev.skills.filter((s) => s !== skillToRemove),
     }))
   }
-  console.log(form.location)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -91,6 +95,26 @@ export default function Register() {
     }
   }
 
+  const handleCountryChange = async (selectedOption) => {
+    const countryCode = selectedOption.value
+
+    const coordinates = await geoCodeLocation(countryCode, '', '')
+
+    if (coordinates) {
+      const [lat, lng] = coordinates
+      setForm((prev) => ({
+        ...prev,
+        location: {
+          ...prev.location,
+          country: selectedOption.value,
+          lat: lat,
+          lng: lng,
+        },
+      }))
+    } else {
+      toast.error('Could not retrieve coordinates for the selected country')
+    }
+  }
   if (loading) {
     return <Loader fullScreen />
   }
@@ -183,6 +207,7 @@ export default function Register() {
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
+                    required
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) =>
@@ -221,18 +246,16 @@ export default function Register() {
 
             <div>
               <label className="block mb-1 font-medium text-[#666666]">
-                Location
+                Country
               </label>
-              <PlaceAutoComplete
-                onPlaceSelect={(place) => {
-                  const address = place?.formatted_address || ''
-                  const lat = place?.geometry?.location?.lat()
-                  const lng = place?.geometry?.location?.lng()
+              <CountrySelect
+                defaultValue={form.location.country}
+                onCountryChange={(location) =>
                   setForm((prev) => ({
                     ...prev,
-                    location: { address, lat, lng },
+                    location: { ...prev.location, ...location },
                   }))
-                }}
+                }
               />
             </div>
 
@@ -242,6 +265,7 @@ export default function Register() {
               </label>
               <input
                 type="file"
+                required
                 onChange={handlePhotoChange}
                 className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4

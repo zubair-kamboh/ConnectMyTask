@@ -73,7 +73,7 @@ const Filters = ({ tasks, onFiltered }) => {
             transition-all w-full sm:w-48"
         >
           <option value="">All Statuses</option>
-          <option value="Open">Open</option>
+          <option value="Active">Active</option>
           <option value="In Progress">In Progress</option>
           <option value="Completed">Completed</option>
         </select>

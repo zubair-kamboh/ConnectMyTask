@@ -35,10 +35,10 @@ export default function ProfilePage({ profile, onEdit }) {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {profile.email}
             </p>
-            {profile.location?.address && (
+            {profile.location?.country && (
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1">
                 <LocationOnIcon fontSize="small" className="mr-1" />
-                {profile.location.address}
+                {profile.location.country}
               </div>
             )}
           </div>

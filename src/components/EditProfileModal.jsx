@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import PlaceAutoComplete from './PlaceAutoComplete' // Adjust the import path as needed
+import CountrySelect from './CountrySelect'
 
 export default function EditProfileModal({ open, onClose, profile, onSave }) {
   const [formData, setFormData] = useState({
@@ -21,13 +22,14 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
     email: '',
     profilePhoto: '',
     location: {
-      address: '',
+      country: '',
       lat: null,
       lng: null,
     },
   })
   const [previewPhoto, setPreviewPhoto] = useState('')
   const [loading, setLoading] = useState(false)
+  const [countryLoading, setCountryLoading] = useState(false)
 
   useEffect(() => {
     if (profile) {
@@ -36,7 +38,7 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
         email: profile.email || '',
         profilePhoto: profile.profilePhoto || '',
         location: {
-          address: profile.location?.address || '',
+          country: profile.location?.country || '',
           lat: profile.location?.lat,
           lng: profile.location?.lng,
         },
@@ -57,6 +59,13 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
     }
   }
 
+  const handleCountryChange = ({ country, lat, lng }) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: { country, lat, lng },
+    }))
+  }
+
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -72,16 +81,19 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
       const form = new FormData()
       form.append('name', formData.name)
       form.append('email', formData.email)
-      form.append('location.address', formData.location.address || '')
-      if (formData.location.lat !== null) {
-        form.append('location.lat', formData.location.lat.toString())
-      }
-      if (formData.location.lng !== null) {
-        form.append('location.lng', formData.location.lng.toString())
-      }
-      if (formData.profilePhoto instanceof File) {
+
+      if (formData.profilePhoto && typeof formData.profilePhoto !== 'string') {
         form.append('profilePhoto', formData.profilePhoto)
       }
+
+      form.append(
+        'location',
+        JSON.stringify({
+          country: formData.location.country || '',
+          lat: formData.location.lat,
+          lng: formData.location.lng,
+        })
+      )
 
       const res = await axios.put(
         `http://localhost:3300/api/auth/profile/${profile._id}`,
@@ -93,6 +105,7 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
           },
         }
       )
+
       toast.success('Profile updated successfully!')
       onSave(res.data)
       onClose()
@@ -178,18 +191,15 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
           disabled
         />
 
-        {/* Add the PlaceAutoComplete component */}
-        <PlaceAutoComplete
-          value={formData.location.address}
-          onPlaceSelect={(place) => {
-            const address = place?.formatted_address || ''
-            const lat = place?.geometry?.location?.lat()
-            const lng = place?.geometry?.location?.lng()
-            setFormData((prev) => ({
-              ...prev,
-              location: { address, lat, lng },
-            }))
-          }}
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Select your country
+        </Typography>
+        <CountrySelect
+          value={formData.location.country}
+          defaultValue={formData.location.country}
+          onCountryChange={handleCountryChange}
+          onGeocodingStart={() => setCountryLoading(true)}
+          onGeocodingEnd={() => setCountryLoading(false)}
         />
 
         <Box
@@ -205,10 +215,14 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
             variant="contained"
             color="primary"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || countryLoading}
             sx={{ px: 4, py: 1.2, fontWeight: 'bold', borderRadius: 999 }}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Save'}
+            {loading || countryLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              'Save'
+            )}
           </Button>
         </Box>
       </DialogContent>
