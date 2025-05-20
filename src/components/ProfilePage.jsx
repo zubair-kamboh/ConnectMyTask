@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import EditProfileModal from './EditProfileModal'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
+import Avatar from './Avatar'
 
 export default function ProfilePage({ profile, onEdit }) {
   const [isEditOpen, setEditOpen] = useState(false)
@@ -41,10 +42,11 @@ export default function ProfilePage({ profile, onEdit }) {
               </div>
             )}
           </div>
-          <img
-            src={profile.profilePhoto}
-            alt="Profile"
-            className="w-20 h-20 rounded-full object-cover border-4 border-blue-500 shadow-md"
+          <Avatar
+            name={profile.name}
+            profilePhoto={profile.profilePhoto}
+            size="xl"
+            className="border-4 border-blue-500 shadow-md"
           />
         </div>
 

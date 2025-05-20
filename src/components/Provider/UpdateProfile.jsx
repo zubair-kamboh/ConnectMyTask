@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Loader from '../Loader'
+import toast from 'react-hot-toast'
 
-const UpdateProfile = ({ user, onClose, onUpdate }) => {
+const UpdateProfile = ({ user, onClose, onUpdate, loading, setLoading }) => {
   const [formData, setFormData] = useState({
     name: '',
     skills: '',
     profilePhoto: null,
   })
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -65,9 +65,11 @@ const UpdateProfile = ({ user, onClose, onUpdate }) => {
       )
 
       onUpdate(res.data.user)
+      toast.success('Profile updated successfully!')
+
       onClose()
     } catch (err) {
-      console.error('Error updating profile:', err)
+      toast.error('Failed to update profile. Please try again.')
     } finally {
       setLoading(false)
     }

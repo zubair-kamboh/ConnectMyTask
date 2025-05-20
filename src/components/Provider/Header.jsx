@@ -7,6 +7,7 @@ import { useDarkMode } from '../../context/ThemeContext'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import { useAuth } from '../../context/AuthContext'
+import Avatar from '../Avatar'
 
 const Header = () => {
   const [user, setUser] = useState(null)
@@ -96,27 +97,15 @@ const Header = () => {
           >
             My Tasks
           </NavLink>
-          <NavLink
-            to="#"
-            className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition"
-          >
-            List My Services
-          </NavLink>
         </nav>
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
           <NavLink
-            to="#"
+            to="/provider/profile"
             className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition text-sm md:text-base"
           >
-            Help
-          </NavLink>
-          <NavLink
-            to="#"
-            className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition text-sm md:text-base"
-          >
-            Notifications
+            Profile
           </NavLink>
           <NavLink
             to="/provider/messages"
@@ -166,10 +155,10 @@ const Header = () => {
                 onClick={toggleDropdown}
                 className="w-10 h-10 rounded-full border-2 border-[#1A3D8F] overflow-hidden"
               >
-                <img
-                  src={user.profilePhoto || '/default-avatar.png'}
-                  alt="User"
-                  className="w-full h-full object-cover"
+                <Avatar
+                  name={user.name}
+                  profilePhoto={user.profilePhoto}
+                  size="md"
                 />
               </button>
               {isDropdownOpen && (

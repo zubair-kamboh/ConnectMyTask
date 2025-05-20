@@ -3,6 +3,7 @@ import axios from 'axios'
 import Header from './Header'
 import Loader from '../Loader'
 import UpdateProfile from './UpdateProfile'
+import Avatar from '../Avatar'
 
 const Profile = () => {
   const [user, setUser] = useState(null)
@@ -70,13 +71,14 @@ const Profile = () => {
                 </p>
               </div>
             </div>
-            <img
-              src={user.profilePhoto}
-              alt="Profile"
-              className="w-20 h-20 rounded-full object-cover border-4 border-blue-500 shadow-md"
+
+            <Avatar
+              name={user.name}
+              profilePhoto={user.profilePhoto}
+              size="lg"
+              className="border-4 border-blue-500 shadow-md"
             />
           </div>
-
           <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-xl p-5 flex justify-between items-center">
             <div className="text-center w-1/2">
               <p className="text-2xl font-semibold text-yellow-500">
@@ -154,6 +156,8 @@ const Profile = () => {
           user={user}
           onClose={() => setShowUpdate(false)}
           onUpdate={(updatedUser) => setUser(updatedUser)}
+          loading={loading}
+          setLoading={setLoading}
         />
       )}
     </>
