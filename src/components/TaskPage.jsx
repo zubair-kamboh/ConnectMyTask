@@ -29,6 +29,7 @@ import { useTheme } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import Filters from './Provider/Filters'
 import DescriptionIcon from '@mui/icons-material/Description'
+import { useTranslation } from 'react-i18next'
 
 // Marker Icon for Leaflet
 const DefaultIcon = L.icon({
@@ -47,6 +48,7 @@ export default function TaskPage() {
   const navigate = useNavigate()
   const theme = useTheme()
   const isDarkMode = theme.palette.mode === 'dark'
+  const { t } = useTranslation()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -135,9 +137,8 @@ export default function TaskPage() {
             }}
           >
             <Typography variant="h6" gutterBottom>
-              OPEN TASKS
+              {t('tasks.open_tasks')}
             </Typography>
-
             {filteredTasks &&
               [...filteredTasks]
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -291,7 +292,7 @@ export default function TaskPage() {
                               navigate(`/user/dashboard/task/${task._id}`)
                             }
                           >
-                            View Task
+                            {t('tasks.view_task')}
                           </button>
                         </div>
                       </Popup>
@@ -317,7 +318,7 @@ export default function TaskPage() {
                 boxShadow: 3,
               }}
             >
-              + Post a Task
+              {t('tasks.post_task')}
             </Button>
 
             <PostTaskModal

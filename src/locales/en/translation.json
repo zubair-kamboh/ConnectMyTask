@@ -16,5 +16,89 @@
   "daniel": "– Daniel K., Sydney",
   "cta": "Ready to get things done?",
   "post_task": "Post a Task",
-  "messages": "Messages"
+  "messages": "Messages",
+  "dashboard": {
+    "title": {
+      "provider": "Provider Dashboard",
+      "user": "User Dashboard"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "manageUsers": "Manage Users",
+      "profile": "Profile"
+    }
+  },
+
+  "tasks": {
+    "open_tasks": "Open Tasks",
+    "view_task": "View Task",
+    "post_task": "Post a Task",
+    "budget": "Budget",
+    "location": {
+      "remote": "Remote",
+      "address": "Address"
+    },
+    "deadline": "Deadline",
+    "status": "Status",
+    "offers": "Offer(s)"
+  },
+  "task_details": {
+    "task_title": "Task Title",
+    "task_description": "Description",
+    "location_on_map": "Location on Map",
+    "status_label": "Status",
+    "task_images": "Images",
+    "view_more": "View More",
+    "task_updated": "Task Updated",
+    "task_deleted": "Task Deleted"
+  },
+  "modals": {
+    "post_task": {
+      "title": "Post a Task",
+      "task_title_placeholder": "Enter task title",
+      "task_description_placeholder": "Enter task description",
+      "task_budget_placeholder": "Enter budget",
+      "task_deadline_placeholder": "Select deadline",
+      "submit_button": "Post Task"
+    }
+  },
+  "filters": {
+    "filters_title": "Filters",
+    "apply_filters": "Apply Filters",
+    "clear_filters": "Clear Filters",
+    "filter_by_status": "Filter by Status",
+    "status_options": {
+      "active": "Active",
+      "in_progress": "In Progress",
+      "completed": "Completed"
+    },
+    "filter_by_location": "Filter by Location"
+  },
+  "map": {
+    "view_on_map": "View on Map",
+    "task_marker": {
+      "location": "Location",
+      "budget": "Budget",
+      "deadline": "Deadline",
+      "status": "Status"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "no_tasks_found": "No tasks found",
+    "view_more_details": "View More Details"
+  },
+  "taskpage_dashboard": {
+    "title": {
+      "provider": "Provider Dashboard",
+      "user": "User Dashboard"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "manageUsers": "Manage Users",
+      "profile": "Profile"
+    }
+  }
 }
