@@ -120,6 +120,7 @@ export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
             },
           }
         )
+        toast.success('Task updated successfully!')
       } else {
         await axios.post('http://localhost:3300/api/tasks', taskData, {
           headers: {

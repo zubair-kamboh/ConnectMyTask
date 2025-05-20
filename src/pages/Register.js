@@ -3,8 +3,8 @@ import { toast } from 'react-hot-toast'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import PlaceAutoComplete from '../components/PlaceAutoComplete'
 import Loader from '../components/Loader'
-
 export default function Register() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
@@ -17,6 +17,11 @@ export default function Register() {
     role: 'user',
     skills: [],
     profilePhoto: null,
+    location: {
+      address: '',
+      lat: '',
+      lng: '',
+    },
   })
 
   const [skillInput, setSkillInput] = useState('')
@@ -45,6 +50,7 @@ export default function Register() {
       skills: prev.skills.filter((s) => s !== skillToRemove),
     }))
   }
+  console.log(form.location)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -54,12 +60,12 @@ export default function Register() {
     }
 
     setLoading(true)
-
     const formData = new FormData()
     formData.append('name', form.name)
     formData.append('email', form.email)
     formData.append('password', form.password)
     formData.append('role', form.role)
+    formData.append('location', JSON.stringify(form.location))
     if (form.profilePhoto) formData.append('profilePhoto', form.profilePhoto)
     if (form.role === 'provider') {
       formData.append('skills', form.skills.join(','))
@@ -212,6 +218,23 @@ export default function Register() {
                 </div>
               </div>
             )}
+
+            <div>
+              <label className="block mb-1 font-medium text-[#666666]">
+                Location
+              </label>
+              <PlaceAutoComplete
+                onPlaceSelect={(place) => {
+                  const address = place?.formatted_address || ''
+                  const lat = place?.geometry?.location?.lat()
+                  const lng = place?.geometry?.location?.lng()
+                  setForm((prev) => ({
+                    ...prev,
+                    location: { address, lat, lng },
+                  }))
+                }}
+              />
+            </div>
 
             <div>
               <label className="block mb-1 font-medium text-[#666666]">

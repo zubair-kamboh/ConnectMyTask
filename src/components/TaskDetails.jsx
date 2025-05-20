@@ -48,7 +48,6 @@ export default function TaskDetailsPage() {
           headers: { Authorization: `${token}` },
         }
       )
-      console.log(response.data)
       setTask(response.data)
     } catch (err) {
       console.error('Error fetching task:', err)
@@ -121,6 +120,13 @@ export default function TaskDetailsPage() {
                 <FaEdit className="text-white" />
                 Edit Task
               </button>
+              {editModalOpen && (
+                <PostTaskModal
+                  open={editModalOpen}
+                  taskToEdit={task}
+                  onClose={() => setEditModalOpen(false)}
+                />
+              )}
 
               <button
                 onClick={handleDeleteTask}
@@ -182,7 +188,7 @@ export default function TaskDetailsPage() {
                   darkMode ? 'text-gray-300 mt-1' : 'text-gray-600 mt-1'
                 }
               >
-                {task.location?.address}
+                {task.location?.address || task.location.type.toUpperCase()}
               </p>
             </div>
             <div>
@@ -264,7 +270,6 @@ export default function TaskDetailsPage() {
                   <h2 className="font-semibold text-[#1A3D8F] flex items-center gap-2 text-xl  dark:text-white mb-1">
                     Offers
                   </h2>
-
                   {task.status === 'In Progress' &&
                   task.assignedProvider &&
                   currentUser.id === task.user._id ? (
@@ -288,7 +293,7 @@ export default function TaskDetailsPage() {
                               {bid.provider.name.charAt(0)}
                             </div>
                             <div>
-                              <p className="text-[#1A3D8F] font-medium">
+                              <p className="text-[#1A3D8F] dark:text-white font-medium">
                                 {bid.provider.name}
                               </p>
                               <p className="text-gray-500 text-sm">
@@ -299,10 +304,10 @@ export default function TaskDetailsPage() {
                           <p className="mt-3 text-gray-600">{bid.details}</p>
                           <div className="mt-3 flex justify-between items-center">
                             <div>
-                              <p className="text-[#1A3D8F] font-semibold">
+                              <p className="text-[#1A3D8F] dark:text-white font-semibold">
                                 ${bid.price}
                               </p>
-                              <p className="text-[#1A3D8F]">
+                              <p className="text-[#1A3D8F] dark:text-white">
                                 Comments: {bid.comment ? bid.comment : 'N/A'}
                               </p>
                             </div>
@@ -318,6 +323,23 @@ export default function TaskDetailsPage() {
                                   >
                                     Accept Offer
                                   </button>
+                                  <button
+                                    onClick={() => {
+                                      setIsOpen(true)
+                                    }}
+                                    className="flex items-center gap-1 text-sm bg-[#1A3D8F] hover:bg-[#14538A] text-white px-3 py-1 rounded"
+                                  >
+                                    <FaComments /> Chat
+                                  </button>
+
+                                  <ChatModal
+                                    isOpen={isOpen}
+                                    onClose={setIsOpen}
+                                    provider={bid.provider}
+                                    task={task}
+                                    darkMode={darkMode}
+                                  />
+
                                   <NavLink
                                     to={`/provider/profile/${bid.provider._id}`}
                                     className="px-4 py-2 bg-[#1A3D8F] text-white rounded-md hover:bg-[#163473] transition-colors"
@@ -398,13 +420,11 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen, darkMode }) => {
   }, [completionModalOpen])
 
   if (!isOwner || !isInProgress || !assignedProvider) return null
-
   return (
     <div className="bg-[#F0F5FF] dark:bg-[#1e293b] border border-[#1A3D8F]/20 dark:border-slate-600 rounded-2xl p-6 shadow-md mt-6">
       <h2 className="text-2xl font-bold text-[#1A3D8F] dark:text-white mb-4">
         Offer Accepted
       </h2>
-
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
         <img
           src={assignedProvider.profilePhoto}
@@ -443,20 +463,18 @@ const OfferAcceptedSection = ({ task, isOpen, setIsOpen, darkMode }) => {
           />
 
           <div className="flex flex-wrap gap-3 mt-4">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="bg-[#1A3D8F] text-white px-5 py-2 rounded-lg hover:bg-[#163473] flex items-center gap-2 transition"
-            >
-              <FaComments className="text-white" /> Contact Provider
-            </button>
-
             <Link
               to={`/provider/profile/${assignedProvider._id}`}
               className="bg-[#1A3D8F] text-white px-5 py-2 rounded-lg hover:bg-[#163473] flex items-center gap-2 transition"
             >
               View Full Profile
             </Link>
-
+            <button
+              onClick={() => setIsOpen(true)}
+              className="bg-[#1A3D8F] text-white px-5 py-2 rounded-lg hover:bg-[#163473] flex items-center gap-2 transition"
+            >
+              <FaComments className="text-white" /> Contact Provider
+            </button>
             <button
               onClick={() => setCompletionModalOpen(true)}
               className="bg-[#06D6A0] text-white px-5 py-2 rounded-lg hover:bg-[#05b790] flex items-center gap-2 transition"

@@ -1,21 +1,18 @@
-// src/context/SocketContext.js
 import React, { createContext, useContext, useEffect, useMemo } from 'react'
 import { io } from 'socket.io-client'
 
 const SocketContext = createContext(null)
 
 export const SocketProvider = ({ children }) => {
-  // 1️⃣ Create the socket once, _before_ children render
   const socket = useMemo(
     () =>
       io('http://localhost:3300', {
-        transports: ['websocket'], // skip polling if you like
+        transports: ['websocket'],
         autoConnect: true,
       }),
     []
   )
 
-  // 2️⃣ Clean up on unmount
   useEffect(() => {
     return () => {
       socket.disconnect()

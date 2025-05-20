@@ -30,7 +30,6 @@ const Comments = ({ taskId, comments, refreshTask }) => {
   const [replyingTo, setReplyingTo] = useState(null)
   const [replyText, setReplyText] = useState('')
   const { darkMode } = useDarkMode()
-  console.log(comments)
   const token = localStorage.getItem('token')
   const loggedInProviderId = JSON.parse(localStorage.getItem('user'))?.id
 

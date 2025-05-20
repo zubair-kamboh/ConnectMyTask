@@ -14,7 +14,7 @@ export default function ChatModal({
 }) {
   const [currentUser, setCurrentUser] = useState(null)
   const [otherParty, setOtherParty] = useState(null)
-
+  console.log(isOpen, provider, user, task)
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -92,7 +92,7 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose, darkMode }) {
     const fetchMessages = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3300/api/messages/${task._id}`,
+          `http://localhost:3300/api/messages/${otherUser?._id}`,
           {
             headers: { Authorization: token },
           }
@@ -117,44 +117,28 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose, darkMode }) {
 
   useEffect(() => {
     if (!task?._id || !currentUser?.id) return
-
-    socket.emit('joinTask', {
-      taskId: task._id,
-      userId: currentUser?.id,
-    })
+    socket.emit('joinUserRoom', currentUser?.id)
 
     return () => {
-      socket.emit('leaveTask', {
-        taskId: task._id,
-        userId: currentUser.id,
-      })
+      socket.emit('leaveTask', currentUser?.id)
     }
   }, [task?._id, currentUser?.id])
 
   useEffect(() => {
     const handleReceive = (data) => {
-      const taskMatches = data.taskId === task._id
-
       const senderId =
         typeof data.sender === 'object' ? data.sender._id : data.sender
       const receiverId =
         typeof data.receiver === 'object' ? data.receiver._id : data.receiver
 
-      const isRelevant =
-        taskMatches &&
-        ((senderId === currentUser?.id && receiverId === otherUser?._id) ||
-          (senderId === otherUser?._id && receiverId === currentUser?.id))
-
-      if (isRelevant) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            ...data,
-            sender: senderId,
-            receiver: receiverId,
-          },
-        ])
-      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...data,
+          sender: senderId,
+          receiver: receiverId,
+        },
+      ])
     }
 
     socket.on('receiveMessage', handleReceive)
@@ -173,21 +157,18 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose, darkMode }) {
     if (!input.trim() && !imageFile) return
 
     const formData = new FormData()
-    formData.append('sender', currentUser._id)
+    // formData.append('sender', currentUser._id)
     formData.append('receiverId', otherUser._id)
     formData.append('text', input)
     if (imageFile) formData.append('image', imageFile)
 
     try {
       setIsSending(true)
-      const res = await fetch(
-        `http://localhost:3300/api/messages/${task._id}`,
-        {
-          method: 'POST',
-          headers: { Authorization: token },
-          body: formData,
-        }
-      )
+      const res = await fetch(`http://localhost:3300/api/messages`, {
+        method: 'POST',
+        headers: { Authorization: token },
+        body: formData,
+      })
 
       if (res.ok) {
         setInput('')
