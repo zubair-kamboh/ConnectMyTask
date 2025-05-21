@@ -72,14 +72,11 @@ const ProviderTaskDetails = () => {
   const fetchTask = async () => {
     const token = localStorage.getItem('providerToken')
     try {
-      const response = await axios.get(
-        `http://localhost:3300/api/tasks/${taskId}/data`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      )
+      const response = await axios.get(`/api/tasks/${taskId}/data`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
       setTask(response.data)
       setLoading(false)
     } catch (err) {
@@ -132,7 +129,7 @@ const ProviderTaskDetails = () => {
     try {
       const token = localStorage.getItem('providerToken')
       await axios.post(
-        `http://localhost:3300/api/tasks/${task?._id}/comment`,
+        `/api/tasks/${task?._id}/comment`,
         { text: textValue },
         {
           headers: {
@@ -222,7 +219,12 @@ const ProviderTaskDetails = () => {
               state={{ fromTaskPage: true }}
               className="flex items-center space-x-4 mb-4"
             >
-              <Avatar name={task.user.name} src={task.user.avatar} />
+              <Avatar
+                name={task.user.name}
+                src={task.user.avatar}
+                size="xl"
+                className="border-4 border-blue-500 shadow-md"
+              />
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   Posted by
@@ -248,7 +250,9 @@ const ProviderTaskDetails = () => {
               </div>
               <div className="flex items-center">
                 <CalendarIcon className="mr-2" size={20} />
-                {format(new Date(task.deadline), 'PPP')}
+                {task.deadline
+                  ? format(new Date(task.deadline), 'PPP')
+                  : 'Flexible'}
               </div>
               <div className="flex items-center">
                 <ClockIcon className="mr-2" size={20} />

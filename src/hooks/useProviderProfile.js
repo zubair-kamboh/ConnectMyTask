@@ -12,7 +12,7 @@ export default function useProviderProfile() {
     if (storedProfile) {
       setProfile(JSON.parse(storedProfile))
     } else if (provider) {
-      axios.get(`http://localhost:3300/api/auth/profile/${provider.id}`, {
+      axios.get(`/api/auth/profile/${provider.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

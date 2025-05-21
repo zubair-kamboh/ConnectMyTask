@@ -43,12 +43,9 @@ export default function TaskDetailsPage() {
   const fetchTask = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get(
-        `http://localhost:3300/api/tasks/${taskId}/data`,
-        {
-          headers: { Authorization: `${token}` },
-        }
-      )
+      const response = await axios.get(`/api/tasks/${taskId}/data`, {
+        headers: { Authorization: `${token}` },
+      })
       setTask(response.data)
     } catch (err) {
       console.error('Error fetching task:', err)
@@ -87,7 +84,7 @@ export default function TaskDetailsPage() {
 
     const token = localStorage.getItem('token')
     try {
-      await axios.delete(`http://localhost:3300/api/tasks/${taskId}`, {
+      await axios.delete(`/api/tasks/${taskId}`, {
         headers: { Authorization: `${token}` },
       })
       toast.success('Task deleted successfully!')
@@ -152,7 +149,10 @@ export default function TaskDetailsPage() {
                 darkMode ? 'bg-gray-700 text-white' : 'bg-[#1A3D8F] text-white'
               }`}
             >
-              <FaCalendarAlt /> {new Date(task.deadline).toLocaleDateString()}
+              <FaCalendarAlt />
+              {task.deadline
+                ? format(new Date(task.deadline), 'PPP')
+                : 'Flexible'}
             </span>
             <span
               className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
@@ -256,7 +256,9 @@ export default function TaskDetailsPage() {
                 </p>
                 <p>
                   <strong>Deadline:</strong>{' '}
-                  {format(new Date(task.deadline), 'PPP')}
+                  {task.deadline
+                    ? format(new Date(task.deadline), 'PPP')
+                    : 'Flexible'}
                 </p>
                 <p>
                   <strong>Posted By:</strong> {task.user.name}
@@ -384,7 +386,7 @@ const completeTask = async (taskId, reviewData) => {
   const token = localStorage.getItem('token')
   try {
     const response = await axios.put(
-      `http://localhost:3300/api/tasks/${taskId}/completeTask`,
+      `/api/tasks/${taskId}/completeTask`,
       reviewData,
       {
         headers: { Authorization: `${token}` },

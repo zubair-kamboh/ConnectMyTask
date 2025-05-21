@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Modal } from '@mui/material'
+import { Box, Modal, useTheme } from '@mui/material'
 import Loader from './Loader'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -34,6 +34,9 @@ export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
     images: [],
     category: '',
   })
+
+  const theme = useTheme()
+  const isDarkMode = theme.palette.mode === 'dark'
 
   useEffect(() => {
     if (taskToEdit) {
@@ -110,19 +113,15 @@ export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
 
         updateData.append('location', JSON.stringify(locationPayload))
 
-        await axios.put(
-          `http://localhost:3300/api/tasks/${taskToEdit._id}`,
-          updateData,
-          {
-            headers: {
-              Authorization: `${token}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        )
+        await axios.put(`/api/tasks/${taskToEdit._id}`, updateData, {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         toast.success('Task updated successfully!')
       } else {
-        await axios.post('http://localhost:3300/api/tasks', taskData, {
+        await axios.post('/api/tasks', taskData, {
           headers: {
             Authorization: `${token}`,
             'Content-Type': 'multipart/form-data',
@@ -146,7 +145,28 @@ export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
   return (
     <Modal open={open} onClose={onClose}>
       <div className="flex justify-center items-center h-screen bg-black bg-opacity-50 overflow-y-auto px-4">
-        <div className="relative z-[999] w-full max-w-2xl p-6 md:p-8 bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <Box
+          sx={{
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: isDarkMode ? '#2e2e2e' : '#f0f0f0',
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: isDarkMode ? '#555' : '#c1c1c1',
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: isDarkMode ? '#888' : '#a0a0a0',
+            },
+            scrollbarWidth: 'thin',
+            scrollbarColor: isDarkMode ? '#555 #2e2e2e' : '#c1c1c1 #f0f0f0',
+          }}
+          className="relative z-[999] w-full max-w-2xl p-6 md:p-8 bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto"
+        >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
               {taskToEdit ? 'Edit Task' : 'Post a Task'}
@@ -297,7 +317,7 @@ export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
               </button>
             </div>
           </div>
-        </div>
+        </Box>
       </div>
     </Modal>
   )

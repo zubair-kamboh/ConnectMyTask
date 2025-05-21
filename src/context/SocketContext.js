@@ -6,7 +6,7 @@ const SocketContext = createContext(null)
 export const SocketProvider = ({ children }) => {
   const socket = useMemo(
     () =>
-      io('http://localhost:3300', {
+      io('https://api.connectmytask.xyz', {
         transports: ['websocket'],
         autoConnect: true,
       }),

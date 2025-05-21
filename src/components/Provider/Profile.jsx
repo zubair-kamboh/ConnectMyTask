@@ -21,14 +21,11 @@ const Profile = () => {
       const loggedInProvider = JSON.parse(localStorage.getItem('provider'))
       const idToFetch = userId || loggedInProvider?.id
 
-      const response = await axios.get(
-        `http://localhost:3300/api/auth/profile/${idToFetch}`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      )
+      const response = await axios.get(`/api/auth/profile/${idToFetch}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
       setUser(response.data)
     } catch (err) {
       console.error('Failed to fetch provider profile:', err)
@@ -81,7 +78,7 @@ const Profile = () => {
             <Avatar
               name={user.name}
               profilePhoto={user.profilePhoto}
-              size="lg"
+              size="xl"
               className="border-4 border-blue-500 shadow-md"
             />
           </div>

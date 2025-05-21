@@ -95,16 +95,12 @@ export default function EditProfileModal({ open, onClose, profile, onSave }) {
         })
       )
 
-      const res = await axios.put(
-        `http://localhost:3300/api/auth/profile/${profile._id}`,
-        form,
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
+      const res = await axios.put(`/api/auth/profile/${profile._id}`, form, {
+        headers: {
+          Authorization: token,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
 
       toast.success('Profile updated successfully!')
       onSave(res.data)

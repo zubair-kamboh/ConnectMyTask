@@ -41,7 +41,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
     try {
       await axios.post(
-        `http://localhost:3300/api/tasks/${taskId}/comment`,
+        `/api/tasks/${taskId}/comment`,
         { text: textValue },
         { headers: { Authorization: token } }
       )
@@ -62,7 +62,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
     try {
       await axios.post(
-        `http://localhost:3300/api/tasks/${taskId}/comment/${commentId}/reply`,
+        `/api/tasks/${taskId}/comment/${commentId}/reply`,
         { text: replyText },
         { headers: { Authorization: token } }
       )

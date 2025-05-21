@@ -35,14 +35,11 @@ export default function Messages() {
       setLoading(true)
 
       try {
-        const response = await axios.get(
-          'http://localhost:3300/api/messages/summary/me',
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        )
+        const response = await axios.get('/api/messages/summary/me', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        })
 
         setMessages(response.data)
       } catch (error) {

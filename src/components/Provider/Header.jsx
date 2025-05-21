@@ -8,6 +8,8 @@ import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import { useAuth } from '../../context/AuthContext'
 import Avatar from '../Avatar'
+import { Box } from '@mui/material'
+import logo from '../../asset/PNG/connectmytask_logo.png'
 
 const Header = () => {
   const [user, setUser] = useState(null)
@@ -25,14 +27,11 @@ const Header = () => {
     const fetchUserProfile = async () => {
       setLoading(true)
       try {
-        const response = await axios.get(
-          `http://localhost:3300/api/auth/profile/${providerId}`,
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        )
+        const response = await axios.get(`/api/auth/profile/${providerId}`, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        })
 
         setUser(response.data.user || response.data)
       } catch (error) {
@@ -75,31 +74,24 @@ const Header = () => {
     <header className="bg-white dark:bg-[#0F1B47] dark:text-white shadow-md px-6 md:px-10 py-4 border-b dark:border-[#334466]">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
-        <NavLink
-          to="/provider/home"
-          className="text-3xl font-bold text-[#1A3D8F] dark:text-white"
-        >
-          Connectmytask
-        </NavLink>
+        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+          <NavLink to="/provider/home" style={{ display: 'inline-block' }}>
+            <img
+              src={logo}
+              alt="ConnectMyTask Logo"
+              style={{ height: '40px', objectFit: 'contain' }}
+            />
+          </NavLink>
+        </Box>
 
-        {/* Center Navigation */}
-        <nav className="hidden md:flex gap-6 text-base font-medium">
+        {/* Right Actions */}
+        <div className="flex items-center gap-4">
           <NavLink
             to="/provider/tasks"
             className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition"
           >
             Browse Tasks
           </NavLink>
-          <NavLink
-            to="#"
-            className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition"
-          >
-            My Tasks
-          </NavLink>
-        </nav>
-
-        {/* Right Actions */}
-        <div className="flex items-center gap-4">
           <NavLink
             to={`/profile/${providerId}`}
             className="hover:text-[#1A3D8F] dark:hover:text-blue-300 transition text-sm md:text-base"

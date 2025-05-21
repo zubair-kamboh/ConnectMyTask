@@ -53,16 +53,12 @@ const UpdateProfile = ({ user, onClose, onUpdate, loading, setLoading }) => {
         data.append('profilePhoto', formData.profilePhoto)
       }
 
-      const res = await axios.put(
-        `http://localhost:3300/api/auth/profile/${providerId}`,
-        data,
-        {
-          headers: {
-            Authorization: `${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
+      const res = await axios.put(`/api/auth/profile/${providerId}`, data, {
+        headers: {
+          Authorization: `${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
 
       onUpdate(res.data.user)
       toast.success('Profile updated successfully!')

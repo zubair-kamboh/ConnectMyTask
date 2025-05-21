@@ -28,13 +28,14 @@ import {
 } from '@mui/icons-material'
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles'
 import { useEffect, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, NavLink } from 'react-router-dom'
 import { useDarkMode } from '../context/ThemeContext'
 
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import { useAuth } from '../context/AuthContext'
 import LanguageSwitcher from './LanguageSwitcher'
+import logo from '../asset/PNG/connectmytask_logo.png'
 
 const drawerWidth = 240
 
@@ -100,12 +101,9 @@ const Layout = ({ children }) => {
         const user = localStorage.getItem('user')
         const token = localStorage.getItem('token')
         const id = JSON.parse(user).id
-        const res = await fetch(
-          `http://localhost:3300/api/auth/profile/${id}`,
-          {
-            headers: { Authorization: `${token}` },
-          }
-        )
+        const res = await fetch(`/api/auth/profile/${id}`, {
+          headers: { Authorization: `${token}` },
+        })
         if (!res.ok) throw new Error('Failed to fetch profile')
         const data = await res.json()
         setProfile(data)
@@ -137,13 +135,23 @@ const Layout = ({ children }) => {
               <MenuIcon fontSize="medium" />
             </IconButton>
 
-            <Typography
+            {/* <img
+              component={NavLink}
+              to={'#'}
               variant="h6"
-              sx={{ flexGrow: 1 }}
+              src={logo}
+              sx={{ width: '20px', height: '20px' }}
               className="text-white font-bold tracking-wide"
-            >
-              ConnectMyTask
-            </Typography>
+            /> */}
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+              <NavLink to="/user/dashboard" style={{ display: 'inline-block' }}>
+                <img
+                  src={logo}
+                  alt="ConnectMyTask Logo"
+                  style={{ height: '40px', objectFit: 'contain' }}
+                />
+              </NavLink>
+            </Box>
 
             <Box className="flex gap-3 items-center">
               <IconButton

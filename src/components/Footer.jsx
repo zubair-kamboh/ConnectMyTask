@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="bg-[#1A3D8F] text-white py-6 ">
+    <footer className="bg-[#1A3D8F] text-white shadow dark:bg-[#0F1B47] dark:text-white  px-6 md:px-10 py-4 border-b dark:border-[#334466]">
       <div className="max-w-7xl mx-auto px-4 text-center">
         <h2 className="text-lg font-semibold">ConnectMyTask</h2>
 

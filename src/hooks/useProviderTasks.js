@@ -13,7 +13,7 @@ export default function useProviderTasks() {
     const fetchTasks = async () => {
       setLoading(true)
       try {
-        const response = await axios.get('http://localhost:3300/api/tasks', {
+        const response = await axios.get('/api/tasks', {
           headers: {
             Authorization: `${token}`,
           },

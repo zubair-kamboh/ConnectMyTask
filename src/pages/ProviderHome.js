@@ -8,9 +8,8 @@ import step3 from '../assets/success.svg'
 
 export default function ProviderHomePage() {
   const navigate = useNavigate()
-
-  const providerName =
-    JSON.parse(localStorage.getItem('provider'))?.name || 'Provider'
+  const providerData = JSON.parse(localStorage.getItem('provider'))
+  const providerName = providerData?.name || 'Provider'
 
   return (
     <div className="bg-[#F9FAFB] dark:bg-gray-900 min-h-screen transition-colors duration-300">
@@ -41,7 +40,7 @@ export default function ProviderHomePage() {
             </button>
             <button
               className="text-[#214296] dark:text-white border border-[#214296] dark:border-white text-base px-6 py-3 rounded-full hover:bg-[#edf1fc] dark:hover:bg-white/10 transition"
-              onClick={() => navigate('/provider/profile')}
+              onClick={() => navigate(`/profile/${providerData.id}`)}
             >
               View Profile
             </button>

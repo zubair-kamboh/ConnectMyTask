@@ -55,14 +55,11 @@ export default function TaskPage() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get(
-          'http://localhost:3300/api/tasks/alltasks/web',
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        )
+        const response = await axios.get('/api/tasks/alltasks/web', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        })
 
         const sortedTasks = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -89,7 +86,7 @@ export default function TaskPage() {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await axios.delete(`http://localhost:3300/api/tasks/${taskId}`, {
+      await axios.delete(`/api/tasks/${taskId}`, {
         headers: {
           Authorization: `${token}`,
         },

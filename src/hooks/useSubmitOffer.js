@@ -18,15 +18,11 @@ export default function useAcceptBid() {
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:3300/api/tasks/${taskId}/bid`,
-        offerData,
-        {
-          headers: {
-            Authorization: providerToken,
-          },
-        }
-      )
+      const response = await axios.post(`/api/tasks/${taskId}/bid`, offerData, {
+        headers: {
+          Authorization: providerToken,
+        },
+      })
       setLoading(false)
       return response.data
     } catch (err) {

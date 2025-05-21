@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { Disclosure } from '@headlessui/react'
 import Header from '../components/Provider/Header'
 import Filters from '../components/Provider/Filters'
 import useProviderTasks from '../hooks/useProviderTasks'
@@ -68,7 +67,6 @@ export default function ProviderTasks() {
   const handleTaskClick = (taskId) => {
     navigate(`/provider/tasks/${taskId}`)
   }
-  // console.log(tasks.length)
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#121212] min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Header />
@@ -158,17 +156,48 @@ export default function ProviderTasks() {
                   icon={customIcon}
                 >
                   <Popup>
-                    <div className="flex flex-col items-center text-center">
-                      <Avatar name={task.user.name} src={task.user.avatar} />
-                      <div className="text-xl font-semibold text-[#1A3D8F] dark:text-white">
+                    <div className="w-64 p-3 space-y-2 text-left text-gray-800">
+                      {/* Task title */}
+                      <div className="text-lg font-semibold text-[#1A3D8F]  line-clamp-2">
                         {task.title}
                       </div>
-                      <div className="text-[#666666] dark:text-gray-300">
+
+                      {/* Location info */}
+                      <div className="flex items-center text-sm text-gray-600 ">
+                        <MapPinIcon size={16} className="mr-1.5" />
                         {task.location?.address || task.location?.type}
                       </div>
+
+                      {/* User info */}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Avatar name={task.user.name} src={task.user.avatar} />
+                        <div className="text-sm font-medium text-gray-700 ">
+                          {task.user.name}
+                        </div>
+                      </div>
+
+                      {/* Budget + Status */}
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="text-md font-bold text-[#1A3D8F] ">
+                          ${task.budget}
+                        </div>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            task.status === 'Active'
+                              ? 'bg-red-100 text-red-600 '
+                              : task.status === 'In Progress'
+                              ? 'bg-teal-100 text-teal-600 '
+                              : 'bg-gray-200 text-gray-700 '
+                          }`}
+                        >
+                          {task.status}
+                        </span>
+                      </div>
+
+                      {/* Action button */}
                       <button
                         onClick={() => handleTaskClick(task._id)}
-                        className="mt-2 bg-[#FF6B6B] text-white px-4 py-2 rounded-full hover:bg-red-500 transition"
+                        className="mt-3 w-full bg-[#2EC4B6] text-white text-sm font-medium px-4 py-2 rounded-md transition"
                       >
                         View Task
                       </button>
