@@ -13,12 +13,11 @@ export default function useProviderTasks() {
     const fetchTasks = async () => {
       setLoading(true)
       try {
-        const response = await axios.get('/api/tasks', {
+        const response = await axios.get('/api/tasks/alltasks/web', {
           headers: {
             Authorization: `${token}`,
           },
         })
-        console.log(response)
         setTasks(response.data)
       } catch (err) {
         const msg =

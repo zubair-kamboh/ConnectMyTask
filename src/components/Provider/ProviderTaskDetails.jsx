@@ -221,7 +221,7 @@ const ProviderTaskDetails = () => {
             >
               <Avatar
                 name={task.user.name}
-                src={task.user.avatar}
+                src={task.user.profilePhoto}
                 size="xl"
                 className="border-4 border-blue-500 shadow-md"
               />
@@ -341,7 +341,12 @@ const ProviderTaskDetails = () => {
                           className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm bg-white dark:bg-gray-900"
                         >
                           <div className="flex items-center mb-2">
-                            <Avatar name={bid.provider.name} />
+                            <Avatar
+                              name={bid.provider.name}
+                              src={bid.provider.profilePhoto}
+                              size="xl"
+                              className="border-4 border-blue-500 shadow-md"
+                            />
                             <div className="ml-3">
                               <div className="text-md font-semibold text-[#001B5D] dark:text-blue-200">
                                 {bid.provider.name}{' '}

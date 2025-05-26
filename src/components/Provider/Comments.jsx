@@ -31,7 +31,6 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
   const token = localStorage.getItem('providerToken')
   const loggedInProviderId = JSON.parse(localStorage.getItem('provider')).id
-  console.log(comments)
   const handlePostComment = async () => {
     if (!textValue.trim()) {
       toast.error('Please enter a comment.')

@@ -46,10 +46,9 @@ const CardContent = ({ children }) => (
 )
 
 export default function ProviderTasks() {
-  const { tasks, tasksLoading } = useProviderTasks()
+  const { tasks, loading } = useProviderTasks()
   const navigate = useNavigate()
   const [filteredTasks, setFilteredTasks] = useState(tasks)
-
   useEffect(() => {
     if (tasks && Array.isArray(tasks)) {
       setFilteredTasks(tasks)
@@ -70,9 +69,8 @@ export default function ProviderTasks() {
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#121212] min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Header />
-      {tasksLoading && <Loader fullScreen />}
       <Filters tasks={tasks} onFiltered={setFilteredTasks} />
-
+      {loading && <Loader />}
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-center gap-6 py-6">
         {/* Left Panel - Task List */}
         <div className="w-full h-[650px] md:max-w-[420px] bg-[#F9FAFB] dark:bg-[#1e1e1e] p-4 space-y-6 overflow-y-auto scrollbar-custom rounded-2xl shadow-inner">
@@ -126,7 +124,7 @@ export default function ProviderTasks() {
                           </div>
                           <Avatar
                             name={task.user.name}
-                            src={task.user.avatar}
+                            src={task.user.profilePhoto}
                           />
                         </div>
                       </div>

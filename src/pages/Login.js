@@ -9,7 +9,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
 
-  const { loginUser, loginProvider } = useAuth()
+  const { loginUser, loginProvider, loginAdmin } = useAuth()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -35,12 +35,16 @@ export default function Login() {
 
         if (user.role === 'provider') {
           loginProvider(user, token)
-          toast.success('Provider login successful!')
+          toast.success('Provider Login Successful!')
           navigate('/provider/home')
-        } else {
+        } else if (user.role === 'user') {
           loginUser(user, token)
-          toast.success('Login successful!')
+          toast.success('User Login Successful!')
           navigate('/user/dashboard')
+        } else {
+          loginAdmin(user, token)
+          toast.success('Admin Login Successful!')
+          navigate('/admin/dashboard')
         }
       } else {
         toast.error(data.msg || 'Login failed')

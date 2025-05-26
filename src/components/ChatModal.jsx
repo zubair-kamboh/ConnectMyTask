@@ -14,7 +14,6 @@ export default function ChatModal({
 }) {
   const [currentUser, setCurrentUser] = useState(null)
   const [otherParty, setOtherParty] = useState(null)
-  console.log(isOpen, provider, user, task)
   useEffect(() => {
     if (typeof window === 'undefined') return
 

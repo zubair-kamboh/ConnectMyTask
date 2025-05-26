@@ -59,7 +59,6 @@ export default function Messages() {
     }
   }, [userId, messages])
 
-  console.log(messages)
   const handleMessageClick = (message) => {
     if (userToken) {
       navigate(`/user/messages/${message.userId}`)

@@ -25,6 +25,14 @@ import PublicRoute from './components/ProtectedRoutes/PublicRoute'
 import PrivateRoute from './components/ProtectedRoutes/PrivateRoute'
 import 'leaflet/dist/leaflet.css'
 import './i18n'
+import AdminDashboard from './pages/Admin/AdminDashboard'
+import ManageUsers from './pages/Admin/ManageUsers'
+import ManageProviders from './pages/Admin/ManageProviders'
+import ManageTasks from './pages/Admin/ManageTasks'
+import EditTask from './pages/Admin/EditTask'
+import UserDetails from './pages/Admin/UserDetails'
+import CommentsModeration from './pages/Admin/CommentsModeration'
+import AdminLayout from './components/AdminLayout'
 
 function App() {
   const { user, provider, loading } = useAuth()
@@ -168,6 +176,24 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute role="admin">
+              <AdminLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<ManageUsers />} />
+          <Route path="providers" element={<ManageProviders />} />
+          <Route path="tasks" element={<ManageTasks />} />
+          <Route path="tasks/edit/:taskId" element={<EditTask />} />
+          <Route path="user/:userId" element={<UserDetails />} />
+          {/* <Route path="comments" element={<CommentsModeration />} /> */}
+        </Route>
 
         {/* Default Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
