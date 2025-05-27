@@ -1,8 +1,7 @@
-// components/ChatPanel.jsx
 import { useEffect, useRef, useState } from 'react'
 import { SendHorizonal, Smile, Image as ImageIcon } from 'lucide-react'
 import EmojiPicker from 'emoji-picker-react'
-import Avatar from './Avatar' // move Avatar to its own file too (optional)
+import Avatar from './Avatar'
 import axios from 'axios'
 import { socket } from '../socket'
 import { useTheme } from '@mui/material'
@@ -11,7 +10,6 @@ import Loader from './Loader'
 export default function ChatPanel({ message, closeChat, token }) {
   const [inputValue, setInputValue] = useState('')
   const [chatLog, setChatLog] = useState([])
-  const [typing, setTyping] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const emojiPickerRef = useRef(null)
   const [imageFile, setImageFile] = useState(null)
@@ -158,7 +156,6 @@ export default function ChatPanel({ message, closeChat, token }) {
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-      {/* Header - stays fixed at top */}
       <div className="flex items-center p-4 border-b dark:border-gray-700">
         <Avatar name={message.name} profilePhoto={message.profilePhoto} />
         <div className="flex-1 ml-3 font-semibold dark:text-white">
@@ -172,7 +169,6 @@ export default function ChatPanel({ message, closeChat, token }) {
         </button>
       </div>
 
-      {/* Chat log container - scrolls when needed */}
       <div
         className="flex-1 overflow-y-auto p-4 space-y-2"
         style={{
@@ -244,14 +240,12 @@ export default function ChatPanel({ message, closeChat, token }) {
         </div>
       )}
 
-      {/* Input Section with Loader Overlay */}
       <div className="relative p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-900">
         <div
           className={`relative flex items-center rounded-full border dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2 ${
             sending || imageLoading ? 'opacity-50 pointer-events-none' : ''
           }`}
         >
-          {/* Emoji Button */}
           <button
             type="button"
             onClick={() => setShowEmojiPicker((prev) => !prev)}
@@ -260,7 +254,6 @@ export default function ChatPanel({ message, closeChat, token }) {
             <Smile size={20} />
           </button>
 
-          {/* Image Upload Button */}
           <button
             type="button"
             onClick={() => fileInputRef.current.click()}

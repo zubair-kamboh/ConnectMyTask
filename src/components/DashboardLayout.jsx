@@ -17,7 +17,6 @@ import {
 } from '@mui/material'
 import {
   Menu as MenuIcon,
-  Notifications as NotificationsIcon,
   Brightness4,
   Brightness7,
   Dashboard,
@@ -75,10 +74,6 @@ const DashboardLayout = ({ children }) => {
 
           <IconButton color="inherit" onClick={toggleTheme}>
             {darkMode ? <Brightness7 /> : <Brightness4 />}
-          </IconButton>
-
-          <IconButton color="inherit">
-            <NotificationsIcon />
           </IconButton>
 
           <Tooltip title={name}>

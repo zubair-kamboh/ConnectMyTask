@@ -1,7 +1,5 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MenuItem, Select, FormControl, InputLabel, Box } from '@mui/material'
-import TranslateIcon from '@mui/icons-material/Translate'
 import { useDarkMode } from '../context/ThemeContext' // Adjust this import path as needed
 
 const LanguageSwitcher = () => {

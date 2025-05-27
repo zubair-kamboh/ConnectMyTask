@@ -31,11 +31,10 @@ import ManageProviders from './pages/Admin/ManageProviders'
 import ManageTasks from './pages/Admin/ManageTasks'
 import EditTask from './pages/Admin/EditTask'
 import UserDetails from './pages/Admin/UserDetails'
-import CommentsModeration from './pages/Admin/CommentsModeration'
 import AdminLayout from './components/AdminLayout'
 
 function App() {
-  const { user, provider, loading } = useAuth()
+  const { loading } = useAuth()
 
   if (loading) return <Loader fullScreen />
   return (

@@ -1,13 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import {
-  FiUsers,
-  FiBriefcase,
-  FiEdit2,
-  FiMessageSquare,
-  FiLogOut,
-  FiHome,
-} from 'react-icons/fi'
+import { FiUsers, FiBriefcase, FiEdit2, FiLogOut, FiHome } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import logo from '../asset/PNG/connectmytask_logo.png'
 
@@ -24,11 +17,6 @@ export default function AdminLayout() {
     { to: '/admin/users', icon: FiUsers, label: 'Manage Users' },
     { to: '/admin/providers', icon: FiBriefcase, label: 'Manage Providers' },
     { to: '/admin/tasks', icon: FiEdit2, label: 'Manage Tasks' },
-    // {
-    //   to: '/admin/comments',
-    //   icon: FiMessageSquare,
-    //   label: 'Moderate Comments',
-    // },
   ]
 
   return (

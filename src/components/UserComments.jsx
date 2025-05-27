@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import axios from 'axios'
 import { useDarkMode } from '../context/ThemeContext'
@@ -29,7 +29,6 @@ const Comments = ({ taskId, comments, refreshTask }) => {
   const [textValue, setTextValue] = useState('')
   const [replyingTo, setReplyingTo] = useState(null)
   const [replyText, setReplyText] = useState('')
-  const { darkMode } = useDarkMode()
   const token = localStorage.getItem('token')
   const loggedInProviderId = JSON.parse(localStorage.getItem('user'))?.id
 

@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import {
-  FiUsers,
-  FiBriefcase,
-  FiEdit2,
-  FiBarChart2,
-  FiSettings,
-} from 'react-icons/fi'
+import { FiUsers, FiBriefcase, FiEdit2 } from 'react-icons/fi'
 import { useTranslation } from 'react-i18next'
 import AdminLayout from '../../components/AdminLayout'
 
 export default function AdminDashboard() {
   const [adminName, setAdminName] = useState('Admin')
-  const { t } = useTranslation()
 
   useEffect(() => {
     const storedAdmin = JSON.parse(localStorage.getItem('admin'))
@@ -39,18 +32,6 @@ export default function AdminDashboard() {
       to: '/admin/tasks',
       description: 'Review posted tasks and moderate content.',
     },
-    // {
-    //   icon: <FiBarChart2 className="text-3xl text-yellow-500" />,
-    //   title: 'Analytics',
-    //   to: '/admin/dashboard/analytics',
-    //   description: 'Analyze platform usage and performance metrics.',
-    // },
-    // {
-    //   icon: <FiSettings className="text-3xl text-gray-500" />,
-    //   title: 'System Settings',
-    //   to: '/admin/settings',
-    //   description: 'Configure system preferences and roles.',
-    // },
   ]
 
   return (

@@ -1,4 +1,3 @@
-// components/Loader.js
 import { CircularProgress, Box, useTheme } from '@mui/material'
 
 export default function Loader({ fullScreen = false }) {

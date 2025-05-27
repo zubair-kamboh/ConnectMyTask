@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Box, Modal, useTheme } from '@mui/material'
 import Loader from './Loader'
 import axios from 'axios'
