@@ -235,15 +235,16 @@ const ProviderTaskDetails = () => {
                 <div className="text-md font-medium text-[#001B5D] dark:text-white">
                   {task.user.name}
                 </div>
-                <ChatModal
-                  isOpen={isOpen}
-                  onClose={() => setIsOpen(false)}
-                  user={task?.user}
-                  task={task}
-                  darkMode={darkMode}
-                />
               </div>
             </NavLink>
+
+            <ChatModal
+              isOpen={isOpen}
+              onClose={() => setIsOpen(false)}
+              user={task?.user}
+              task={task}
+              darkMode={darkMode}
+            />
 
             {/* Location + Time */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-gray-600 dark:text-gray-300 mb-6 gap-4">
