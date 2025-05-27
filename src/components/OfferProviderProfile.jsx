@@ -15,9 +15,12 @@ const OfferProviderProfile = () => {
     const fetchProvider = async () => {
       try {
         const token = localStorage.getItem('token')
-        const res = await axios.get(`/api/auth/profile/${providerId}`, {
-          headers: { Authorization: `${token}` },
-        })
+        const res = await axios.get(
+          `https://api.connectmytask.xyz/api/auth/profile/${providerId}`,
+          {
+            headers: { Authorization: `${token}` },
+          }
+        )
         setProvider(res.data)
       } catch (err) {
         console.error('Failed to fetch provider:', err)

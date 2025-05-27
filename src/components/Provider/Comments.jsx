@@ -39,7 +39,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
     try {
       await axios.post(
-        `/api/tasks/${taskId}/comment`,
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/comment`,
         { text: textValue },
         { headers: { Authorization: token } }
       )
@@ -60,7 +60,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
     try {
       await axios.post(
-        `/api/tasks/${taskId}/comment/${commentId}/reply`,
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/comment/${commentId}/reply`,
         { text: replyText },
         { headers: { Authorization: token } }
       )

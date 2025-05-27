@@ -13,11 +13,14 @@ const UserDetails = () => {
     const fetchUser = async () => {
       try {
         const adminToken = localStorage.getItem('adminToken')
-        const { data } = await axios.get(`/api/admin/users/${userId}`, {
-          headers: {
-            Authorization: `${adminToken}`,
-          },
-        })
+        const { data } = await axios.get(
+          `https://api.connectmytask.xyz/api/admin/users/${userId}`,
+          {
+            headers: {
+              Authorization: `${adminToken}`,
+            },
+          }
+        )
         setUser(data)
       } catch (error) {
         console.error('Failed to fetch user details:', error)

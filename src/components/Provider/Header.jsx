@@ -27,11 +27,14 @@ const Header = () => {
     const fetchUserProfile = async () => {
       setLoading(true)
       try {
-        const response = await axios.get(`/api/auth/profile/${providerId}`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        })
+        const response = await axios.get(
+          `https://api.connectmytask.xyz/api/auth/profile/${providerId}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        )
 
         setUser(response.data.user || response.data)
       } catch (error) {

@@ -12,11 +12,14 @@ export default function useProviderProfile() {
     if (storedProfile) {
       setProfile(JSON.parse(storedProfile))
     } else if (provider) {
-      axios.get(`/api/auth/profile/${provider.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      axios.get(
+        `https://api.connectmytask.xyz/api/auth/profile/${provider.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
     }
   }, [])
 

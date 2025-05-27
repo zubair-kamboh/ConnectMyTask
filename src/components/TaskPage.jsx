@@ -6,11 +6,6 @@ import {
   Typography,
   Grid,
   Button,
-  InputBase,
-  Tabs,
-  Tab,
-  Paper,
-  Avatar,
   CssBaseline,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
@@ -55,11 +50,14 @@ export default function TaskPage() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get('/api/tasks/alltasks/web', {
-          headers: {
-            Authorization: `${token}`,
-          },
-        })
+        const response = await axios.get(
+          'https://api.connectmytask.xyz/api/tasks/alltasks/web',
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        )
 
         const sortedTasks = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -86,7 +84,7 @@ export default function TaskPage() {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await axios.delete(`/api/tasks/${taskId}`, {
+      await axios.delete(`https://api.connectmytask.xyz/api/tasks/${taskId}`, {
         headers: {
           Authorization: `${token}`,
         },

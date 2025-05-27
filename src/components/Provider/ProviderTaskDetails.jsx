@@ -72,11 +72,14 @@ const ProviderTaskDetails = () => {
   const fetchTask = async () => {
     const token = localStorage.getItem('providerToken')
     try {
-      const response = await axios.get(`/api/tasks/${taskId}/data`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      })
+      const response = await axios.get(
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/data`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      )
       setTask(response.data)
       setLoading(false)
     } catch (err) {
@@ -129,7 +132,7 @@ const ProviderTaskDetails = () => {
     try {
       const token = localStorage.getItem('providerToken')
       await axios.post(
-        `/api/tasks/${task?._id}/comment`,
+        `https://api.connectmytask.xyz/api/tasks/${task?._id}/comment`,
         { text: textValue },
         {
           headers: {

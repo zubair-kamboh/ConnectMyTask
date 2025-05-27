@@ -17,11 +17,14 @@ export default function ManageUsers() {
     const fetchUsers = async () => {
       try {
         const adminToken = localStorage.getItem('adminToken')
-        const { data } = await axios.get('/api/admin/users', {
-          headers: {
-            Authorization: `${adminToken}`,
-          },
-        })
+        const { data } = await axios.get(
+          'https://api.connectmytask.xyz/api/admin/users',
+          {
+            headers: {
+              Authorization: `${adminToken}`,
+            },
+          }
+        )
         setUsers(data)
       } catch (error) {
         console.error('Failed to fetch users:', error)
@@ -36,7 +39,7 @@ export default function ManageUsers() {
     setLoading(true)
     try {
       const adminToken = localStorage.getItem('adminToken')
-      await axios.delete(`/api/admin/user/${id}`, {
+      await axios.delete(`https://api.connectmytask.xyz/api/admin/user/${id}`, {
         headers: {
           Authorization: `${adminToken}`,
         },
@@ -53,7 +56,7 @@ export default function ManageUsers() {
     try {
       const adminToken = localStorage.getItem('adminToken')
       await axios.put(
-        `/api/admin/users/${id}/role`,
+        `https://api.connectmytask.xyz/api/admin/users/${id}/role`,
         { role: newRole },
         {
           headers: {
@@ -77,7 +80,7 @@ export default function ManageUsers() {
     try {
       const adminToken = localStorage.getItem('adminToken')
       await axios.put(
-        `/api/admin/users/${id}/rank`,
+        `https://api.connectmytask.xyz/api/admin/users/${id}/rank`,
         { rank: newRank },
         {
           headers: {
@@ -101,7 +104,7 @@ export default function ManageUsers() {
     try {
       const adminToken = localStorage.getItem('adminToken')
       await axios.put(
-        `/api/admin/users/${id}/verify`,
+        `https://api.connectmytask.xyz/api/admin/users/${id}/verify`,
         {},
         {
           headers: {

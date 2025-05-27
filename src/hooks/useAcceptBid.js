@@ -14,7 +14,7 @@ export default function useAcceptBid() {
     try {
       const token = localStorage.getItem('token')
       const response = axios.put(
-        `/api/tasks/${taskId}/acceptBid/${bidId}`,
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/acceptBid/${bidId}`,
         {},
         {
           headers: {

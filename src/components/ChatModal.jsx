@@ -90,9 +90,12 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose, darkMode }) {
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`/api/messages/${otherUser?._id}`, {
-          headers: { Authorization: token },
-        })
+        const res = await fetch(
+          `https://api.connectmytask.xyz/api/messages/${otherUser?._id}`,
+          {
+            headers: { Authorization: token },
+          }
+        )
         const data = await res.json()
 
         const normalized = data.map((msg) => ({
@@ -160,7 +163,7 @@ function ChatUI({ currentUser, otherUser, tokenKey, task, onClose, darkMode }) {
 
     try {
       setIsSending(true)
-      const res = await fetch(`/api/messages`, {
+      const res = await fetch(`https://api.connectmytask.xyz/api/messages`, {
         method: 'POST',
         headers: { Authorization: token },
         body: formData,

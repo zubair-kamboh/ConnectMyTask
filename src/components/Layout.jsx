@@ -87,22 +87,18 @@ const Layout = ({ children }) => {
 
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-  // useEffect(() => {
-  //   const stored = localStorage.getItem('darkMode')
-  //   const initialMode = stored !== null ? stored === 'true' : prefersDarkMode
-  //   setDarkMode(initialMode)
-  //   document.documentElement.classList.toggle('dark', initialMode)
-  // }, [prefersDarkMode])
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const user = localStorage.getItem('user')
         const token = localStorage.getItem('token')
         const id = JSON.parse(user).id
-        const res = await fetch(`/api/auth/profile/${id}`, {
-          headers: { Authorization: `${token}` },
-        })
+        const res = await fetch(
+          `https://api.connectmytask.xyz/api/auth/profile/${id}`,
+          {
+            headers: { Authorization: `${token}` },
+          }
+        )
         if (!res.ok) throw new Error('Failed to fetch profile')
         const data = await res.json()
         setProfile(data)

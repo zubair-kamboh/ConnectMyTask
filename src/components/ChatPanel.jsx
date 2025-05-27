@@ -60,9 +60,12 @@ export default function ChatPanel({ message, closeChat, token }) {
     if (message?.userId && token) {
       const fetchMessages = async () => {
         try {
-          const res = await axios.get(`/api/messages/${message.userId}`, {
-            headers: { Authorization: token },
-          })
+          const res = await axios.get(
+            `https://api.connectmytask.xyz/api/messages/${message.userId}`,
+            {
+              headers: { Authorization: token },
+            }
+          )
 
           const normalized = res.data.map((msg) => ({
             ...msg,
@@ -122,12 +125,16 @@ export default function ChatPanel({ message, closeChat, token }) {
     if (imageFile) setImageLoading(true)
 
     try {
-      const response = await axios.post('/api/messages', formData, {
-        headers: {
-          Authorization: token,
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      const response = await axios.post(
+        'https://api.connectmytask.xyz/api/messages',
+        formData,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
 
       if (response.status === 200 || response.status === 201) {
         const msg = response.data

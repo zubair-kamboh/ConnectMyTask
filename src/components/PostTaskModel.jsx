@@ -113,15 +113,19 @@ export default function PostTaskModal({ open, onClose, taskToEdit = null }) {
 
         updateData.append('location', JSON.stringify(locationPayload))
 
-        await axios.put(`/api/tasks/${taskToEdit._id}`, updateData, {
-          headers: {
-            Authorization: `${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+        await axios.put(
+          `https://api.connectmytask.xyz/api/tasks/${taskToEdit._id}`,
+          updateData,
+          {
+            headers: {
+              Authorization: `${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        )
         toast.success('Task updated successfully!')
       } else {
-        await axios.post('/api/tasks', taskData, {
+        await axios.post('https://api.connectmytask.xyz/api/tasks', taskData, {
           headers: {
             Authorization: `${token}`,
             'Content-Type': 'multipart/form-data',

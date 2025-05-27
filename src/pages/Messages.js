@@ -31,11 +31,14 @@ export default function Messages() {
       setLoading(true)
 
       try {
-        const response = await axios.get('/api/messages/summary/me', {
-          headers: {
-            Authorization: `${token}`,
-          },
-        })
+        const response = await axios.get(
+          'https://api.connectmytask.xyz/api/messages/summary/me',
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        )
 
         setMessages(response.data)
       } catch (error) {

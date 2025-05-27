@@ -12,11 +12,14 @@ const ManageTasks = () => {
     const fetchTasks = async () => {
       try {
         const adminToken = localStorage.getItem('adminToken')
-        const { data } = await axios.get('/api/admin/tasks', {
-          headers: {
-            Authorization: `${adminToken}`,
-          },
-        })
+        const { data } = await axios.get(
+          'https://api.connectmytask.xyz/api/admin/tasks',
+          {
+            headers: {
+              Authorization: `${adminToken}`,
+            },
+          }
+        )
         setTasks(data)
       } catch (error) {
         console.error('Failed to fetch tasks:', error)
@@ -36,11 +39,14 @@ const ManageTasks = () => {
     setLoading(true)
     try {
       const adminToken = localStorage.getItem('adminToken')
-      const { res } = await axios.delete(`/api/admin/task/${taskId}`, {
-        headers: {
-          Authorization: `${adminToken}`,
-        },
-      })
+      const { res } = await axios.delete(
+        `https://api.connectmytask.xyz/api/admin/task/${taskId}`,
+        {
+          headers: {
+            Authorization: `${adminToken}`,
+          },
+        }
+      )
 
       if (res.ok) {
         setTasks(tasks.filter((task) => task._id !== taskId))

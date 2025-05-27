@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import axios from 'axios'
-import { useDarkMode } from '../context/ThemeContext'
 
 const Avatar = ({ name, src }) => {
   if (src) {
@@ -40,7 +39,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
     try {
       await axios.post(
-        `/api/tasks/${taskId}/comment`,
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/comment`,
         { text: textValue },
         { headers: { Authorization: token } }
       )
@@ -61,7 +60,7 @@ const Comments = ({ taskId, comments, refreshTask }) => {
 
     try {
       await axios.post(
-        `/api/tasks/${taskId}/comment/${commentId}/reply`,
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/comment/${commentId}/reply`,
         { text: replyText },
         { headers: { Authorization: token } }
       )

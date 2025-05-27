@@ -76,10 +76,13 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        body: formData,
-      })
+      const res = await fetch(
+        'https://api.connectmytask.xyz/api/auth/register',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      )
       const data = await res.json()
       if (res.ok) {
         toast.success('Registered successfully!')

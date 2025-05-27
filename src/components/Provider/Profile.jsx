@@ -21,11 +21,14 @@ const Profile = () => {
       const loggedInProvider = JSON.parse(localStorage.getItem('provider'))
       const idToFetch = userId || loggedInProvider?.id
 
-      const response = await axios.get(`/api/auth/profile/${idToFetch}`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      })
+      const response = await axios.get(
+        `https://api.connectmytask.xyz/api/auth/profile/${idToFetch}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      )
       setUser(response.data)
     } catch (err) {
       console.error('Failed to fetch provider profile:', err)

@@ -43,9 +43,12 @@ export default function TaskDetailsPage() {
   const fetchTask = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get(`/api/tasks/${taskId}/data`, {
-        headers: { Authorization: `${token}` },
-      })
+      const response = await axios.get(
+        `https://api.connectmytask.xyz/api/tasks/${taskId}/data`,
+        {
+          headers: { Authorization: `${token}` },
+        }
+      )
       setTask(response.data)
     } catch (err) {
       console.error('Error fetching task:', err)
@@ -84,7 +87,7 @@ export default function TaskDetailsPage() {
 
     const token = localStorage.getItem('token')
     try {
-      await axios.delete(`/api/tasks/${taskId}`, {
+      await axios.delete(`https://api.connectmytask.xyz/api/tasks/${taskId}`, {
         headers: { Authorization: `${token}` },
       })
       toast.success('Task deleted successfully!')
