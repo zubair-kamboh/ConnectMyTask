@@ -39,18 +39,18 @@ export default function AdminDashboard() {
       to: '/admin/tasks',
       description: 'Review posted tasks and moderate content.',
     },
-    {
-      icon: <FiBarChart2 className="text-3xl text-yellow-500" />,
-      title: 'Analytics',
-      to: '/admin/dashboard/analytics',
-      description: 'Analyze platform usage and performance metrics.',
-    },
-    {
-      icon: <FiSettings className="text-3xl text-gray-500" />,
-      title: 'System Settings',
-      to: '/admin/settings',
-      description: 'Configure system preferences and roles.',
-    },
+    // {
+    //   icon: <FiBarChart2 className="text-3xl text-yellow-500" />,
+    //   title: 'Analytics',
+    //   to: '/admin/dashboard/analytics',
+    //   description: 'Analyze platform usage and performance metrics.',
+    // },
+    // {
+    //   icon: <FiSettings className="text-3xl text-gray-500" />,
+    //   title: 'System Settings',
+    //   to: '/admin/settings',
+    //   description: 'Configure system preferences and roles.',
+    // },
   ]
 
   return (
