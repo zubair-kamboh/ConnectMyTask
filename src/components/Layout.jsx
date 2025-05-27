@@ -149,20 +149,6 @@ const Layout = ({ children }) => {
             </Box>
 
             <Box className="flex gap-3 items-center">
-              <IconButton
-                color="inherit"
-                sx={{
-                  bgcolor: 'rgba(255,255,255,0.1)',
-                  p: 1.2,
-                  borderRadius: 2,
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
-                }}
-              >
-                <Badge badgeContent={4} color="error">
-                  <Notifications fontSize="medium" />
-                </Badge>
-              </IconButton>
-
               <DarkModeToggleButton />
               <LanguageSwitcher />
               <IconButton

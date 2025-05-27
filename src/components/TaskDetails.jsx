@@ -389,7 +389,7 @@ const completeTask = async (taskId, reviewData) => {
   const token = localStorage.getItem('token')
   try {
     const response = await axios.put(
-      `/api/tasks/${taskId}/completeTask`,
+      `https://api.connectmytask.xyz/api/tasks/${taskId}/completeTask`,
       reviewData,
       {
         headers: { Authorization: `${token}` },
